@@ -1,0 +1,66 @@
+{
+  "realm": "ciam-demo",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "bruteForceProtected": true,
+  "clients": [
+    {
+      "clientId": "ciam-web",
+      "name": "CIAM Web (SPA)",
+      "description": "Angular SPA - Authorization Code + PKCE",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["http://localhost:4200/*"],
+      "webOrigins": ["http://localhost:4200"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "fullScopeAllowed": false
+    },
+    {
+      "clientId": "ciam-service",
+      "name": "CIAM Service (server-to-server)",
+      "description": "Confidential client - Client Credentials grant",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "service-secret",
+      "protocol": "openid-connect",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "defaultClientScopes": ["admin"],
+      "fullScopeAllowed": false
+    }
+  ],
+  "clientScopes": [
+    {
+      "name": "admin",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "demo",
+      "email": "demo@example.com",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Demo",
+      "lastName": "User",
+      "credentials": [
+        { "type": "password", "value": "demo", "temporary": false }
+      ]
+    }
+  ]
+}

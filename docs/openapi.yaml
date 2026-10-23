@@ -1,0 +1,174 @@
+openapi: 3.0.3
+info:
+  title: CIAM Resource Server API
+  version: 0.1.0
+  description: |
+    OIDC/OAuth2-protected resource server. Every protected endpoint requires a
+    bearer access token (RS256, validated against the IdP JWKS with issuer +
+    audience checks). `/api/admin` additionally requires the `admin` scope.
+
+    Flows:
+    - Authorization Code + PKCE (public clients — Angular SPA, React Native)
+    - Client Credentials (server-to-server)
+
+    Note: the same API is also reachable via the BFF (planned) — the BFF
+    authenticates the browser with a session cookie and proxies a Bearer token.
+
+servers:
+  - url: http://localhost:4101
+    description: Spring Boot (Java) resource server
+
+tags:
+  - name: public
+  - name: identity
+
+paths:
+  /health:
+    get:
+      tags: [public]
+      summary: Liveness probe (public, no token)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+
+  /api/me:
+    get:
+      tags: [identity]
+      summary: Authenticated — returns the verified claims
+      security:
+        - oidcAuth: []
+      responses:
+        '200':
+          description: The token's verified claims
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/admin:
+    get:
+      tags: [identity]
+      summary: Authorized — requires the `admin` scope
+      security:
+        - clientCredentials: [admin]
+        - oidcAuth: [admin]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/claims:
+    get:
+      tags: [identity]
+      summary: Authenticated — surfaces the authorization-relevant claims
+      security:
+        - oidcAuth: []
+      responses:
+        '200':
+          description: Claims used for authorization decisions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    oidcAuth:
+      type: openIdConnect
+      openIdConnectUrl: http://localhost:8080/realms/ciam-demo/.well-known/openid-configuration
+    clientCredentials:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: http://localhost:8080/realms/ciam-demo/protocol/openid-connect/token
+          scopes:
+            admin: Administrative access
+
+  responses:
+    Unauthorized:
+      description: Missing, invalid, or expired bearer token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Authenticated but missing the required scope
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              example: forbidden
+            message:
+              type: string
+              example: missing required scope: admin
+
+    Claims:
+      type: object
+      additionalProperties: true
+      properties:
+        sub:
+          type: string
+        scope:
+          type: string
+        client_id:
+          type: string
+
+    MeResponse:
+      type: object
+      properties:
+        claims:
+          $ref: '#/components/schemas/Claims'
+
+    AdminResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: welcome, admin
+
+    ClaimsResponse:
+      type: object
+      properties:
+        scope:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        groups:
+          type: array
+          items:
+            type: string
+        client_id:
+          type: string

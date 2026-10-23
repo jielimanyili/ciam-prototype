@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: ciam-resource-server
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # OIDC discovery: fetches /.well-known/openid-configuration -> jwks_uri
+          issuer-uri: ${OIDC_ISSUER:http://localhost:8080/realms/ciam-demo}
+          # Add an audience validator (custom OAuth2TokenValidator) to enforce `aud`.
+
+server:
+  port: ${PORT:4101}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

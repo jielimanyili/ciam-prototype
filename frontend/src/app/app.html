@@ -1,0 +1,22 @@
+<h1>CIAM Prototype</h1>
+<p class="sub">Authorization Code + PKCE &rarr; protected microservice</p>
+
+@if (auth.user(); as u) {
+  <p>Signed in as <strong>{{ u.profile.sub }}</strong></p>
+  <button (click)="callApi()">Call /api/me</button>
+  <button (click)="auth.logout()">Sign out</button>
+} @else {
+  <button (click)="auth.login()">Sign in with Keycloak</button>
+}
+
+@if (auth.error()) {
+  <p class="error">{{ auth.error() }}</p>
+}
+
+@if (apiError()) {
+  <p class="error">{{ apiError() }}</p>
+}
+
+@if (apiResult()) {
+  <pre>{{ apiResult() }}</pre>
+}
