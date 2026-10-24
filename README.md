@@ -74,6 +74,24 @@ Flow summary: the SPA logs in with **Authorization Code + PKCE**, calls
 `/api/me` with the access token; the resource server validates the RS256 JWT
 against the IdP's JWKS, checks issuer + audience, then enforces scopes/claims.
 
+## Shareable links
+
+| What | URL |
+|---|---|
+| Repo (public) | https://github.com/jielimanyili/ciam-prototype |
+
+- **Runs locally with no external accounts** — Keycloak stands in for Okta (see Quickstart above).
+- **Live demo — planned (Phase 3, not yet deployed):** see [ADR-005](docs/adr/adr-005-cicd-deployment.md) · [DESIGN §5](docs/DESIGN.md) · [ROADMAP](docs/ROADMAP.md).
+
+| Component | Host | Config |
+|---|---|---|
+| `ui-identity` (Angular SPA) | Vercel | static build (`npm run build`); env `authority` → Okta domain |
+| `api-identity` (Spring Boot) | Render | Dockerfile already present; env `OIDC_ISSUER` / `OIDC_AUDIENCE` |
+| `mobile-identity` (planned) | Expo | `expo start --web` |
+| IdP | Okta dev tenant | swap issuer + client (below) |
+
+> No `vercel.json` / `render.yaml` yet — the deploy is Epic 3 (CI/CD) + Epic 4 (live demo).
+
 ## Swap Keycloak → Okta
 
 The SDK and resource server are provider-agnostic (standard OIDC discovery).
