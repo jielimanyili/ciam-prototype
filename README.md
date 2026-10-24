@@ -38,6 +38,7 @@ validate a SAML assertion before minting a session/token.
 | [`docs/risk-register.md`](docs/risk-register.md) | Risks + mitigations |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Now / Next / Later |
 | [`docs/epics.md`](docs/epics.md) | Epics + stories (JIRA backlog · import `docs/jira-import.csv`) |
+| [`docs/planning-checklist.md`](docs/planning-checklist.md) | Planning completeness (status + gaps) |
 
 ## Repo layout
 
