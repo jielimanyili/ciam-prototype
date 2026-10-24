@@ -7,7 +7,9 @@ spring:
         jwt:
           # OIDC discovery: fetches /.well-known/openid-configuration -> jwks_uri
           issuer-uri: ${OIDC_ISSUER:http://localhost:8080/realms/ciam-demo}
-          # Add an audience validator (custom OAuth2TokenValidator) to enforce `aud`.
+          # Audience (aud) is enforced by AudienceValidator in SecurityConfig — the one
+          # check Spring Boot's issuer-uri auto-config does NOT do by default.
+          audience: ${OIDC_AUDIENCE:api-identity}
 
 server:
   port: ${PORT:4101}
