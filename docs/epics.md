@@ -20,6 +20,17 @@
 - **Squad:** the `identity` + `auth` domains are platform-owned (ADR-010); everything else → the owning domain squad.
 - **A story is a vertical slice** (testable end-to-end), never a layer ("build the UI", "build the API").
 
+## Definition of Ready / Done (shared)
+
+**Ready** — a story may be picked up when it has: a user story + Given/When/Then ACs, a link to its ADR/design, a size, and no unresolved blockers.
+
+**Done** — a story is complete when: code reviewed · tests pass (offline, NFR-6) · no secrets · docs updated · security-reviewed if it touches auth · merged to `main`.
+
+## Estimation & dependencies
+
+- **Estimation** — relative (Fibonacci) at story level; epics carry the sum. Priority ≠ size.
+- **Dependencies** — Epics 1 (mobile) and 3 (CI/CD) are independent; Epic 2 (SAML) needs `api-auth` (Epic 5); Epic 4 (live demo) needs Epic 3; Epic 6 (starter) extracts from `api-identity`. The IdP is a prerequisite for all login flows.
+
 ---
 
 ## Epic 0 — JVM SDK (`sdk-identity-jvm`) · ✅ Done

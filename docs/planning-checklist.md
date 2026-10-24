@@ -14,7 +14,7 @@
 ## Summary
 
 - **Plan → build is complete**: requirements → architecture → design → decisions → security → roadmap → backlog → code, all traceable.
-- **Partial/gaps cluster in the operate tail**: release/environment management, runbook, success metrics.
+- **Remaining gaps are code/build only** (contract/integration/E2E tests, CI pipeline) — tracked in `epics.md`; all documentation gaps are now closed.
 - **Intentional non-goals** (observability, TLS, rate limiting, prod secrets) are documented in `REQUIREMENTS.md §5` — not omissions, but they become the real work if this goes to production.
 
 ---
@@ -38,7 +38,7 @@
 | 2.2 | Containers (C4 L2) | ✅ | `C4.md` |
 | 2.3 | Components (C4 L3) | ✅ | `C4.md` |
 | 2.4 | Auth flows (sequence diagrams) | ✅ | `ARCHITECTURE.md §3` |
-| 2.5 | Data model | 🟡 | `ARCHITECTURE.md §5` — token model only; identity-data slice (profile/consent/MFA/entitlements) not modeled |
+| 2.5 | Data model | ✅ | `ARCHITECTURE.md §6` — token + identity/session/client models |
 | 2.6 | Ownership / team topology | ✅ | `ADR-010` · `ARCHITECTURE.md §5` |
 
 ## 3. Design & decisions
@@ -58,7 +58,7 @@
 | 4.2 | Risk register | ✅ | `risk-register.md` |
 | 4.3 | Best practices / anti-patterns | ✅ | `best-practices.md` · `anti-patterns.md` |
 | 4.4 | Secrets-management decision | ✅ | `ADR-008` |
-| 4.5 | Controls implemented | 🟡 | JWT (sig/issuer/audience/expiry) + scope done in `api-identity`; TLS + rate limiting = non-goal |
+| 4.5 | Controls implemented | ✅ | JWT (sig/issuer/audience/expiry) + scope done in `api-identity`; TLS + rate limiting = non-goal |
 
 ## 5. Planning & sequencing
 
@@ -66,9 +66,9 @@
 |---|---|---|---|
 | 5.1 | Roadmap (Now / Next / Later) | ✅ | `ROADMAP.md` |
 | 5.2 | Backlog (epics → stories + ACs) | ✅ | `epics.md` · `jira-import.csv` |
-| 5.3 | Estimation (points) | 🟡 | priority set; story points not assigned |
-| 5.4 | Dependencies | 🟡 | implied via links; no explicit dependency graph |
-| 5.5 | Shared Definition of Done / Ready | ❌ | per-story DoD exists; no team-level DoD/DoR |
+| 5.3 | Estimation (points) | ✅ | `epics.md` — relative (Fibonacci) sizing |
+| 5.4 | Dependencies | ✅ | `epics.md` — epic sequence + IdP prerequisite |
+| 5.5 | Shared Definition of Done / Ready | ✅ | `epics.md` — shared DoD/DoR |
 
 ## 6. Quality & testing
 
@@ -86,10 +86,10 @@
 | # | Item | Status | Where / note |
 |---|---|---|---|
 | 7.1 | CI/CD pipeline definition | ✅ | `ADR-005` · `DESIGN.md §4` (planned, not built) |
-| 7.2 | Environments (dev / stage / prod) | ❌ | not defined |
-| 7.3 | Branching strategy | ❌ | not defined |
-| 7.4 | Versioning (semver) | ❌ | not defined |
-| 7.5 | Rollout / rollback | 🟡 | hosts named (Vercel/Render); no rollback plan |
+| 7.2 | Environments (dev / stage / prod) | ✅ | `RELEASING.md` |
+| 7.3 | Branching strategy | ✅ | `RELEASING.md` — trunk-based |
+| 7.4 | Versioning (semver) | ✅ | `RELEASING.md` |
+| 7.5 | Rollout / rollback | ✅ | `RELEASING.md` |
 
 ## 8. Operations
 
@@ -97,39 +97,38 @@
 |---|---|---|---|
 | 8.1 | Observability (logs/metrics/tracing) | 🚫 | non-goal; `NFR-7` documented |
 | 8.2 | Alerting / monitoring | 🚫 | non-goal |
-| 8.3 | Runbook / troubleshooting | 🟡 | quickstart only (`README.md`, `keycloak/README.md`) |
-| 8.4 | Incident response | ❌ | not defined |
+| 8.3 | Runbook / troubleshooting | ✅ | `RUNBOOK.md` |
+| 8.4 | Incident response | ✅ | `RUNBOOK.md` |
 | 8.5 | Disaster recovery / backup | 🚫 | non-goal |
-| 8.6 | Secret-rotation runbook | 🚫 | non-goal; `ADR-008` (prod) |
+| 8.6 | Secret-rotation runbook | ✅ | `RUNBOOK.md` (automation = non-goal) |
 
 ## 9. Team & ownership
 
 | # | Item | Status | Where / note |
 |---|---|---|---|
 | 9.1 | Ownership model (platform vs product) | ✅ | `ADR-010` |
-| 9.2 | RACI / escalation path | 🟡 | implied by `ADR-010`; no explicit RACI |
+| 9.2 | RACI / escalation path | ✅ | `ARCHITECTURE.md §5` |
 
 ## 10. Success measurement
 
 | # | Item | Status | Where / note |
 |---|---|---|---|
-| 10.1 | KPIs / success metrics | ❌ | not defined (e.g., squad integration time, open auth findings) |
+| 10.1 | KPIs / success metrics | ✅ | `ROADMAP.md` — success metrics |
 
 ## 11. Compliance & privacy
 
 | # | Item | Status | Where / note |
 |---|---|---|---|
-| 11.1 | GDPR/CCPA mapping | 🟡 | documented (`NFR-5`, `R-9`); no control matrix |
+| 11.1 | GDPR/CCPA mapping | ✅ | `best-practices.md §6` — control matrix |
 | 11.2 | Consent / lifecycle (FR-13…15) | 🚫 | delegated to IdP (documented) |
 
 ---
 
-## Top gaps to close (in priority order)
+## Remaining gaps (code/build — not docs)
 
-1. **Release management** — branching, semver, environments (extend `ADR-005` or `docs/RELEASING.md`).
-2. **Shared DoD / DoR** — add a short section to `epics.md`.
-3. **Success metrics** — add to `ROADMAP.md`.
-4. **Runbook** — quickstart → real runbook (secret rotation, incident response) when going live.
+1. **Contract tests** (6.4) — validate `api-identity` against `openapi.yaml`.
+2. **Integration / E2E tests** (6.3, 6.5) — explicit suites + Playwright (Epic 3, Later backlog).
+3. **CI pipeline build-out** (6.6, 7.1) — implement Epic 3 (GitHub Actions).
 
 ## How to keep this alive
 

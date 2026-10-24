@@ -40,6 +40,8 @@ validate a SAML assertion before minting a session/token.
 | [`docs/epics.md`](docs/epics.md) | Epics + stories (JIRA backlog · import `docs/jira-import.csv`) |
 | [`docs/planning-checklist.md`](docs/planning-checklist.md) | Planning completeness (status + gaps) |
 | [`docs/TESTING.md`](docs/TESTING.md) | Test strategy (pyramid, offline testing, gates) |
+| [`docs/RELEASING.md`](docs/RELEASING.md) | Release management (branching, semver, environments) |
+| [`docs/RUNBOOK.md`](docs/RUNBOOK.md) | Operations (run, troubleshoot, secrets, incident response) |
 
 ## Repo layout
 

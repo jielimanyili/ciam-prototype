@@ -19,3 +19,11 @@
 - Kotlin DSL wrapper for the SDK. · [backlog](epics.md#later-backlog-enhancements)
 - E2E tests (Playwright) against Keycloak. · [backlog](epics.md#later-backlog-enhancements)
 
+## Success metrics
+
+- **Squad integration time** — a new service wires identity via the SDK/starter in < 1 day.
+- **Security** — 0 open high-severity auth findings; all security-critical paths tested (signature/issuer/audience/expiry/scope).
+- **Protocol coverage** — PKCE + Client Credentials + SAML all runnable end-to-end.
+- **Live demo** — a public URL signs in via Okta and calls `/api/me`.
+- **NFR compliance** — stateless (NFR-3), least privilege (NFR-2), testable offline (NFR-6) hold in code, not just docs.
+

@@ -31,7 +31,14 @@ The "do this" reference for the CIAM prototype — the counterpart to `anti-patt
 - API gateway at the edge: routing, rate limits, token validation.
 
 ## 6. Privacy & consent
-- GDPR/CCPA: consent capture, data minimization, encryption at rest + in transit, right-to-be-forgotten.
+
+| GDPR/CCPA obligation | Where handled |
+|---|---|
+| Consent capture & management | IdP + `api-identity` (FR-13) |
+| Right to erasure (RTBF) | account lifecycle (FR-15); delegated to IdP |
+| Data minimization | no secrets/PII in tokens (signed ≠ encrypted); claims on demand |
+| Encryption in transit / at rest | TLS (prod non-goal) · IdP-managed store |
+| Access & portability | profile self-service (FR-14) |
 
 ## 7. Secrets management
 - DB passwords / API keys → **secrets manager (Vault)**, never in CIAM, code, env, or tokens.

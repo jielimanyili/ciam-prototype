@@ -136,12 +136,27 @@ embedded, stateless, build-time — ADR-007). Shared identity **data** + privile
 state and no privileged secrets — so `api-identity`'s *service* role is the data/admin-ops slice, not
 the validation (which the SDK already gives every service).
 
+### RACI
+
+| Artifact | Identity/Auth squad | Product squads | IdP (Okta/Keycloak) |
+|---|---|---|---|
+| IdP config | A | I | R |
+| `api-identity` | R/A | C | — |
+| `api-auth` | R/A | C | — |
+| `sdk-identity-jvm` | R/A | C (consumer) | — |
+| Product `api-<domain>` | C (guardrails) | R/A | — |
+
+R = responsible · A = accountable · C = consulted · I = informed.
+
 ## 6. Data model
 
 | Entity | Fields |
 |---|---|
 | Access token (JWT) | `iss`, `aud`, `sub`, `exp`, `iat`, `scope`, `client_id`, `roles`/`groups` |
 | Token response | `access_token`, `token_type`, `expires_in`, `scope` (optional `id_token`, `refresh_token`) |
+| Identity profile (target) | `sub`, attributes, `consent` records, `mfa` enrollments, `entitlements` — the stateful slice of `api-identity` |
+| Session (`api-auth`) | `session_id`, `sub`, `expires_at`, `idle_timeout` |
+| OAuth client | `client_id`, `client_secret` ref (secrets manager), grant type, `redirect_uris` |
 
 ## 7. Key decisions
 
