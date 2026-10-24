@@ -99,14 +99,32 @@ C4 model (System Context → Container → Component): see `docs/C4.md`.
   `ScopeAssertions` (+ planned Spring Boot starter, ADR-007).
 - **IdP** — Keycloak locally (`ciam-demo` realm), Okta live.
 
-## 5. Data model
+## 5. Ownership model — platform vs product
+
+CIAM splits cleanly into **platform** (the identity capability, owned centrally) and **product**
+(each business domain, owned by its squad). Locked in [ADR-010](adr/adr-010-platform-vs-product.md).
+
+| Concern | Owned by | Artifacts |
+|---|---|---|
+| **Platform — Identity/Auth squad** | central (one squad) | IdP (Okta/Keycloak), `api-identity`, `sdk-identity-jvm` (+ starter), auth standards, ADRs, threat model, risk register, secrets |
+| **Product — domain squads** | each squad | its own `api-<domain>` / `ui-<domain>` / `mobile-<domain>` + domain data |
+
+**Rule:** the platform **builds safe defaults** (SDK + starter + this reference implementation);
+product squads **consume** them and *enforce* identity in their own services — they never re-own it
+(FR-6 developer advocacy).
+
+- `api-identity` is a **platform** service (the customer-facing identity API), not a product service.
+- Product squads validate JWTs + scopes via `sdk-identity-jvm` / the starter (ADR-007) — the same
+  `verify-then-authorize` shape, with no central runtime hop.
+
+## 6. Data model
 
 | Entity | Fields |
 |---|---|
 | Access token (JWT) | `iss`, `aud`, `sub`, `exp`, `iat`, `scope`, `client_id`, `roles`/`groups` |
 | Token response | `access_token`, `token_type`, `expires_in`, `scope` (optional `id_token`, `refresh_token`) |
 
-## 6. Key decisions
+## 7. Key decisions
 
 See `docs/adr/`:
 - `adr-001` — Authorization Code + PKCE and Client Credentials; RS256/JWKS validation.
@@ -118,13 +136,14 @@ See `docs/adr/`:
 - `adr-007` — RS validation: library vs. sidecar vs. central service.
 - `adr-008` — secrets management: AWS Secrets Manager (prod) / host secrets (demo).
 - `adr-009` — component naming convention (`<layer>-<domain>`).
+- `adr-010` — platform vs product ownership (team topology).
 
-## 7. Honesty boundary
+## 8. Honesty boundary
 
 Project-level prototype, not production. Keycloak stands in for Okta. Backend is
 Java (Spring Boot).
 
-## 8. Roadmap
+## 9. Roadmap
 
 See `docs/ROADMAP.md` for the sequenced Now / Next / Later plan (Mobile App, SAML,
 BFF, SDK starter, CI/CD, live demo).
