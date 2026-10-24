@@ -117,6 +117,7 @@ See `docs/adr/`:
 - `adr-006` — direct PKCE vs. BFF.
 - `adr-007` — RS validation: library vs. sidecar vs. central service.
 - `adr-008` — secrets management: AWS Secrets Manager (prod) / host secrets (demo).
+- `adr-009` — component naming convention (`<layer>-<domain>`).
 
 ## 7. Honesty boundary
 

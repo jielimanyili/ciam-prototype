@@ -11,6 +11,48 @@
 
 ---
 
+## Naming conventions
+
+> Standardizes component naming, mirroring TriNet's `api-<domain>` / `ui-<domain>` style.
+> **Locked in [ADR-009](adr/adr-009-component-naming.md).**
+
+**Rule:** `<layer>-<domain>` in kebab-case — the **layer** prefix says *what kind* of component,
+the **domain** says *which business capability* it serves (here, **identity** = the CIAM domain).
+
+| Layer | Prefix | Example |
+|---|---|---|
+| Resource server / REST API | `api-` | `api-identity` |
+| Web UI (SPA) | `ui-` | `ui-identity` |
+| Mobile client | `mobile-` | `mobile-identity` |
+| Backend-for-frontend | `bff-` | `bff-identity` |
+| Shared library / SDK | `sdk-` | `sdk-identity-jvm` |
+
+TriNet's real form is **`<layer>-<org>-<domain>`** — e.g. `api-trinet-auth` (layer + org + domain).
+The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer>-<domain>` form
+(single org). TriNet's `auth` domain ≈ `identity`; we standardize on **`identity`**.
+
+**Principles**
+
+- Name by **domain capability** (bounded context), never by technology (`spring-`, `angular-` are out).
+- Repo name = deployable/service name (1:1) so a service catalog (e.g., Backstage) can discover it.
+- One convention, enforced by template/ADR — consistency beats any particular prefix.
+
+**Current → target**
+
+| Current | Target | Reason |
+|---|---|---|
+| `resource-server/` (`ciam-resource-server`) | `api-identity` | it *is* the identity API surface |
+| `frontend/` (`ciam-web`) | `ui-identity` | web SPA |
+| `mobile/` (planned) | `mobile-identity` | React Native client |
+| `client-auth-service/` (planned BFF) | `bff-identity` | BFF |
+| `identity-sdk-jvm/` | `sdk-identity-jvm` | SDK; `-jvm` suffix encodes language |
+
+> Renaming is **documented but not yet applied** — it touches artifactIds, the Angular project
+> name, Docker image names, Keycloak client IDs, and the README. Apply as one mechanical change
+> (locked in ADR-009) before Phase 3.
+
+---
+
 ## 1. JVM SDK — `identity-sdk-jvm/`
 
 - **Purpose:** reusable library so product squads integrate identity safely (the "developer advocacy" requirement).
@@ -88,3 +130,4 @@
 | 7 | Frontend host | Vercel | already used |
 | 8 | Live IdP | Okta dev tenant | Okta is the reference IdP |
 | 9 | BFF | Add as planned hardened variant (`oauth2Login()`) | tokens stay server-side |
+| 10 | Component naming | `<layer>-<domain>` (api-/ui-/mobile-/bff-/sdk-) | mirrors TriNet convention; catalog-discoverable |
