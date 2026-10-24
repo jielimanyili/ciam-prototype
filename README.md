@@ -37,6 +37,7 @@ validate a SAML assertion before minting a session/token.
 | [`docs/best-practices.md`](docs/best-practices.md) · [`docs/anti-patterns.md`](docs/anti-patterns.md) · [`docs/threat-model.md`](docs/threat-model.md) | Guidance |
 | [`docs/risk-register.md`](docs/risk-register.md) | Risks + mitigations |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Now / Next / Later |
+| [`docs/epics.md`](docs/epics.md) | Epics + stories (JIRA backlog · import `docs/jira-import.csv`) |
 
 ## Repo layout
 
