@@ -93,8 +93,9 @@ C4 model (System Context → Container → Component): see `docs/C4.md`.
 - **Confidential Service** (Java) — a machine client; Client Credentials via the SDK.
 - **Client Auth Service (BFF)** (Java, planned) — `oauth2Login()`; session cookie; token server-side.
 - **API Gateway** (planned) — edge routing, rate limiting, token validation.
-- **Resource Server** (Spring Boot) — `resource-server/`. Spring Security OAuth2 filter
-  chain: `/health` (public), `/api/me`, `/api/admin` (`SCOPE_admin`), `/api/claims`.
+- **Resource Server** (Spring Boot) — `resource-server/` → **`api-identity`** (ADR-009). Spring
+  Security OAuth2 filter chain: `/health` (public), `/api/me`, `/api/admin` (`SCOPE_admin`),
+  `/api/claims`. Role: reference resource server (prototype) → identity data + IdP admin ops (target).
 - **Identity SDK** (Java) — `identity-sdk-jvm/`. `Pkce`, `OidcDiscovery`, `ClientCredentials`,
   `ScopeAssertions` (+ planned Spring Boot starter, ADR-007).
 - **IdP** — Keycloak locally (`ciam-demo` realm), Okta live.
@@ -123,11 +124,17 @@ CIAM splits cleanly into **platform** (the identity capability, owned centrally)
 |---|---|---|
 | IdP (Okta/Keycloak) | identity store, credential verification, token issuance, MFA/consent | stateful |
 | `bff-identity` | the AuthN flow server-side — OIDC handshake → session cookie, token server-side | stateful (session) |
-| `api-identity` | identity + claims for product consumers | stateless (JWT validation) |
+| `api-identity` | reference resource server (prototype) · identity data + IdP admin ops (target) | stateless (prototype) → stateful data slice (target) |
 | `sdk-identity-jvm` (+ starter) | safe defaults at build time for product services | — (compile-time) |
 
 - Product squads validate JWTs + scopes via `sdk-identity-jvm` / the starter (ADR-007) — the same
   `verify-then-authorize` shape, with no central runtime hop.
+
+**Library vs. service boundary:** validation + claims = **library** (`sdk-identity-jvm` + starter;
+embedded, stateless, build-time — ADR-007). Shared identity **data** + privileged IdP **operations** =
+**service** (`api-identity`; stateful, platform-owned, server-side secrets). A library holds no shared
+state and no privileged secrets — so `api-identity`'s *service* role is the data/admin-ops slice, not
+the validation (which the SDK already gives every service).
 
 ## 6. Data model
 

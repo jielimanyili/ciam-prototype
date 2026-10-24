@@ -28,12 +28,17 @@ Split ownership into **platform** and **product**:
 |---|---|---|
 | IdP (Okta/Keycloak) | identity store, credential verification, token issuance, MFA/consent | stateful |
 | `bff-identity` | the AuthN flow server-side — OIDC handshake → session cookie, token server-side | stateful (session) |
-| `api-identity` | identity + claims for product consumers | stateless (JWT validation) |
+| `api-identity` | reference resource server (prototype) · identity data + IdP admin ops (target) | stateless (prototype) → stateful data slice (target) |
 | `sdk-identity-jvm` (+ starter) | safe defaults at build time for product services | — (compile-time) |
 
-> `api-identity` stays stateless for token validation/claims; if the full product takes on identity
-> *data* (profile self-service FR-14, consent, MFA enrollment) beyond the IdP's directory, that
-> slice becomes stateful (DB-backed).
+> **Library vs. service boundary:** validation + claims = **library** (`sdk-identity-jvm` + starter;
+> embedded, stateless, build-time — ADR-007). Shared identity **data** + privileged IdP **operations** =
+> **service** (`api-identity`; stateful, platform-owned, server-side secrets). A library holds no
+> shared state and no privileged secrets.
+>
+> `api-identity` is a thin **reference resource server** in the prototype (stateless validation); in
+> the target it takes on the stateful **identity data** slice (profile FR-14, consent, MFA) + IdP
+> admin ops.
 
 **Rules:**
 
