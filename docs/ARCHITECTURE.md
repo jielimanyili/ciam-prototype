@@ -117,9 +117,15 @@ CIAM splits cleanly into **platform** (the identity capability, owned centrally)
 - **Authentication = platform** (who you are + session + token issuance + verification library);
   **authorization = product** (what you can do in *their* domain), enforced via the platform SDK.
 
-- `api-identity` is a **platform** service (the customer-facing identity API), not a product service.
-- `bff-identity` (auth BFF / client-auth-service) is a **platform** service — the server-side half
-  of authentication, not a domain aggregation layer; a domain `bff-<domain>` would be product-owned.
+**Platform artifacts** (responsibility + state):
+
+| Artifact | Provides | State |
+|---|---|---|
+| IdP (Okta/Keycloak) | identity store, credential verification, token issuance, MFA/consent | stateful |
+| `bff-identity` | the AuthN flow server-side — OIDC handshake → session cookie, token server-side | stateful (session) |
+| `api-identity` | identity + claims for product consumers | stateless (JWT validation) |
+| `sdk-identity-jvm` (+ starter) | safe defaults at build time for product services | — (compile-time) |
+
 - Product squads validate JWTs + scopes via `sdk-identity-jvm` / the starter (ADR-007) — the same
   `verify-then-authorize` shape, with no central runtime hop.
 

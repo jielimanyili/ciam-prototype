@@ -16,14 +16,24 @@ never states who owns the identity surface.
 
 Split ownership into **platform** and **product**:
 
-- **Platform — Identity/Auth squad (single central owner):** the **authentication process**
-  (login, logout, session management, token issuance, refresh rotation, MFA/consent config), the
-  IdP (Okta/Keycloak), `api-identity`, the **auth BFF** (`bff-identity` / client-auth-service),
-  `sdk-identity-jvm` (+ Spring Boot starter), auth standards (ADRs, threat model, risk register),
-  and secrets (ADR-008).
+- **Platform — Identity/Auth squad (single central owner):** the identity capability end-to-end —
+  the artifacts below, plus auth standards (ADRs, threat model, risk register) and secrets (ADR-008).
 - **Product — domain squads (each owns its own):** `api-<domain>` / `ui-<domain>` /
   `mobile-<domain>` services (plus any domain BFF, `bff-<domain>`) and their domain data. They
   **consume** identity via the SDK/starter — they never re-own it.
+
+**Platform artifacts** (responsibility + state):
+
+| Artifact | Provides | State |
+|---|---|---|
+| IdP (Okta/Keycloak) | identity store, credential verification, token issuance, MFA/consent | stateful |
+| `bff-identity` | the AuthN flow server-side — OIDC handshake → session cookie, token server-side | stateful (session) |
+| `api-identity` | identity + claims for product consumers | stateless (JWT validation) |
+| `sdk-identity-jvm` (+ starter) | safe defaults at build time for product services | — (compile-time) |
+
+> `api-identity` stays stateless for token validation/claims; if the full product takes on identity
+> *data* (profile self-service FR-14, consent, MFA enrollment) beyond the IdP's directory, that
+> slice becomes stateful (DB-backed).
 
 **Rules:**
 
