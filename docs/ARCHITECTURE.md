@@ -116,6 +116,7 @@ See `docs/adr/`:
 - `adr-005` — CI/CD and live-demo deployment.
 - `adr-006` — direct PKCE vs. BFF.
 - `adr-007` — RS validation: library vs. sidecar vs. central service.
+- `adr-008` — secrets management: AWS Secrets Manager (prod) / host secrets (demo).
 
 ## 7. Honesty boundary
 

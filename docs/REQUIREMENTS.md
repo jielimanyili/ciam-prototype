@@ -51,7 +51,7 @@
 | C-2 | **Backend = Java (Spring Boot)** only |
 | C-3 | **Frontend = Angular** (web) **+ React Native** (mobile) |
 | C-4 | **Protocols = OIDC/OAuth2 + SAML 2.0** — no custom auth |
-| C-5 | **No secrets** in tokens, env, or source → secrets manager in prod |
+| C-5 | **No secrets** in tokens, env, or source → secrets manager in prod (AWS Secrets Manager, [adr-008](adr/adr-008-secrets-management.md)) |
 | C-6 | **JDK 21 (LTS, N-1) / Spring Boot 3.3.2** baseline |
 
 ## 4. Assumptions (A)

@@ -7,7 +7,7 @@
 |---|---|---|---|---|---|
 | R-1 | Access-token theft (stolen bearer token) | M | H | Short-lived tokens + refresh rotation + reuse detection; token in memory, not localStorage | Implemented (short expiry, memory) / Planned (rotation) |
 | R-2 | Refresh-token replay | M | H | Rotation + reuse detection → revoke the whole grant | Planned |
-| R-3 | Secret leakage (client secret / DB password in source, env, or token) | M | H | No secrets in tokens (signed ≠ encrypted); secrets manager (Vault) in prod | Implemented (no secrets in tokens) / Planned (Vault) |
+| R-3 | Secret leakage (client secret / DB password in source, env, or token) | M | H | No secrets in tokens (signed ≠ encrypted); AWS Secrets Manager in prod ([adr-008](adr/adr-008-secrets-management.md)) | Implemented (no secrets in tokens) / Planned (AWS Secrets Manager) |
 | R-4 | Over-scoped token → privilege escalation | M | H | Least-privilege scopes; enforce at the resource server | Implemented |
 | R-5 | SAML assertion mis-validation (XML signature, audience, InResponseTo) | L | H | Spring Security SAML SP; validate audience / destination / InResponseTo | Planned |
 | R-6 | SPA token exposure via XSS (localStorage) | M | H | Access token in memory; refresh in HttpOnly cookie; CSP; BFF | Implemented |
