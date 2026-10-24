@@ -14,7 +14,7 @@
 ## Summary
 
 - **Plan → build is complete**: requirements → architecture → design → decisions → security → roadmap → backlog → code, all traceable.
-- **Partial/gaps cluster in the operate tail**: test strategy, release/environment management, runbook, success metrics.
+- **Partial/gaps cluster in the operate tail**: release/environment management, runbook, success metrics.
 - **Intentional non-goals** (observability, TLS, rate limiting, prod secrets) are documented in `REQUIREMENTS.md §5` — not omissions, but they become the real work if this goes to production.
 
 ---
@@ -74,7 +74,7 @@
 
 | # | Item | Status | Where / note |
 |---|---|---|---|
-| 6.1 | Test strategy / pyramid | ❌ | no doc; `NFR-6` + unit tests exist |
+| 6.1 | Test strategy / pyramid | ✅ | `TESTING.md` |
 | 6.2 | Unit tests | ✅ | SDK (6) · `api-identity` (controller + audience) |
 | 6.3 | Integration tests | 🟡 | `docker build` runs tests; no explicit integration suite |
 | 6.4 | Contract tests | ❌ | `openapi.yaml` exists; no contract test |
@@ -126,11 +126,10 @@
 
 ## Top gaps to close (in priority order)
 
-1. **Test strategy** (`docs/TESTING.md`) — pyramid per component + quality gates.
-2. **Release management** — branching, semver, environments (extend `ADR-005` or `docs/RELEASING.md`).
-3. **Shared DoD / DoR** — add a short section to `epics.md`.
-4. **Success metrics** — add to `ROADMAP.md`.
-5. **Runbook** — quickstart → real runbook (secret rotation, incident response) when going live.
+1. **Release management** — branching, semver, environments (extend `ADR-005` or `docs/RELEASING.md`).
+2. **Shared DoD / DoR** — add a short section to `epics.md`.
+3. **Success metrics** — add to `ROADMAP.md`.
+4. **Runbook** — quickstart → real runbook (secret rotation, incident response) when going live.
 
 ## How to keep this alive
 
