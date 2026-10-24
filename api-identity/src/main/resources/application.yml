@@ -1,6 +1,6 @@
 spring:
   application:
-    name: ciam-resource-server
+    name: api-identity
   security:
     oauth2:
       resourceserver:

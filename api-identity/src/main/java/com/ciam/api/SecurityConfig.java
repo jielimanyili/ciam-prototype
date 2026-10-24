@@ -1,4 +1,4 @@
-package com.example.ciam;
+package com.ciam.api;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

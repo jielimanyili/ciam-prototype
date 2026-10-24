@@ -9,7 +9,7 @@ client config (see the root `README.md`).
 
 | Client | Type | Grant | Secret |
 |---|---|---|---|
-| `ciam-web` | public (SPA) | Authorization Code + PKCE | — |
+| `ui-identity` | public (SPA) | Authorization Code + PKCE | — |
 | `ciam-service` | confidential | Client Credentials | `service-secret` |
 
 - Demo user: `demo` / `demo`
@@ -27,7 +27,7 @@ curl http://localhost:8080/realms/ciam-demo/.well-known/openid-configuration
 
 1. Open http://localhost:8080, sign in as `admin`/`admin`.
 2. Create realm `ciam-demo`.
-3. Create client `ciam-web`:
+3. Create client `ui-identity`:
    - Client type: **OpenID Connect** · **Public client** ON
    - Valid redirect URIs: `http://localhost:4200/*` · Web origins: `http://localhost:4200`
    - Advanced → Proof Key for Code Exchange (PKCE) Code Challenge Method: **S256**

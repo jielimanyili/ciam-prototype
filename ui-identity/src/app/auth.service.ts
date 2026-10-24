@@ -3,7 +3,7 @@ import { UserManager, UserManagerSettings, type User } from 'oidc-client-ts';
 
 const oidcSettings: UserManagerSettings = {
   authority: 'http://localhost:8080/realms/ciam-demo',
-  client_id: 'ciam-web',
+  client_id: 'ui-identity',
   redirect_uri: window.location.origin + '/',
   post_logout_redirect_uri: window.location.origin + '/',
   response_type: 'code',

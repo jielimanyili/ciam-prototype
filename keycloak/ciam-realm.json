@@ -9,7 +9,7 @@
   "bruteForceProtected": true,
   "clients": [
     {
-      "clientId": "ciam-web",
+      "clientId": "ui-identity",
       "name": "CIAM Web (SPA)",
       "description": "Angular SPA - Authorization Code + PKCE",
       "enabled": true,

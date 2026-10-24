@@ -88,15 +88,15 @@ C4 model (System Context → Container → Component): see `docs/C4.md`.
 
 ## 4. Components
 
-- **Web App** (Angular) — `frontend/`. Authorization Code + PKCE via `oidc-client-ts`.
-- **Mobile App** (React Native) — `mobile/` (planned). Same PKCE flow via Expo.
+- **Web App** (Angular) — `ui-identity/`. Authorization Code + PKCE via `oidc-client-ts`.
+- **Mobile App** (React Native) — `mobile-identity/` (planned). Same PKCE flow via Expo.
 - **Confidential Service** (Java) — a machine client; Client Credentials via the SDK.
 - **Client Auth Service (BFF)** (Java, planned) — `oauth2Login()`; session cookie; token server-side.
 - **API Gateway** (planned) — edge routing, rate limiting, token validation.
-- **Resource Server** (Spring Boot) — `resource-server/` → **`api-identity`** (ADR-009). Spring
+- **Resource Server** (Spring Boot) — `api-identity/`. Spring
   Security OAuth2 filter chain: `/health` (public), `/api/me`, `/api/admin` (`SCOPE_admin`),
   `/api/claims`. Role: reference resource server (prototype) → identity data + IdP admin ops (target).
-- **Identity SDK** (Java) — `identity-sdk-jvm/`. `Pkce`, `OidcDiscovery`, `ClientCredentials`,
+- **Identity SDK** (Java) — `sdk-identity-jvm/`. `Pkce`, `OidcDiscovery`, `ClientCredentials`,
   `ScopeAssertions` (+ planned Spring Boot starter, ADR-007).
 - **IdP** — Keycloak locally (`ciam-demo` realm), Okta live.
 

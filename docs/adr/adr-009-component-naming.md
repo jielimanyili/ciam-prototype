@@ -6,7 +6,7 @@
 
 ## Context
 
-Components were named by *role* (`resource-server/`, `frontend/`, `identity-sdk-jvm/`), which
+Components were named by *role* (`api-identity/`, `ui-identity/`, `sdk-identity-jvm/`), which
 says nothing about the business capability they serve and doesn't scale to a service catalog.
 TriNet's convention is `<layer>-<domain>` — e.g. `api-trinet-auth` — where the **layer** says
 *what kind* of component and the **domain** says *which capability*.
@@ -40,7 +40,7 @@ Rules:
 
 ## Alternatives considered
 
-- **Role-only names** (`resource-server/`, `frontend/`) — rejected: no domain signal, doesn't scale.
+- **Role-only names** (`api-identity/`, `ui-identity/`) — rejected: no domain signal, doesn't scale.
 - **`ciam` as the domain** — rejected: `ciam` is the category, not the bounded context.
 - **`auth` as the domain** — rejected for this repo: `identity` is broader and matches the CIAM scope.
 - **No convention** — rejected: naming drift makes the catalog un-ownable.

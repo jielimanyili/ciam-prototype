@@ -15,7 +15,7 @@ There are three ways to centralize that validation:
 
 ## Decision
 
-Use a **shared library / Spring Boot starter** (`identity-sdk-jvm-spring-boot-starter`) as
+Use a **shared library / Spring Boot starter** (`sdk-identity-jvm-spring-boot-starter`) as
 the canonical validation mechanism. Each RS depends on it; validation stays **embedded and
 stateless**. (Extends the SDK per ADR-002.)
 

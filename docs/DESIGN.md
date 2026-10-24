@@ -5,7 +5,7 @@
 
 ## Status
 
-**Already built:** `resource-server` (Spring Boot), `identity-sdk-jvm` (Java SDK), `frontend` (Angular), Keycloak realm, and docs (requirements, architecture, C4, best-practices, anti-patterns, threat-model, risk register).
+**Already built:** `api-identity` (Spring Boot), `sdk-identity-jvm` (Java SDK), `ui-identity` (Angular), Keycloak realm, and docs (requirements, architecture, C4, best-practices, anti-patterns, threat-model, risk register).
 
 **Remaining (this design):** JVM SDK · React Native client · SAML 2.0 · CI/CD · live deployment.
 
@@ -38,23 +38,24 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 - One convention, enforced by template/ADR — consistency beats any particular prefix.
 - **SDK exception:** SDKs use `<layer>-<domain>-<runtime>` (`sdk-identity-jvm`) — the runtime is part of an SDK's identity; `-jvm` covers Java + the planned Kotlin DSL wrapper (ADR-002).
 
-**Current → target**
+**Components** (renamed, ADR-009):
 
-| Current | Target | Reason |
-|---|---|---|
-| `resource-server/` (`ciam-resource-server`) | `api-identity` | it *is* the identity API surface |
-| `frontend/` (`ciam-web`) | `ui-identity` | web SPA |
-| `mobile/` (planned) | `mobile-identity` | React Native client |
-| `client-auth-service/` (planned BFF) | `bff-identity` | BFF |
-| `identity-sdk-jvm/` | `sdk-identity-jvm` | SDK; `-jvm` suffix encodes language |
+| Layer | Directory |
+|---|---|
+| Resource server / REST API | `api-identity/` |
+| Web UI (SPA) | `ui-identity/` |
+| Mobile client (planned) | `mobile-identity/` |
+| Backend-for-frontend (planned) | `bff-identity/` |
+| Shared library / SDK | `sdk-identity-jvm/` |
 
-> Renaming is **documented but not yet applied** — it touches artifactIds, the Angular project
-> name, Docker image names, Keycloak client IDs, and the README. Apply as one mechanical change
-> (locked in ADR-009) before Phase 3.
+> Renaming **applied**: `resource-server/` → `api-identity/`, `frontend/` → `ui-identity/`,
+> `identity-sdk-jvm/` → `sdk-identity-jvm/` (dirs, artifactIds, Angular project name, Docker image
+> name, Keycloak client IDs, README). Planned `mobile-identity/` and `bff-identity/` land with their
+> phases.
 
 ---
 
-## 1. JVM SDK — `identity-sdk-jvm/`
+## 1. JVM SDK — `sdk-identity-jvm/`
 
 - **Purpose:** reusable library so product squads integrate identity safely (the "developer advocacy" requirement).
 - **Language:** **Java (primary)** with Kotlin interop (Java classes are Kotlin-callable); optional Kotlin DSL wrapper later.
@@ -72,9 +73,9 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
   ```
 - **Decision:** Java is the canonical backend language (C-2); this SDK is the single reusable identity library.
 - **Trade-off:** Spring Security already does JWT validation → the SDK avoids duplicating it, providing the helpers + opinionated defaults instead.
-- **Extension (planned):** a Spring Boot starter (`identity-sdk-jvm-spring-boot-starter`) that auto-configures the Resource Server's validation — `issuer-uri` → JWKS/RS256, audience validator, scope enforcement — so each RS is secure by default (ADR-007).
+- **Extension (planned):** a Spring Boot starter (`sdk-identity-jvm-spring-boot-starter`) that auto-configures the Resource Server's validation — `issuer-uri` → JWKS/RS256, audience validator, scope enforcement — so each RS is secure by default (ADR-007).
 
-## 2. React Native client — `mobile/`
+## 2. React Native client — `mobile-identity/`
 
 - **Framework:** **Expo (managed)** — fastest to build; `expo start --web` gives a browser preview for the live demo.
 - **Auth:** `expo-auth-session` (built-in PKCE) → Authorization Code + PKCE.
@@ -93,7 +94,7 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 
 ## 4. CI/CD — GitHub Actions
 
-- **Pipeline (on push/PR):** (1) typecheck/lint → (2) unit tests (Java via Docker) → (3) build images (`resource-server`, `frontend`) → (4) push to GHCR → (5) deploy.
+- **Pipeline (on push/PR):** (1) typecheck/lint → (2) unit tests (Java via Docker) → (3) build images (`api-identity`, `ui-identity`) → (4) push to GHCR → (5) deploy.
 - **Decision:** GitHub Actions (already used in the repo) · Docker for Java (JDK pinning) · platform deploy for the frontend.
 - **Trade-off:** one workflow with a job matrix vs. many workflows — one workflow, simpler to reason about.
 
@@ -107,7 +108,7 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 
 ---
 
-## 6. BFF (Backend-for-Frontend) — `client-auth-service/` (planned)
+## 6. BFF (Backend-for-Frontend) — `bff-identity/` (planned)
 
 - **Purpose:** the *hardened* auth variant — keep the access token **server-side** and
   issue a **session cookie** to the browser, so tokens never reach the SPA.

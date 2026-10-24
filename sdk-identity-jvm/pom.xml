@@ -5,10 +5,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.ciam</groupId>
-    <artifactId>identity-sdk-jvm</artifactId>
+    <artifactId>sdk-identity-jvm</artifactId>
     <version>0.1.0</version>
     <packaging>jar</packaging>
-    <name>identity-sdk-jvm</name>
+    <name>sdk-identity-jvm</name>
     <description>Reusable CIAM identity library — OIDC discovery, PKCE (S256), client-credentials, scope/claim assertions</description>
 
     <properties>

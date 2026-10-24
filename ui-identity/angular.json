@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ciam-web": {
+    "ui-identity": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": { "style": "scss" }
@@ -19,7 +19,7 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "styles": ["src/styles.scss"],
-            "outputPath": "dist/ciam-web"
+            "outputPath": "dist/ui-identity"
           },
           "configurations": {
             "production": { "outputHashing": "all" },
@@ -30,8 +30,8 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "configurations": {
-            "production": { "buildTarget": "ciam-web:build:production" },
-            "development": { "buildTarget": "ciam-web:build:development" }
+            "production": { "buildTarget": "ui-identity:build:production" },
+            "development": { "buildTarget": "ui-identity:build:development" }
           },
           "defaultConfiguration": "development"
         }

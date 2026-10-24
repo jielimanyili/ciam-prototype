@@ -10,10 +10,10 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.example</groupId>
-    <artifactId>ciam-resource-server</artifactId>
+    <groupId>com.ciam</groupId>
+    <artifactId>api-identity</artifactId>
     <version>0.1.0</version>
-    <name>ciam-resource-server</name>
+    <name>api-identity</name>
     <description>CIAM — OIDC/OAuth2 resource server (JWT validation + scope authorization)</description>
 
     <properties>

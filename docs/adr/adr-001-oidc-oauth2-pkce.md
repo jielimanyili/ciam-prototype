@@ -17,7 +17,7 @@ with PKCE, Client Credentials), JWT validation, scoping, and claims handling.
    (via OIDC discovery → `jwks_uri`), enforcing **issuer + audience**.
 3. Authorize via the **`scope` claim** (`requireScope`) and expose **claims**
    (`roles`/`groups`) for finer-grained decisions.
-4. Package all of it as a **reusable SDK** (`identity-sdk-jvm`) so product squads
+4. Package all of it as a **reusable SDK** (`sdk-identity-jvm`) so product squads
    integrate identity "safely" — the developer-advocacy requirement.
 
 ## Consequences
