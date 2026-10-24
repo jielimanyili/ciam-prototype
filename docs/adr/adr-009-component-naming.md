@@ -13,21 +13,23 @@ TriNet's convention is `<layer>-<domain>` — e.g. `api-trinet-auth` — where t
 
 ## Decision
 
-Name every component **`<layer>-<domain>`** (kebab-case), with the domain fixed at
-**`identity`** — the CIAM bounded context (not `ciam`, which is the category):
+Name every component **`<layer>-<domain>`** (kebab-case). The platform owns **two domains**:
+
+- **`identity`** — identity data + claims (the CIAM bounded context; not `ciam`, the category)
+- **`auth`** — authentication (login, session, token)
 
 - `api-identity` (resource server) · `ui-identity` (SPA) · `mobile-identity` (React Native) ·
-  `bff-identity` (BFF) · `sdk-identity-jvm` (SDK)
+  `api-auth` (auth service) · `sdk-identity-jvm` (SDK)
 
 Rules:
 
 1. **Layer prefix** = component type (`api-`, `ui-`, `mobile-`, `bff-`, `sdk-`).
-2. **Domain suffix** = business capability (`identity`); never technology (`spring-`, `angular-`) — one exception: SDKs may append a `-<runtime>` suffix (rule 6).
+2. **Domain suffix** = business capability (`identity`, `auth`); never technology (`spring-`, `angular-`) — one exception: SDKs may append a `-<runtime>` suffix (rule 6).
 3. **Repo name = deployable/service name** (1:1) for service-catalog discovery.
 4. **Org namespace optional** — TriNet's `api-trinet-auth` is `<layer>-<org>-<domain>`; apply the
    `-trinet-` qualifier only in a multi-tenant catalog. This repo uses the unqualified form.
-5. `auth` and `identity` name the same domain at TriNet; we standardize on **`identity`** (broader:
-   covers authN *and* authZ / identity lifecycle).
+5. `auth` and `identity` are **distinct domains**: `auth` = authentication (login/session/token),
+   `identity` = identity data + claims. TriNet's `api-trinet-auth` is the `auth` domain.
 6. **SDK runtime suffix** — SDKs use `<layer>-<domain>-<runtime>`: `sdk-identity-jvm`. The runtime
    is part of an SDK's identity (precedent: `aws-sdk-java`, `stripe-java`); `-jvm` (not `-java`)
    covers Java *and* the planned Kotlin DSL wrapper (ADR-002).
@@ -42,5 +44,5 @@ Rules:
 
 - **Role-only names** (`api-identity/`, `ui-identity/`) — rejected: no domain signal, doesn't scale.
 - **`ciam` as the domain** — rejected: `ciam` is the category, not the bounded context.
-- **`auth` as the domain** — rejected for this repo: `identity` is broader and matches the CIAM scope.
+- **A single `identity` domain (merging `auth`)** — rejected: conflates authentication with identity data; `auth` is its own concern (matches TriNet's `api-trinet-auth`).
 - **No convention** — rejected: naming drift makes the catalog un-ownable.

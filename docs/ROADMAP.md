@@ -12,7 +12,7 @@
 ## Later (enhancements)
 - Refresh-token rotation + reuse detection demo.
 - Okta Inline/Event hooks + Workflows (documented, with a mock).
-- BFF (Client Auth Service) — hardened auth variant with `oauth2Login()` (DESIGN §6).
+- Auth Service (`api-auth`) — hardened auth variant with `oauth2Login()` (DESIGN §6).
 - Identity SDK **Spring Boot starter** — auto-configured RS validation (ADR-007).
 - Kotlin DSL wrapper for the SDK.
 - E2E tests (Playwright) against Keycloak.

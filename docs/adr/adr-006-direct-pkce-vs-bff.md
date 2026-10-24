@@ -17,7 +17,7 @@ The Web App (SPA) must authenticate users. Two patterns exist:
 ## Decision
 
 Use **direct PKCE as the default** (implemented) and keep the **BFF as the documented
-hardened variant** (planned — `bff-identity/`). Direct PKCE stays the default
+hardened variant** (planned — `api-auth/`). Direct PKCE stays the default
 because it demonstrates the OIDC/PKCE requirement directly and keeps the system
 **stateless**.
 

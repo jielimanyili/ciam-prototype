@@ -27,7 +27,7 @@ Split ownership into **platform** and **product**:
 | Artifact | Provides | State |
 |---|---|---|
 | IdP (Okta/Keycloak) | identity store, credential verification, token issuance, MFA/consent | stateful |
-| `bff-identity` | the AuthN flow server-side — OIDC handshake → session cookie, token server-side | stateful (session) |
+| `api-auth` | the AuthN flow server-side — OIDC handshake → session cookie, token server-side | stateful (session) |
 | `api-identity` | reference resource server (prototype) · identity data + IdP admin ops (target) | stateless (prototype) → stateful data slice (target) |
 | `sdk-identity-jvm` (+ starter) | safe defaults at build time for product services | — (compile-time) |
 
@@ -42,7 +42,7 @@ Split ownership into **platform** and **product**:
 
 **Rules:**
 
-- The **`identity` domain is the platform's domain**; every other `-<domain>` is product-owned
+- The **`identity` and `auth` domains are the platform's domains**; every other `-<domain>` is product-owned
   (ties ADR-009 naming to ownership).
 - The platform *builds safe defaults*; product squads *consume* them (FR-6 developer advocacy).
 - **Authentication = platform** (who you are + session + token issuance + the verification
@@ -54,7 +54,7 @@ Split ownership into **platform** and **product**:
 - **Pros:** one owner for the security-critical identity surface (NFR-1); squads integrate
   correctly by default; a clear escalation path for identity incidents.
 - **Cons:** a platform team can become a bottleneck if it owns too much — mitigated by the
-  SDK + starter (self-service) and by scoping the auth BFF to auth + session + proxy (no domain
+  SDK + starter (self-service) and by scoping `api-auth` to auth + session + proxy (no domain
   logic).
 
 ## Alternatives considered

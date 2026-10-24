@@ -17,19 +17,19 @@
 > **Locked in [ADR-009](adr/adr-009-component-naming.md).**
 
 **Rule:** `<layer>-<domain>` in kebab-case — the **layer** prefix says *what kind* of component,
-the **domain** says *which business capability* it serves (here, **identity** = the CIAM domain).
+the **domain** says *which business capability* it serves (**identity** = data/claims, **auth** = authentication).
 
 | Layer | Prefix | Example |
 |---|---|---|
-| Resource server / REST API | `api-` | `api-identity` |
+| Resource server / REST API | `api-` | `api-identity`, `api-auth` |
 | Web UI (SPA) | `ui-` | `ui-identity` |
 | Mobile client | `mobile-` | `mobile-identity` |
-| Backend-for-frontend | `bff-` | `bff-identity` |
+| Backend-for-frontend (domain BFF) | `bff-` | `bff-<domain>` |
 | Shared library / SDK | `sdk-` | `sdk-identity-jvm` |
 
 TriNet's real form is **`<layer>-<org>-<domain>`** — e.g. `api-trinet-auth` (layer + org + domain).
 The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer>-<domain>` form
-(single org). TriNet's `auth` domain ≈ `identity`; we standardize on **`identity`**.
+(single org). `auth` and `identity` are **distinct domains** — `auth` = authentication, `identity` = data/claims.
 
 **Principles**
 
@@ -42,15 +42,15 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 
 | Layer | Directory |
 |---|---|
-| Resource server / REST API | `api-identity/` |
+| Resource server / identity API | `api-identity/` |
+| Auth service (login/session) | `api-auth/` (planned) |
 | Web UI (SPA) | `ui-identity/` |
 | Mobile client (planned) | `mobile-identity/` |
-| Backend-for-frontend (planned) | `bff-identity/` |
 | Shared library / SDK | `sdk-identity-jvm/` |
 
 > Renaming **applied**: `resource-server/` → `api-identity/`, `frontend/` → `ui-identity/`,
 > `identity-sdk-jvm/` → `sdk-identity-jvm/` (dirs, artifactIds, Angular project name, Docker image
-> name, Keycloak client IDs, README). Planned `mobile-identity/` and `bff-identity/` land with their
+> name, Keycloak client IDs, README). Planned `mobile-identity/` and `api-auth/` land with their
 > phases.
 
 ---
@@ -108,17 +108,17 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 
 ---
 
-## 6. BFF (Backend-for-Frontend) — `bff-identity/` (planned)
+## 6. Auth Service (`api-auth/`) — BFF pattern (planned)
 
 - **Purpose:** the *hardened* auth variant — keep the access token **server-side** and
   issue a **session cookie** to the browser, so tokens never reach the SPA.
 - **Tech:** Java Spring Boot + `spring-boot-starter-oauth2-client` + `oauth2Login()`.
-- **Flow:** Web App → BFF (login → session cookie) → BFF proxies API calls to the
+- **Flow:** Web App → `api-auth` (login → session cookie) → `api-auth` proxies API calls to the
   Resource Server with the server-side access token.
 - **Decision:** offer it as an *alternative* to direct PKCE, not a replacement — direct
   PKCE stays the default because it demonstrates the OIDC/PKCE requirement directly.
 - **Trade-off:** stateless JWT → stateful session (cookie expiry / revocation / scale).
-- **Ownership:** platform (ADR-010) — `bff-identity` is the server-side half of authentication;
+- **Ownership:** platform (ADR-010) — `api-auth` is the server-side half of authentication;
   keep it scoped to auth + session + proxy.
 
 ## Key decisions (summary)
@@ -133,5 +133,5 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 | 6 | Backend host | Render | free + Dockerfile |
 | 7 | Frontend host | Vercel | already used |
 | 8 | Live IdP | Okta dev tenant | Okta is the reference IdP |
-| 9 | BFF | Add as planned hardened variant (`oauth2Login()`) | tokens stay server-side |
-| 10 | Component naming | `<layer>-<domain>` (api-/ui-/mobile-/bff-/sdk-) | mirrors TriNet convention; catalog-discoverable |
+| 9 | Auth service | `api-auth` — hardened variant (`oauth2Login()`) | tokens stay server-side |
+| 10 | Component naming | `<layer>-<domain>` (api-/ui-/mobile-/bff-/sdk-); domains: identity, auth | mirrors TriNet convention; catalog-discoverable |

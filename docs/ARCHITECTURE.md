@@ -52,7 +52,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant SPA as Web App (Angular, 4200)
-    participant BFF as Client Auth Service (Java, 4102)
+    participant BFF as Auth Service (api-auth, Java, 4102)
     participant IdP as IdP (Keycloak/Okta, 8080)
     participant API as Resource Server (Spring Boot, 4101)
 
@@ -91,7 +91,7 @@ C4 model (System Context → Container → Component): see `docs/C4.md`.
 - **Web App** (Angular) — `ui-identity/`. Authorization Code + PKCE via `oidc-client-ts`.
 - **Mobile App** (React Native) — `mobile-identity/` (planned). Same PKCE flow via Expo.
 - **Confidential Service** (Java) — a machine client; Client Credentials via the SDK.
-- **Client Auth Service (BFF)** (Java, planned) — `oauth2Login()`; session cookie; token server-side.
+- **Auth Service** (Java, planned) — `api-auth/`. `oauth2Login()`; session cookie; token server-side.
 - **API Gateway** (planned) — edge routing, rate limiting, token validation.
 - **Resource Server** (Spring Boot) — `api-identity/`. Spring
   Security OAuth2 filter chain: `/health` (public), `/api/me`, `/api/admin` (`SCOPE_admin`),
@@ -107,11 +107,11 @@ CIAM splits cleanly into **platform** (the identity capability, owned centrally)
 
 | Concern | Owned by | Artifacts |
 |---|---|---|
-| **Platform — Identity/Auth squad** | central (one squad) | authentication process (login/session/token/refresh/MFA), IdP (Okta/Keycloak), `api-identity`, auth BFF (`bff-identity`), `sdk-identity-jvm` (+ starter), auth standards, ADRs, threat model, risk register, secrets |
+| **Platform — Identity/Auth squad** | central (one squad) | authentication process (login/session/token/refresh/MFA), IdP (Okta/Keycloak), `api-identity`, auth service (`api-auth`), `sdk-identity-jvm` (+ starter), auth standards, ADRs, threat model, risk register, secrets |
 | **Product — domain squads** | each squad | its own `api-<domain>` / `ui-<domain>` / `mobile-<domain>` (+ any `bff-<domain>`) and domain data |
 
 **Rules:**
-- The **`identity` domain is the platform's domain**; every other `-<domain>` is product-owned.
+- The **`identity` and `auth` domains are the platform's domains**; every other `-<domain>` is product-owned.
 - The platform **builds safe defaults** (SDK + starter + this reference implementation); product
   squads **consume** them and *enforce* identity in their own services — they never re-own it
   (FR-6 developer advocacy).
@@ -123,7 +123,7 @@ CIAM splits cleanly into **platform** (the identity capability, owned centrally)
 | Artifact | Provides | State |
 |---|---|---|
 | IdP (Okta/Keycloak) | identity store, credential verification, token issuance, MFA/consent | stateful |
-| `bff-identity` | the AuthN flow server-side — OIDC handshake → session cookie, token server-side | stateful (session) |
+| `api-auth` | the AuthN flow server-side — OIDC handshake → session cookie, token server-side | stateful (session) |
 | `api-identity` | reference resource server (prototype) · identity data + IdP admin ops (target) | stateless (prototype) → stateful data slice (target) |
 | `sdk-identity-jvm` (+ starter) | safe defaults at build time for product services | — (compile-time) |
 
