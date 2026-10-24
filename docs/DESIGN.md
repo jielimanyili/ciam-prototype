@@ -36,6 +36,7 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 - Name by **domain capability** (bounded context), never by technology (`spring-`, `angular-` are out).
 - Repo name = deployable/service name (1:1) so a service catalog (e.g., Backstage) can discover it.
 - One convention, enforced by template/ADR — consistency beats any particular prefix.
+- **SDK exception:** SDKs use `<layer>-<domain>-<runtime>` (`sdk-identity-jvm`) — the runtime is part of an SDK's identity; `-jvm` covers Java + the planned Kotlin DSL wrapper (ADR-002).
 
 **Current → target**
 

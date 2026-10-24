@@ -22,12 +22,15 @@ Name every component **`<layer>-<domain>`** (kebab-case), with the domain fixed 
 Rules:
 
 1. **Layer prefix** = component type (`api-`, `ui-`, `mobile-`, `bff-`, `sdk-`).
-2. **Domain suffix** = business capability (`identity`); never technology (`spring-`, `angular-`).
+2. **Domain suffix** = business capability (`identity`); never technology (`spring-`, `angular-`) — one exception: SDKs may append a `-<runtime>` suffix (rule 6).
 3. **Repo name = deployable/service name** (1:1) for service-catalog discovery.
 4. **Org namespace optional** — TriNet's `api-trinet-auth` is `<layer>-<org>-<domain>`; apply the
    `-trinet-` qualifier only in a multi-tenant catalog. This repo uses the unqualified form.
 5. `auth` and `identity` name the same domain at TriNet; we standardize on **`identity`** (broader:
    covers authN *and* authZ / identity lifecycle).
+6. **SDK runtime suffix** — SDKs use `<layer>-<domain>-<runtime>`: `sdk-identity-jvm`. The runtime
+   is part of an SDK's identity (precedent: `aws-sdk-java`, `stripe-java`); `-jvm` (not `-java`)
+   covers Java *and* the planned Kotlin DSL wrapper (ADR-002).
 
 ## Consequences
 
