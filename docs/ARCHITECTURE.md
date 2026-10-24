@@ -106,14 +106,20 @@ CIAM splits cleanly into **platform** (the identity capability, owned centrally)
 
 | Concern | Owned by | Artifacts |
 |---|---|---|
-| **Platform — Identity/Auth squad** | central (one squad) | IdP (Okta/Keycloak), `api-identity`, `sdk-identity-jvm` (+ starter), auth standards, ADRs, threat model, risk register, secrets |
-| **Product — domain squads** | each squad | its own `api-<domain>` / `ui-<domain>` / `mobile-<domain>` + domain data |
+| **Platform — Identity/Auth squad** | central (one squad) | authentication process (login/session/token/refresh/MFA), IdP (Okta/Keycloak), `api-identity`, auth BFF (`bff-identity`), `sdk-identity-jvm` (+ starter), auth standards, ADRs, threat model, risk register, secrets |
+| **Product — domain squads** | each squad | its own `api-<domain>` / `ui-<domain>` / `mobile-<domain>` (+ any `bff-<domain>`) and domain data |
 
-**Rule:** the platform **builds safe defaults** (SDK + starter + this reference implementation);
-product squads **consume** them and *enforce* identity in their own services — they never re-own it
-(FR-6 developer advocacy).
+**Rules:**
+- The **`identity` domain is the platform's domain**; every other `-<domain>` is product-owned.
+- The platform **builds safe defaults** (SDK + starter + this reference implementation); product
+  squads **consume** them and *enforce* identity in their own services — they never re-own it
+  (FR-6 developer advocacy).
+- **Authentication = platform** (who you are + session + token issuance + verification library);
+  **authorization = product** (what you can do in *their* domain), enforced via the platform SDK.
 
 - `api-identity` is a **platform** service (the customer-facing identity API), not a product service.
+- `bff-identity` (auth BFF / client-auth-service) is a **platform** service — the server-side half
+  of authentication, not a domain aggregation layer; a domain `bff-<domain>` would be product-owned.
 - Product squads validate JWTs + scopes via `sdk-identity-jvm` / the starter (ADR-007) — the same
   `verify-then-authorize` shape, with no central runtime hop.
 

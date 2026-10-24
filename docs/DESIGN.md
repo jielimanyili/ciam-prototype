@@ -117,6 +117,8 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 - **Decision:** offer it as an *alternative* to direct PKCE, not a replacement — direct
   PKCE stays the default because it demonstrates the OIDC/PKCE requirement directly.
 - **Trade-off:** stateless JWT → stateful session (cookie expiry / revocation / scale).
+- **Ownership:** platform (ADR-010) — `bff-identity` is the server-side half of authentication;
+  keep it scoped to auth + session + proxy.
 
 ## Key decisions (summary)
 

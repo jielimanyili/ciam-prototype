@@ -16,22 +16,31 @@ never states who owns the identity surface.
 
 Split ownership into **platform** and **product**:
 
-- **Platform — Identity/Auth squad (single central owner):** the IdP (Okta/Keycloak),
-  `api-identity`, `sdk-identity-jvm` (+ Spring Boot starter), auth standards (ADRs, threat model,
-  risk register), and secrets (ADR-008).
+- **Platform — Identity/Auth squad (single central owner):** the **authentication process**
+  (login, logout, session management, token issuance, refresh rotation, MFA/consent config), the
+  IdP (Okta/Keycloak), `api-identity`, the **auth BFF** (`bff-identity` / client-auth-service),
+  `sdk-identity-jvm` (+ Spring Boot starter), auth standards (ADRs, threat model, risk register),
+  and secrets (ADR-008).
 - **Product — domain squads (each owns its own):** `api-<domain>` / `ui-<domain>` /
-  `mobile-<domain>` services and their domain data. They **consume** identity via the SDK/starter —
-  they never re-own it.
+  `mobile-<domain>` services (plus any domain BFF, `bff-<domain>`) and their domain data. They
+  **consume** identity via the SDK/starter — they never re-own it.
 
-**Rule:** the platform *builds safe defaults*; product squads *consume* them (FR-6 developer
-advocacy). `api-identity` is a **platform** service, not a product service.
+**Rules:**
+
+- The **`identity` domain is the platform's domain**; every other `-<domain>` is product-owned
+  (ties ADR-009 naming to ownership).
+- The platform *builds safe defaults*; product squads *consume* them (FR-6 developer advocacy).
+- **Authentication = platform** (who you are + session + token issuance + the verification
+  library); **authorization = product** (what you can do in *their* domain), enforced via the
+  platform SDK — the `verify-then-authorize` split.
 
 ## Consequences
 
 - **Pros:** one owner for the security-critical identity surface (NFR-1); squads integrate
   correctly by default; a clear escalation path for identity incidents.
 - **Cons:** a platform team can become a bottleneck if it owns too much — mitigated by the
-  SDK + starter, which make identity self-service.
+  SDK + starter (self-service) and by scoping the auth BFF to auth + session + proxy (no domain
+  logic).
 
 ## Alternatives considered
 
