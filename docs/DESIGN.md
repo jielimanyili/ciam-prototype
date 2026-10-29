@@ -138,21 +138,24 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 - **Trade-off:** one workflow (job matrix) vs. many — one, simpler to reason about. Cache Maven/npm/pip; gate deploy + publish on a version tag.
 - **Secrets:** `OIDC_ISSUER` / `OIDC_AUDIENCE` / host tokens in GitHub secrets — never committed (ADR-008).
 
-## 5. Live demo deployment — four runtimes
+## 5. Live demo deployment — four runtimes (AWS, ADR-016)
 
-| Component | Host | Config |
+| Component | Host (demo) | Config |
 |---|---|---|
-| `ui-identity` (Angular SPA) | Vercel | static build; env `authority` → Okta issuer |
+| `ui-identity` (Angular SPA) | S3 + CloudFront | static build; env `authority` → Okta issuer |
 | `mobile-identity` (Expo/RN) | Expo Go / EAS (web preview) | `expo-auth-session` PKCE against Okta |
-| `api-identity-jvm` (Spring Boot) | Render (Dockerfile) | env `OIDC_ISSUER` · `OIDC_AUDIENCE=api-identity-jvm` |
-| `api-identity-python` (FastAPI) | Render (Dockerfile) | env `OIDC_ISSUER` · `OIDC_AUDIENCE=api-identity-python` |
-| `sdk-identity-jvm` | Maven Central (or GitHub Packages) | published artifact |
-| `sdk-identity-python` | PyPI (or GitHub Packages) | `pip install` |
-| IdP | Okta free dev tenant | clients + audience config (below) |
+| `api-identity-jvm` (Spring Boot) | ECS Fargate (image in ECR) | env `OIDC_ISSUER` · `OIDC_AUDIENCE=api-identity-jvm` |
+| `api-identity-python` (FastAPI) | ECS Fargate (image in ECR) | env `OIDC_ISSUER` · `OIDC_AUDIENCE=api-identity-python` |
+| `sdk-identity-jvm` | Maven Central (demo) · JFrog Maven (enterprise) | published artifact |
+| `sdk-identity-python` | PyPI (demo) · JFrog PyPI (enterprise) | `pip install` |
+| IdP | Okta free dev tenant | clients + audience config |
 
 **Decisions:**
-- **Okta dev tenant** over hosted Keycloak — Okta is the reference IdP (ADR-005).
-- **Render** over Railway/Fly — simplest Dockerfile deploy; both resource servers deploy identically.
+- **AWS** over Render/Vercel — production-real signal; matches TriNet's AWS/OCI (ADR-016).
+- **ECS Fargate** over App Runner/EKS · **S3 + CloudFront** for the SPA · **Terraform** IaC ·
+  **AWS Secrets Manager** (ADR-008).
+- **Registry-agnostic CI/CD** — ECR/Central/PyPI for the public demo, **JFrog Artifactory** in
+  TriNet's enterprise (ADR-017).
 - **Both SDKs are published**, not vendored — the developer-advocacy story is "a squad adds a
   Maven dep / `pip install`s it," in either language.
 

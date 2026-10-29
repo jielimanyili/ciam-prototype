@@ -111,10 +111,10 @@
 
 ## Epic 3 — CI/CD pipeline
 
-- **Status:** To Do · **Priority:** High · **Squad:** Identity/Auth platform · **Links:** ADR-005, ADR-014, NFR-4, DESIGN §4 · DESIGN §7
+- **Status:** To Do · **Priority:** High · **Squad:** Identity/Auth platform · **Links:** ADR-005, ADR-014, ADR-016, ADR-017, NFR-4, DESIGN §4 · DESIGN §7
 - **Why:** automated build → test → containerize → publish so every change is proven and the four runtimes stay in parity.
-- **Scope:** GitHub Actions · Java tests on JDK 21 (Docker) · Python tests on 3.12 · **parity gate** (shared fixtures, ADR-014) · build + push `api-identity-jvm`, `api-identity-python`, `ui-identity` to GHCR · publish both SDKs · deploy Vercel + Render.
-- **Success criteria:** a push/PR runs the full pipeline green · images published to GHCR · both SDKs published · the parity gate blocks any drift.
+- **Scope:** GitHub Actions · Java tests on JDK 21 (Docker) · Python tests on 3.12 · **parity gate** (shared fixtures, ADR-014) · build + push `api-identity-jvm`, `api-identity-python`, `ui-identity` to **ECR/JFrog** · publish both SDKs · deploy **S3+CloudFront + ECS Fargate**.
+- **Success criteria:** a push/PR runs the full pipeline green · images published to ECR/JFrog · both SDKs published · the parity gate blocks any drift.
 
 **Stories**
 
@@ -124,27 +124,27 @@
    - **AC:** Given a push → Then `api-identity-jvm` + `sdk-identity-jvm` tests run on JDK 21 in Docker, and `api-identity-python` + `sdk-identity-python` on Python 3.12; either failure blocks the build.
 3. `[ci/cd]` Parity gate (ADR-014)
    - **AC:** Given green unit tests → Then one job runs both resource-server suites against the shared `test-fixtures/` parity matrix + JWT vectors, and fails if any endpoint/status diverges.
-4. `[ci/cd]` Build + push images to GHCR
-   - **AC:** Given green tests + parity → Then `api-identity-jvm`, `api-identity-python`, and `ui-identity` images build and push to GHCR with a version tag (`latest` on main).
+4. `[ci/cd]` Build + push images to a registry
+   - **AC:** Given green tests + parity → Then `api-identity-jvm`, `api-identity-python`, and `ui-identity` images build and push to **ECR** (demo) / **JFrog** (enterprise) with a version tag (`latest` on main).
 5. `[ci/cd]` Publish SDKs
-   - **AC:** Given a version tag → Then `sdk-identity-jvm` publishes to Maven and `sdk-identity-python` to PyPI (same semver).
+   - **AC:** Given a version tag → Then `sdk-identity-jvm` publishes to **Maven Central** (demo) / **JFrog Maven** (enterprise) and `sdk-identity-python` to **PyPI** (demo) / **JFrog PyPI** (enterprise), same semver.
 6. `[ci/cd]` Deploy job (main only)
-   - **AC:** Given a tagged image on main → Then it deploys `ui-identity` (Vercel) and `api-identity-jvm` + `api-identity-python` (Render) with `OIDC_ISSUER`/`OIDC_AUDIENCE`/host tokens from GitHub secrets; non-main branches skip deploy.
+   - **AC:** Given a tagged image on main → Then it deploys `ui-identity` (S3 + CloudFront) and `api-identity-jvm` + `api-identity-python` (ECS Fargate) with `OIDC_ISSUER`/`OIDC_AUDIENCE`/host tokens from GitHub secrets; non-main branches skip deploy.
    - **DoD:** no secret committed (ADR-008); Maven/npm/pip caches enabled.
 
 ---
 
 ## Epic 4 — Live demo deployment
 
-- **Status:** To Do · **Priority:** Medium · **Squad:** Identity/Auth platform · **Links:** ADR-005, DESIGN §5, A-1
+- **Status:** To Do · **Priority:** Medium · **Squad:** Identity/Auth platform · **Links:** ADR-005, ADR-016, DESIGN §5, A-1
 - **Why:** a running demo against a real IdP proves the stack outside localhost.
-- **Scope:** `ui-identity` → Vercel · `api-identity-jvm` → Render · mobile via Expo · IdP = Okta dev tenant.
+- **Scope:** `ui-identity` → S3+CloudFront · `api-identity-jvm` + `api-identity-python` → ECS Fargate · mobile via Expo · IdP = Okta dev tenant.
 - **Success criteria:** a public URL signs in via Okta and calls `/api/me`.
 
 **Stories**
 
-1. `[ui-identity]` Deploy to Vercel — AC: static build with `authority` env var; loads at a public URL.
-2. `[api-identity-jvm]` Deploy to Render — AC: Dockerfile runs on Render with `OIDC_ISSUER`/`OIDC_AUDIENCE`; `/health` is public.
+1. `[ui-identity]` Deploy to S3 + CloudFront — AC: static build with `authority` env var; loads at a public HTTPS URL.
+2. `[api-identity-jvm]` + `[api-identity-python]` Deploy to ECS Fargate — AC: image runs behind ALB with `OIDC_ISSUER`/`OIDC_AUDIENCE`; `/health` is public.
 3. `[mobile-identity]` Expo web preview — AC: `expo start --web` serves the app for the demo.
 4. `[api-identity-jvm]` Swap to Okta — AC: set issuer + audience to the Okta dev tenant; discovery + JWKS resolve; login still works.
 

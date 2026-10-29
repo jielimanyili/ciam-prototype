@@ -186,6 +186,8 @@ See `docs/adr/`:
 - `adr-013` — token audience strategy (Keycloak audience mappers).
 - `adr-014` — multi-runtime parity (shared contract + fixtures).
 - `adr-015` — strangler-fig migration with auto-PR adoption.
+- `adr-016` — AWS deployment target (ECS Fargate + S3/CloudFront).
+- `adr-017` — JFrog Artifactory for artifacts (enterprise).
 
 ## 8. Honesty boundary
 
