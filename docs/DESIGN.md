@@ -170,9 +170,34 @@ from the authorization server's **Audience** setting. Point `OIDC_AUDIENCE` at t
 `api-identity-python`. The SPA/mobile clients carry both audiences; the M2M client carries its
 server's audience — same shape as the Keycloak realm.
 
+**Secrets (ADR-019):** the demo deploys on AWS, so secrets use **AWS Secrets Manager** via ECS
+injection, not Render env vars. Terraform defines the secret; the task definition injects it; the
+app reads an env var (`CLIENT_SECRET`) and stays cloud-agnostic:
+
+```hcl
+resource "aws_secretsmanager_secret" "api_auth_client_secret" {
+  name = "ciam/api-auth-client-secret"
+}
+
+resource "aws_secretsmanager_secret_version" "api_auth_client_secret" {
+  secret_id     = aws_secretsmanager_secret.api_auth_client_secret.id
+  secret_string = var.api_auth_client_secret   # supplied via env/var at apply time, never committed
+}
+```
+
+```json
+// ECS task definition — containerDefinitions[].secrets
+"secrets": [
+  { "name": "CLIENT_SECRET", "valueFrom": "<secret-arn>" }
+]
+```
+
+The task **execution role** needs `secretsmanager:GetSecretValue` on that ARN (least privilege).
+The only app change is `client-secret: ${CLIENT_SECRET:api-auth-secret}`.
+
 ---
 
-## 6. Auth Service (`api-auth/`) — BFF pattern (planned)
+## 6. Auth Service (`api-auth/`) — BFF pattern
 
 - **Purpose:** the *hardened* auth variant — keep the access token **server-side** and issue a
   **session cookie** to the browser, so tokens never reach the SPA (ADR-006).

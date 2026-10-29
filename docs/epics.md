@@ -129,8 +129,8 @@
 5. `[ci/cd]` Publish SDKs
    - **AC:** Given a version tag → Then `sdk-identity-jvm` publishes to **Maven Central** (demo) / **JFrog Maven** (enterprise) and `sdk-identity-python` to **PyPI** (demo) / **JFrog PyPI** (enterprise), same semver.
 6. `[ci/cd]` Deploy job (main only)
-   - **AC:** Given a tagged image on main → Then it deploys `ui-identity` (S3 + CloudFront) and `api-identity-jvm` + `api-identity-python` (ECS Fargate) with `OIDC_ISSUER`/`OIDC_AUDIENCE`/host tokens from GitHub secrets; non-main branches skip deploy.
-   - **DoD:** no secret committed (ADR-008); Maven/npm/pip caches enabled.
+   - **AC:** Given a tagged image on main → Then it deploys `ui-identity` (S3 + CloudFront) and `api-identity-jvm` + `api-identity-python` + `api-auth` (ECS Fargate) with `OIDC_ISSUER`/`OIDC_AUDIENCE` from config and `CLIENT_SECRET` injected from AWS Secrets Manager (ADR-019); non-main branches skip deploy.
+   - **DoD:** no secret committed (ADR-008/ADR-019); Maven/npm/pip caches enabled.
 
 ---
 
@@ -138,7 +138,7 @@
 
 - **Status:** To Do · **Priority:** Medium · **Squad:** Identity/Auth platform · **Links:** ADR-005, ADR-016, DESIGN §5, A-1
 - **Why:** a running demo against a real IdP proves the stack outside localhost.
-- **Scope:** `ui-identity` → S3+CloudFront · `api-identity-jvm` + `api-identity-python` → ECS Fargate · mobile via Expo · IdP = Okta dev tenant.
+- **Scope:** `ui-identity` → S3+CloudFront · `api-identity-jvm` + `api-identity-python` + `api-auth` → ECS Fargate · mobile via Expo · IdP = Okta dev tenant · secrets via Secrets Manager (ADR-019).
 - **Success criteria:** a public URL signs in via Okta and calls `/api/me`.
 
 **Stories**

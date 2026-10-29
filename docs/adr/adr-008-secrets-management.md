@@ -27,7 +27,8 @@ Phase 3's backend host is **Render** (ADR-005), which is **not AWS**.
    cross-account support). Access via IAM (IRSA/instance roles where the workload is on AWS,
    OIDC federation otherwise).
 2. **Live demo (Phase 3)** = **Render's native secret env vars / secret files** — no external
-   store — because the backend is on Render, not AWS.
+   store — because the backend is on Render, not AWS. *(Superseded by ADR-016 + ADR-019: the demo
+   moved to AWS, so it now uses AWS Secrets Manager via ECS injection.)*
 3. **Local** = `keycloak/ciam-realm.json` + `.env.example` (non-sensitive stand-ins only).
 4. **Scope:** only client secrets + (future) DB credentials live in the store. Tokens are
    **never stored** (signed ≠ encrypted — ADR-001).

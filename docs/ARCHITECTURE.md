@@ -189,6 +189,7 @@ See `docs/adr/`:
 - `adr-016` — AWS deployment target (ECS Fargate + S3/CloudFront).
 - `adr-017` — JFrog Artifactory for artifacts (enterprise).
 - `adr-018` — CI/CD tool: GitHub Actions (demo) + Harness (enterprise).
+- `adr-019` — secrets injection on AWS (ECS Fargate, Secrets Manager).
 
 ## 8. Honesty boundary
 
