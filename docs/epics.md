@@ -131,9 +131,9 @@
    - **AC:** Given a version tag → Then `sdk-identity-jvm` publishes to **Maven Central** (demo) / **JFrog Maven** (enterprise) and `sdk-identity-python` to **PyPI** (demo) / **JFrog PyPI** (enterprise), same semver.
    - ✅ **Written:** `.github/workflows/publish.yml` (tag-triggered) · `sdk-identity-jvm/pom.xml` (Central metadata + `release` profile: sources/javadoc/GPG/nexus-staging) · `sdk-identity-python/pyproject.toml` (PyPI metadata). **Publish needs OSSRH + GPG + PyPI secrets (a Sonatype account).** JFrog = repoint the same build at the Artifactory Maven/PyPI repos (ADR-017).
 6. `[ci/cd]` Deploy job (main only)
-   - **AC:** Given a tagged image on main → Then it deploys `ui-identity` (S3 + CloudFront) and `api-identity-jvm` + `api-identity-python` + `api-auth` (ECS Fargate) with `OIDC_ISSUER`/`OIDC_AUDIENCE` from config and `CLIENT_SECRET` injected from AWS Secrets Manager (ADR-019); non-main branches skip deploy.
+   - **AC:** Given a tagged image on main → Then it deploys `ui-identity` (S3 + CloudFront) and `api-identity-jvm` + `api-identity-python` + `api-auth` (ECS EC2) with `OIDC_ISSUER`/`OIDC_AUDIENCE` from config and `CLIENT_SECRET` injected from SSM Parameter Store (ADR-020); non-main branches skip deploy.
    - **DoD:** no secret committed (ADR-008/ADR-019); Maven/npm/pip caches enabled.
-   - ✅ **Written:** `.github/workflows/deploy.yml` (main-only, OIDC → AWS) + `terraform/` (VPC, ALB, ECR, ECS Fargate, S3+CloudFront, Secrets Manager, IAM, ACM+Route53). `terraform validate` passes. **Apply needs an AWS account + Okta dev tenant.**
+   - ✅ **Written:** `.github/workflows/deploy.yml` (main-only, OIDC → AWS) + `terraform/` (VPC, ALB, ECR, ECS EC2, S3+CloudFront, SSM Parameter Store, IAM). `terraform validate` passes. **Apply needs an AWS account + Okta dev tenant.**
 
 ---
 
@@ -141,7 +141,7 @@
 
 - **Status:** 🔄 In Progress (IaC + CI/CD written; apply needs AWS + Okta) · **Priority:** Medium · **Squad:** Identity/Auth platform · **Links:** ADR-005, ADR-016, DESIGN §5, A-1
 - **Why:** a running demo against a real IdP proves the stack outside localhost.
-- **Scope:** `ui-identity` → S3+CloudFront · `api-identity-jvm` + `api-identity-python` + `api-auth` → ECS Fargate · mobile via Expo · IdP = Okta dev tenant · secrets via Secrets Manager (ADR-019).
+- **Scope:** `ui-identity` → S3+CloudFront · `api-identity-jvm` + `api-identity-python` + `api-auth` → ECS EC2 · mobile via Expo · IdP = Okta dev tenant · secrets via SSM Parameter Store (ADR-020).
 - **Success criteria:** a public URL signs in via Okta and calls `/api/me`.
 
 **Stories**

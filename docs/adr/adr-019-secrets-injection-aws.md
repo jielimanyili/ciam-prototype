@@ -4,6 +4,9 @@
 - **Date:** 2026-10-29
 - **Serves:** C-5, NFR-1 · supersedes ADR-008 decision #2 (Render demo path)
 
+> **Superseded for the demo by [ADR-020](adr-020-free-secret-storage-ssm.md):** the demo now uses
+> SSM Parameter Store (Standard tier, free); production keeps Secrets Manager.
+
 ## Context
 
 ADR-008 chose AWS Secrets Manager for production but Render-native env vars for the live demo —

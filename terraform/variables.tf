@@ -47,7 +47,7 @@ variable "oidc_audience_python" {
 }
 
 variable "api_auth_client_secret" {
-  description = "api-auth OIDC client secret (Okta). Stored in Secrets Manager — never committed (ADR-019)."
+  description = "api-auth OIDC client secret (Okta). Stored in SSM Parameter Store — never committed (ADR-020)."
   type        = string
   sensitive   = true
 }

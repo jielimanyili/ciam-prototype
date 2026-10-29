@@ -23,11 +23,18 @@ resource "aws_iam_role_policy" "task_execution_secrets" {
   role = aws_iam_role.task_execution.id
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Effect   = "Allow"
-      Action   = ["secretsmanager:GetSecretValue"]
-      Resource = [aws_secretsmanager_secret.api_auth_client_secret.arn]
-    }]
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["ssm:GetParameter", "ssm:GetParameters"]
+        Resource = [aws_ssm_parameter.api_auth_client_secret.arn]
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["kms:Decrypt"]
+        Resource = [data.aws_kms_key.ssm.arn]
+      }
+    ]
   })
 }
 

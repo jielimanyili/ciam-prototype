@@ -1,7 +1,7 @@
 # Terraform — AWS live demo (M3)
 
 Deploys the four-runtime demo on AWS per [ADR-016](../docs/adr/adr-016-aws-deployment.md) and
-injects secrets per [ADR-019](../docs/adr/adr-019-secrets-injection-aws.md).
+injects secrets per [ADR-020](../docs/adr/adr-020-free-secret-storage-ssm.md).
 
 ## What it creates
 
@@ -13,8 +13,8 @@ injects secrets per [ADR-019](../docs/adr/adr-019-secrets-injection-aws.md).
 | `ecs*.tf` | ECS cluster, EC2-launch-type task definitions + services, CloudWatch log groups, task SG |
 | `alb.tf` | ALB + target groups + HTTP listener with **path-based routing** (`/jvm/*` `/python/*` `/auth/*`) |
 | `s3-cloudfront.tf` | S3 (private) + CloudFront — single free `*.cloudfront.net` HTTPS front door (SPA + API paths) |
-| `secrets.tf` | Secrets Manager secret for `api-auth`'s `CLIENT_SECRET` |
-| `iam.tf` | Task execution role (ECR pull + `secretsmanager:GetSecretValue`, least privilege) + task role |
+| `secrets.tf` | SSM Parameter Store `SecureString` for `api-auth`'s `CLIENT_SECRET` (ADR-020) |
+| `iam.tf` | Task execution role (ECR pull + `ssm:GetParameter` + `kms:Decrypt`, least privilege) + task role |
 
 ## Prerequisites
 
@@ -28,7 +28,8 @@ injects secrets per [ADR-019](../docs/adr/adr-019-secrets-injection-aws.md).
   OOMs, bump `instance_type` to `t3.small`/`medium` (~$15–25/month) — the only paid change.
 - **ALB / S3 / CloudFront / ECR / CloudWatch = free tier.**
 - **No domain, no ACM, no Route53** — HTTPS comes from CloudFront's free `*.cloudfront.net` cert.
-- **Residual (~$0.40/month):** Secrets Manager ($0.40/secret). The only thing that isn't free-tier.
+- **Fully $0** — secrets use SSM Parameter Store (Standard tier is free, ADR-020); production
+  would switch to Secrets Manager (ADR-019).
 
 ## Apply
 

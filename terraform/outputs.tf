@@ -47,7 +47,7 @@ output "ecr_repositories" {
   }
 }
 
-output "client_secret_arn" {
-  description = "Secrets Manager ARN for the api-auth client secret (ADR-019)."
-  value       = aws_secretsmanager_secret.api_auth_client_secret.arn
+output "client_secret_param" {
+  description = "SSM Parameter (SecureString) holding the api-auth client secret (ADR-020)."
+  value       = aws_ssm_parameter.api_auth_client_secret.arn
 }

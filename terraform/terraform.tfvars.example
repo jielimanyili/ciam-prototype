@@ -12,7 +12,7 @@ oidc_issuer          = "https://dev-123456.okta.com/oauth2/default"
 oidc_audience_jvm    = "api://default"
 oidc_audience_python = "api://default"
 
-# api-auth OIDC client secret — injected into ECS from Secrets Manager (ADR-019).
+# api-auth OIDC client secret — injected into ECS from SSM Parameter Store (ADR-020).
 api_auth_client_secret = "CHANGE_ME"
 
 # SAML (Epic 2) — leave disabled for the OIDC-only Okta demo.

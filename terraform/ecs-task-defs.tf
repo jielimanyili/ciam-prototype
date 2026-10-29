@@ -88,9 +88,9 @@ resource "aws_ecs_task_definition" "auth" {
         ],
         var.saml_idp_metadata_uri != "" ? [{ name = "SAML_IDP_METADATA_URI", value = var.saml_idp_metadata_uri }] : []
       )
-      # ADR-019: inject the client secret from Secrets Manager (never in the task definition).
+      # ADR-020: inject the client secret from SSM Parameter Store (never in the task definition).
       secrets = [
-        { name = "CLIENT_SECRET", valueFrom = aws_secretsmanager_secret.api_auth_client_secret.arn }
+        { name = "CLIENT_SECRET", valueFrom = aws_ssm_parameter.api_auth_client_secret.arn }
       ]
       logConfiguration = {
         logDriver = "awslogs"
