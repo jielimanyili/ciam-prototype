@@ -11,9 +11,9 @@
 
 ## Versioning — SemVer
 
-- `MAJOR.MINOR.PATCH` per component (`api-identity`, `ui-identity`, `sdk-identity-jvm`).
+- `MAJOR.MINOR.PATCH` per component (`api-identity-jvm`, `ui-identity`, `sdk-identity-jvm`).
 - `MAJOR` = breaking API change (the `openapi.yaml` contract); `MINOR` = new backward-compatible capability; `PATCH` = fix / security patch.
-- A release = a git tag (`api-identity-v1.2.0`) + a matching image tag on GHCR.
+- A release = a git tag (`api-identity-jvm-v1.2.0`) + a matching image tag on GHCR.
 
 ## Environments
 
@@ -21,7 +21,7 @@
 |---|---|---|---|
 | **local** | development | docker-compose (Keycloak) + `ng serve` / `mvn` | `.env` (`OIDC_ISSUER`, `OIDC_AUDIENCE`) |
 | **preview / staging** | PR review | Vercel preview + Render preview | platform secret store |
-| **prod** | live demo | Vercel (`ui-identity`) · Render (`api-identity`) · Expo | Okta dev tenant (ADR-005) |
+| **prod** | live demo | Vercel (`ui-identity`) · Render (`api-identity-jvm`) · Expo | Okta dev tenant (ADR-005) |
 
 - Env-specific config is **env vars only** (`OIDC_ISSUER`, `OIDC_AUDIENCE`, `PORT`) — no config in code.
 - The IdP is per-env: Keycloak locally, Okta in prod (C-1, A-1).

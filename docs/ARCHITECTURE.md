@@ -93,7 +93,7 @@ C4 model (System Context → Container → Component): see `docs/C4.md`.
 - **Confidential Service** (Java) — a machine client; Client Credentials via the SDK.
 - **Auth Service** (Java, planned) — `api-auth/`. `oauth2Login()`; session cookie; token server-side.
 - **API Gateway** (planned) — edge routing, rate limiting, token validation.
-- **Resource Server** (Spring Boot) — `api-identity/`. Spring
+- **Resource Server** (Spring Boot) — `api-identity-jvm/`. Spring
   Security OAuth2 filter chain: `/health` (public), `/api/me`, `/api/admin` (`SCOPE_admin`),
   `/api/claims`. Role: reference resource server (prototype) → identity data + IdP admin ops (target).
 - **Identity SDK** (Java) — `sdk-identity-jvm/`. `Pkce`, `OidcDiscovery`, `ClientCredentials`,
@@ -107,7 +107,7 @@ CIAM splits cleanly into **platform** (the identity capability, owned centrally)
 
 | Concern | Owned by | Artifacts |
 |---|---|---|
-| **Platform — Identity/Auth squad** | central (one squad) | authentication process (login/session/token/refresh/MFA), IdP (Okta/Keycloak), `api-identity`, auth service (`api-auth`), `sdk-identity-jvm` (+ starter), auth standards, ADRs, threat model, risk register, secrets |
+| **Platform — Identity/Auth squad** | central (one squad) | authentication process (login/session/token/refresh/MFA), IdP (Okta/Keycloak), `api-identity-jvm`, auth service (`api-auth`), `sdk-identity-jvm` (+ starter), auth standards, ADRs, threat model, risk register, secrets |
 | **Product — domain squads** | each squad | its own `api-<domain>` / `ui-<domain>` / `mobile-<domain>` (+ any `bff-<domain>`) and domain data |
 
 **Rules:**
@@ -124,7 +124,7 @@ CIAM splits cleanly into **platform** (the identity capability, owned centrally)
 |---|---|---|
 | IdP (Okta/Keycloak) | identity store, credential verification, token issuance, MFA/consent | stateful |
 | `api-auth` | the AuthN flow server-side — OIDC handshake → session cookie, token server-side | stateful (session) |
-| `api-identity` | reference resource server (prototype) · identity data + IdP admin ops (target) | stateless (prototype) → stateful data slice (target) |
+| `api-identity-jvm` | reference resource server (prototype) · identity data + IdP admin ops (target) | stateless (prototype) → stateful data slice (target) |
 | `sdk-identity-jvm` (+ starter) | safe defaults at build time for product services | — (compile-time) |
 
 - Product squads validate JWTs + scopes via `sdk-identity-jvm` / the starter (ADR-007) — the same
@@ -132,8 +132,8 @@ CIAM splits cleanly into **platform** (the identity capability, owned centrally)
 
 **Library vs. service boundary:** validation + claims = **library** (`sdk-identity-jvm` + starter;
 embedded, stateless, build-time — ADR-007). Shared identity **data** + privileged IdP **operations** =
-**service** (`api-identity`; stateful, platform-owned, server-side secrets). A library holds no shared
-state and no privileged secrets — so `api-identity`'s *service* role is the data/admin-ops slice, not
+**service** (`api-identity-jvm`; stateful, platform-owned, server-side secrets). A library holds no shared
+state and no privileged secrets — so `api-identity-jvm`'s *service* role is the data/admin-ops slice, not
 the validation (which the SDK already gives every service).
 
 ### RACI
@@ -141,7 +141,7 @@ the validation (which the SDK already gives every service).
 | Artifact | Identity/Auth squad | Product squads | IdP (Okta/Keycloak) |
 |---|---|---|---|
 | IdP config | A | I | R |
-| `api-identity` | R/A | C | — |
+| `api-identity-jvm` | R/A | C | — |
 | `api-auth` | R/A | C | — |
 | `sdk-identity-jvm` | R/A | C (consumer) | — |
 | Product `api-<domain>` | C (guardrails) | R/A | — |
@@ -154,7 +154,7 @@ R = responsible · A = accountable · C = consulted · I = informed.
 |---|---|
 | Access token (JWT) | `iss`, `aud`, `sub`, `exp`, `iat`, `scope`, `client_id`, `roles`/`groups` |
 | Token response | `access_token`, `token_type`, `expires_in`, `scope` (optional `id_token`, `refresh_token`) |
-| Identity profile (target) | `sub`, attributes, `consent` records, `mfa` enrollments, `entitlements` — the stateful slice of `api-identity` |
+| Identity profile (target) | `sub`, attributes, `consent` records, `mfa` enrollments, `entitlements` — the stateful slice of `api-identity-jvm` |
 | Session (`api-auth`) | `session_id`, `sub`, `expires_at`, `idle_timeout` |
 | OAuth client | `client_id`, `client_secret` ref (secrets manager), grant type, `redirect_uris` |
 

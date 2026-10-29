@@ -16,7 +16,7 @@
 
 ## Conventions
 
-- **Summary prefix** = owning component (ADR-009): `[api-identity]` `[api-auth]` `[ui-identity]` `[mobile-identity]` `[sdk-identity-jvm]` `[ci/cd]`.
+- **Summary prefix** = owning component (ADR-009): `[api-identity-jvm]` `[api-auth]` `[ui-identity]` `[mobile-identity]` `[sdk-identity-jvm]` `[ci/cd]`.
 - **Squad:** the `identity` + `auth` domains are platform-owned (ADR-010); everything else → the owning domain squad.
 - **A story is a vertical slice** (testable end-to-end), never a layer ("build the UI", "build the API").
 
@@ -29,7 +29,7 @@
 ## Estimation & dependencies
 
 - **Estimation** — relative (Fibonacci) at story level; epics carry the sum. Priority ≠ size.
-- **Dependencies** — Epics 1 (mobile) and 3 (CI/CD) are independent; Epic 2 (SAML) needs `api-auth` (Epic 5); Epic 4 (live demo) needs Epic 3; Epic 6 (starter) extracts from `api-identity`. The IdP is a prerequisite for all login flows.
+- **Dependencies** — Epics 1 (mobile) and 3 (CI/CD) are independent; Epic 2 (SAML) needs `api-auth` (Epic 5); Epic 4 (live demo) needs Epic 3; Epic 6 (starter) extracts from `api-identity-jvm`. The IdP is a prerequisite for all login flows.
 
 ---
 
@@ -44,7 +44,7 @@
 
 - **Status:** Done · **Priority:** High · **Squad:** Identity/Auth platform · **Links:** ADR-011 · FR-6, FR-4, FR-5 · DESIGN §1b · C-2
 - **Why:** TriNet runs Python; the identity platform is language-agnostic, so the reference ships a Python counterpart of the SDK and resource server.
-- **Delivered:** `sdk-identity-python` (`discover`, `generate_pkce`, `fetch_client_credentials`, `scopes_of`/`require_scope`/`has_claim` — 6 tests) + `api-identity-python` (FastAPI; same endpoints + JWT validation as `api-identity` — 5 tests). Closed; listed for completeness.
+- **Delivered:** `sdk-identity-python` (`discover`, `generate_pkce`, `fetch_client_credentials`, `scopes_of`/`require_scope`/`has_claim` — 6 tests) + `api-identity-python` (FastAPI; same endpoints + JWT validation as `api-identity-jvm` — 5 tests). Closed; listed for completeness.
 
 ---
 
@@ -52,7 +52,7 @@
 
 - **Status:** To Do · **Priority:** High · **Squad:** Identity/Auth platform · **Links:** ADR-003, ADR-001, DESIGN §2, C-3, FR-1
 - **Why:** customers authenticate on mobile via the same OIDC/PKCE flow as the web app.
-- **Scope:** Expo (managed) + `expo-auth-session` (PKCE) + `expo-secure-store`; calls `api-identity`.
+- **Scope:** Expo (managed) + `expo-auth-session` (PKCE) + `expo-secure-store`; calls `api-identity-jvm`.
 - **Out of scope:** SAML, passkeys/biometrics (Later).
 - **Success criteria:** sign-in → claims · refresh token in secure store · sign-out clears session · works against Keycloak (and later Okta).
 
@@ -72,9 +72,9 @@
 
 3. `[mobile-identity]` Call the protected API
    - **As a** customer **I want** to see my claims **so that** I know the flow works end-to-end.
-   - **AC:** Given signed in → When I tap "Call /api/me" → Then `api-identity` returns verified claims and the app renders them.
+   - **AC:** Given signed in → When I tap "Call /api/me" → Then `api-identity-jvm` returns verified claims and the app renders them.
    - **AC (negative):** Given an expired token → Then a clear "session expired" state, not a raw error.
-   - **DoD:** proves the `aud` check in `api-identity` end-to-end.
+   - **DoD:** proves the `aud` check in `api-identity-jvm` end-to-end.
 
 4. `[mobile-identity]` Sign out
    - **As a** customer **I want** to sign out **so that** my session is cleared on this device.
@@ -113,7 +113,7 @@
 
 - **Status:** To Do · **Priority:** High · **Squad:** Identity/Auth platform · **Links:** ADR-005, NFR-4, DESIGN §4
 - **Why:** automated build → test → containerize so every change is proven.
-- **Scope:** GitHub Actions; Java tests in Docker (JDK 21 pin); build `api-identity` + `ui-identity`; push GHCR.
+- **Scope:** GitHub Actions; Java tests in Docker (JDK 21 pin); build `api-identity-jvm` + `ui-identity`; push GHCR.
 - **Success criteria:** a push/PR runs the full pipeline green · images published to GHCR.
 
 **Stories**
@@ -121,11 +121,11 @@
 1. `[ci/cd]` Typecheck + lint job
    - **AC:** Given a PR → Then the workflow runs typecheck (frontend) and lint on every push.
 2. `[ci/cd]` Unit-test job (Java via Docker)
-   - **AC:** Given a push → Then `api-identity` + `sdk-identity-jvm` tests run on JDK 21 in Docker and block the build on failure.
+   - **AC:** Given a push → Then `api-identity-jvm` + `sdk-identity-jvm` tests run on JDK 21 in Docker and block the build on failure.
 3. `[ci/cd]` Build + push images to GHCR
-   - **AC:** Given a green test job → Then `api-identity` (Dockerfile) and `ui-identity` images are built and pushed to GHCR with a version tag.
+   - **AC:** Given a green test job → Then `api-identity-jvm` (Dockerfile) and `ui-identity` images are built and pushed to GHCR with a version tag.
 4. `[ci/cd]` Deploy job
-   - **AC:** Given a tagged image → Then it deploys `ui-identity` (Vercel) and `api-identity` (Render) using `OIDC_ISSUER`/`OIDC_AUDIENCE` from secrets.
+   - **AC:** Given a tagged image → Then it deploys `ui-identity` (Vercel) and `api-identity-jvm` (Render) using `OIDC_ISSUER`/`OIDC_AUDIENCE` from secrets.
 
 ---
 
@@ -133,15 +133,15 @@
 
 - **Status:** To Do · **Priority:** Medium · **Squad:** Identity/Auth platform · **Links:** ADR-005, DESIGN §5, A-1
 - **Why:** a running demo against a real IdP proves the stack outside localhost.
-- **Scope:** `ui-identity` → Vercel · `api-identity` → Render · mobile via Expo · IdP = Okta dev tenant.
+- **Scope:** `ui-identity` → Vercel · `api-identity-jvm` → Render · mobile via Expo · IdP = Okta dev tenant.
 - **Success criteria:** a public URL signs in via Okta and calls `/api/me`.
 
 **Stories**
 
 1. `[ui-identity]` Deploy to Vercel — AC: static build with `authority` env var; loads at a public URL.
-2. `[api-identity]` Deploy to Render — AC: Dockerfile runs on Render with `OIDC_ISSUER`/`OIDC_AUDIENCE`; `/health` is public.
+2. `[api-identity-jvm]` Deploy to Render — AC: Dockerfile runs on Render with `OIDC_ISSUER`/`OIDC_AUDIENCE`; `/health` is public.
 3. `[mobile-identity]` Expo web preview — AC: `expo start --web` serves the app for the demo.
-4. `[api-identity]` Swap to Okta — AC: set issuer + audience to the Okta dev tenant; discovery + JWKS resolve; login still works.
+4. `[api-identity-jvm]` Swap to Okta — AC: set issuer + audience to the Okta dev tenant; discovery + JWKS resolve; login still works.
 
 ---
 
@@ -149,14 +149,14 @@
 
 - **Status:** To Do · **Priority:** Medium · **Squad:** Identity/Auth platform · **Links:** ADR-006, ADR-010, DESIGN §6, NFR-9
 - **Why:** the hardened variant — tokens stay server-side; the browser gets a session cookie.
-- **Scope:** Spring Boot `oauth2Login()`; session cookie; proxy `/api/me` → `api-identity`.
+- **Scope:** Spring Boot `oauth2Login()`; session cookie; proxy `/api/me` → `api-identity-jvm`.
 - **Success criteria:** browser authenticates via `api-auth` and reaches `/api/me` with no token ever in the SPA.
 
 **Stories**
 
 1. `[api-auth]` Scaffold oauth2Login service — AC: a confidential OAuth2 client performs the code exchange server-side.
 2. `[api-auth]` Session cookie + CSRF — AC: HttpOnly/Secure/SameSite cookie; CSRF + session-fixation protection on (NFR-9).
-3. `[api-auth]` Proxy protected API — AC: `/api/me` is proxied to `api-identity` with the server-side access token.
+3. `[api-auth]` Proxy protected API — AC: `/api/me` is proxied to `api-identity-jvm` with the server-side access token.
 4. `[api-auth]` Session lifecycle — AC: expiry + idle timeout + revocation; sign-out ends the session.
 
 ---
@@ -170,7 +170,7 @@
 **Stories**
 
 1. `[sdk-identity-jvm]` Starter auto-config — AC: `issuer-uri` → JWKS/RS256 + issuer validation auto-configured.
-2. `[sdk-identity-jvm]` Audience validator wired — AC: reuses `AudienceValidator` (from `api-identity`) via `audiences` config.
+2. `[sdk-identity-jvm]` Audience validator wired — AC: reuses `AudienceValidator` (from `api-identity-jvm`) via `audiences` config.
 3. `[sdk-identity-jvm]` Scope enforcement helpers — AC: `requireScope` integrates with the RS security filter.
 
 ---

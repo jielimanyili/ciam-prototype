@@ -1,4 +1,4 @@
-"""FastAPI resource server — mirrors ``api-identity`` (Spring Boot).
+"""FastAPI resource server — mirrors ``api-identity-jvm`` (Spring Boot).
 
 Endpoints are intentionally identical to the Java server:
 - GET /health       public

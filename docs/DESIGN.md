@@ -5,7 +5,7 @@
 
 ## Status
 
-**Already built:** `api-identity` (Spring Boot), `sdk-identity-jvm` (Java SDK), `ui-identity` (Angular), Keycloak realm, and docs (requirements, architecture, C4, best-practices, anti-patterns, threat-model, risk register).
+**Already built:** `api-identity-jvm` (Spring Boot), `sdk-identity-jvm` (Java SDK), `ui-identity` (Angular), Keycloak realm, and docs (requirements, architecture, C4, best-practices, anti-patterns, threat-model, risk register).
 
 **Remaining (this design):** JVM SDK · React Native client · SAML 2.0 · CI/CD · live deployment.
 
@@ -21,7 +21,7 @@ the **domain** says *which business capability* it serves (**identity** = data/c
 
 | Layer | Prefix | Example |
 |---|---|---|
-| Resource server / REST API | `api-` | `api-identity`, `api-auth` |
+| Resource server / REST API | `api-` | `api-identity-jvm`, `api-auth` |
 | Web UI (SPA) | `ui-` | `ui-identity` |
 | Mobile client | `mobile-` | `mobile-identity` |
 | Backend-for-frontend (domain BFF) | `bff-` | `bff-<domain>` |
@@ -42,7 +42,7 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 
 | Layer | Directory |
 |---|---|
-| Resource server / identity API | `api-identity/` |
+| Resource server / identity API | `api-identity-jvm/` |
 | Resource server / identity API (Python) | `api-identity-python/` |
 | Auth service (login/session) | `api-auth/` (planned) |
 | Web UI (SPA) | `ui-identity/` |
@@ -50,7 +50,7 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 | Shared library / SDK | `sdk-identity-jvm/` |
 | Shared library / SDK (Python) | `sdk-identity-python/` |
 
-> Renaming **applied**: `resource-server/` → `api-identity/`, `frontend/` → `ui-identity/`,
+> Renaming **applied**: `resource-server/` → `api-identity-jvm/`, `frontend/` → `ui-identity/`,
 > `identity-sdk-jvm/` → `sdk-identity-jvm/` (dirs, artifactIds, Angular project name, Docker image
 > name, Keycloak client IDs, README). Planned `mobile-identity/` and `api-auth/` land with their
 > phases.
@@ -85,7 +85,7 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 - **SDK (`sdk-identity-python/`):** Python 3.12, thin wrapper mirroring `sdk-identity-jvm` —
   `discover`, `generate_pkce`, `fetch_client_credentials`, `scopes_of`/`require_scope`/`has_claim`.
   Dependency: `httpx` only. JWT validation stays in the resource server.
-- **Resource server (`api-identity-python/`):** FastAPI, mirrors `api-identity` — same endpoints
+- **Resource server (`api-identity-python/`):** FastAPI, mirrors `api-identity-jvm` — same endpoints
   (`/health`, `/api/me`, `/api/admin`, `/api/claims`), same JWT validation (RS256/JWKS + issuer +
   audience + expiry), scope enforcement via the SDK. Consumes `sdk-identity-python` for discovery.
 - **Decision:** Python 3.12 + FastAPI + PyJWT (validation) + httpx; `-python` marks the alternate
@@ -111,7 +111,7 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 
 ## 4. CI/CD — GitHub Actions
 
-- **Pipeline (on push/PR):** (1) typecheck/lint → (2) unit tests (Java via Docker) → (3) build images (`api-identity`, `ui-identity`) → (4) push to GHCR → (5) deploy.
+- **Pipeline (on push/PR):** (1) typecheck/lint → (2) unit tests (Java via Docker) → (3) build images (`api-identity-jvm`, `ui-identity`) → (4) push to GHCR → (5) deploy.
 - **Decision:** GitHub Actions (already used in the repo) · Docker for Java (JDK pinning) · platform deploy for the frontend.
 - **Trade-off:** one workflow with a job matrix vs. many workflows — one workflow, simpler to reason about.
 
@@ -153,4 +153,4 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 | 9 | Auth service | `api-auth` — hardened variant (`oauth2Login()`) | tokens stay server-side |
 | 10 | Component naming | `<layer>-<domain>` (api-/ui-/mobile-/bff-/sdk-); domains: identity, auth | mirrors TriNet convention; catalog-discoverable |
 | 11 | Python SDK | `sdk-identity-python` (thin, httpx-only) | mirrors `sdk-identity-jvm`; FR-6 across languages |
-| 12 | Python resource server | `api-identity-python` (FastAPI + PyJWT) | same endpoints/validation as `api-identity` |
+| 12 | Python resource server | `api-identity-python` (FastAPI + PyJWT) | same endpoints/validation as `api-identity-jvm` |

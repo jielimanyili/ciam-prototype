@@ -8,11 +8,11 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 class AudienceValidatorTest {
 
-    private final AudienceValidator validator = new AudienceValidator("api-identity");
+    private final AudienceValidator validator = new AudienceValidator("api-identity-jvm");
 
     @Test
     void acceptsMatchingAudience() {
-        OAuth2TokenValidatorResult result = validator.validate(jwtWithAudience("api-identity"));
+        OAuth2TokenValidatorResult result = validator.validate(jwtWithAudience("api-identity-jvm"));
         assertThat(result.hasErrors()).isFalse();
     }
 

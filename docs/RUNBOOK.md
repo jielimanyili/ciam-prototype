@@ -6,7 +6,7 @@
 
 1. `docker compose up -d` — start Keycloak (`ciam-demo` realm).
 2. Verify IdP: `curl http://localhost:8080/realms/ciam-demo/.well-known/openid-configuration`.
-3. `cd api-identity && docker build -t api-identity . && docker run -p 4101:4101 api-identity`.
+3. `cd api-identity-jvm && docker build -t api-identity-jvm . && docker run -p 4101:4101 api-identity-jvm`.
 4. `cd ../ui-identity && npm install && npm start` → http://localhost:4200 → `demo` / `demo`.
 5. Verify API: `curl http://localhost:4101/health` → `{"ok":true}`.
 
@@ -16,7 +16,7 @@
 |---|---|---|
 | IdP discovery 404 / timeout | Keycloak not booted yet | wait ~30s; `docker compose logs keycloak` |
 | 401 on `/api/me` | missing / expired token | re-login; check token expiry |
-| 401 `invalid_token — audience missing` | `aud` ≠ `OIDC_AUDIENCE` | set `OIDC_AUDIENCE=api-identity`; re-mint token |
+| 401 `invalid_token — audience missing` | `aud` ≠ `OIDC_AUDIENCE` | set `OIDC_AUDIENCE=api-identity-jvm`; re-mint token |
 | 403 on `/api/admin` | token lacks the `admin` scope | add the scope to the client / request |
 | SPA redirect loop | `client_id` / redirect URI mismatch | check the `ui-identity` client + `auth.service.ts` |
 

@@ -11,9 +11,9 @@
     </parent>
 
     <groupId>com.ciam</groupId>
-    <artifactId>api-identity</artifactId>
+    <artifactId>api-identity-jvm</artifactId>
     <version>0.1.0</version>
-    <name>api-identity</name>
+    <name>api-identity-jvm</name>
     <description>CIAM — OIDC/OAuth2 resource server (JWT validation + scope authorization)</description>
 
     <properties>

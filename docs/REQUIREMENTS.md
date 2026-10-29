@@ -59,7 +59,7 @@
 | ID | Assumption |
 |---|---|
 | A-1 | Keycloak locally; **Okta dev tenant** for the live demo |
-| A-2 | Audience validation via a custom `OAuth2TokenValidator` (wired in `api-identity`) |
+| A-2 | Audience validation via a custom `OAuth2TokenValidator` (wired in `api-identity-jvm`) |
 | A-3 | SAML scope = SP-initiated first, IdP-initiated second |
 
 ## 5. Non-goals (out of scope)

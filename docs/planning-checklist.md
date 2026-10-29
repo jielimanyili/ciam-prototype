@@ -46,7 +46,7 @@
 | # | Item | Status | Where / note |
 |---|---|---|---|
 | 3.1 | Component design | ✅ | `DESIGN.md` |
-| 3.2 | Decisions logged (ADRs) | ✅ | 11 ADRs (`docs/adr/`) |
+| 3.2 | Decisions logged (ADRs) | ✅ | 12 ADRs (`docs/adr/`) |
 | 3.3 | API contract | ✅ | `openapi.yaml` |
 | 3.4 | Naming conventions | ✅ | `ADR-009` |
 
@@ -58,7 +58,7 @@
 | 4.2 | Risk register | ✅ | `risk-register.md` |
 | 4.3 | Best practices / anti-patterns | ✅ | `best-practices.md` · `anti-patterns.md` |
 | 4.4 | Secrets-management decision | ✅ | `ADR-008` |
-| 4.5 | Controls implemented | ✅ | JWT (sig/issuer/audience/expiry) + scope done in `api-identity`; TLS + rate limiting = non-goal |
+| 4.5 | Controls implemented | ✅ | JWT (sig/issuer/audience/expiry) + scope done in `api-identity-jvm`; TLS + rate limiting = non-goal |
 
 ## 5. Planning & sequencing
 
@@ -75,7 +75,7 @@
 | # | Item | Status | Where / note |
 |---|---|---|---|
 | 6.1 | Test strategy / pyramid | ✅ | `TESTING.md` |
-| 6.2 | Unit tests | ✅ | SDK (6) · `api-identity` (controller + audience) |
+| 6.2 | Unit tests | ✅ | SDK (6) · `api-identity-jvm` (controller + audience) |
 | 6.3 | Integration tests | 🟡 | `docker build` runs tests; no explicit integration suite |
 | 6.4 | Contract tests | ❌ | `openapi.yaml` exists; no contract test |
 | 6.5 | E2E tests | 🟡 | planned (`epics.md` backlog), not built |
@@ -126,7 +126,7 @@
 
 ## Remaining gaps (code/build — not docs)
 
-1. **Contract tests** (6.4) — validate `api-identity` against `openapi.yaml`.
+1. **Contract tests** (6.4) — validate `api-identity-jvm` against `openapi.yaml`.
 2. **Integration / E2E tests** (6.3, 6.5) — explicit suites + Playwright (Epic 3, Later backlog).
 3. **CI pipeline build-out** (6.6, 7.1) — implement Epic 3 (GitHub Actions).
 

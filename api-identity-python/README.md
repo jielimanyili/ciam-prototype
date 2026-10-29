@@ -1,6 +1,6 @@
 # api-identity-python
 
-The **Python** counterpart of [`api-identity`](../api-identity) — a FastAPI resource server that
+The **Python** counterpart of [`api-identity-jvm`](../api-identity-jvm) — a FastAPI resource server that
 protects the same endpoints with the same JWT validation (RS256/JWKS + issuer + audience + scope
 enforcement), using [`sdk-identity-python`](../sdk-identity-python). See
 [ADR-011](../docs/adr/adr-011-python-sdk-and-resource-server.md).
@@ -27,7 +27,7 @@ Env vars (same as the Java server):
 | Var | Default |
 |---|---|
 | `OIDC_ISSUER` | `http://localhost:8080/realms/ciam-demo` |
-| `OIDC_AUDIENCE` | `api-identity` |
+| `OIDC_AUDIENCE` | `api-identity-python` |
 | `PORT` | `4102` |
 
 ## Tests

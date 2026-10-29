@@ -12,7 +12,7 @@ different clients.
 ## Decision
 
 - **CI/CD:** GitHub Actions — typecheck/lint → tests (Java via Docker) → build
-  images (`api-identity`, `ui-identity`) → push to GHCR → deploy.
+  images (`api-identity-jvm`, `ui-identity`) → push to GHCR → deploy.
 - **Backend host:** Render (free tier, Dockerfile).
 - **Frontend host:** Vercel (static).
 - **Mobile:** Expo (web preview / Expo Go).

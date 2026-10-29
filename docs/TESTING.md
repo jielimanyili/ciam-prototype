@@ -23,7 +23,7 @@
 | Component | Existing | Planned / gap |
 |---|---|---|
 | `sdk-identity-jvm` | 6 unit tests — `Pkce` (2), `ScopeAssertions` (4) | `OidcDiscovery` + `ClientCredentials` unit tests (mock HTTP) |
-| `api-identity` | 7 tests — `AudienceValidator` (3) + `ClaimsController` (4, `@WebMvcTest`) | `JwtDecoder` validator-chain test · contract test vs `openapi.yaml` |
+| `api-identity-jvm` | 7 tests — `AudienceValidator` (3) + `ClaimsController` (4, `@WebMvcTest`) | `JwtDecoder` validator-chain test · contract test vs `openapi.yaml` |
 | `ui-identity` | — | unit (`auth.service`, components) · E2E (Playwright) |
 | `api-auth` (planned) | — | `oauth2Login` slice + session/CSRF tests (NFR-9) |
 | `mobile-identity` (planned) | — | unit (token store) · E2E |
@@ -37,7 +37,7 @@ Already used in the repo — these are why the suite runs with no IdP:
 @MockBean JwtDecoder jwtDecoder;
 
 // 2. Build a token in the test (no signing, no network)
-Jwt.withTokenValue("t").header("alg", "RS256").claim("aud", "api-identity").build();
+Jwt.withTokenValue("t").header("alg", "RS256").claim("aud", "api-identity-jvm").build();
 
 // 3. Authenticate a request with a fabricated JWT + authorities
 mvc.perform(get("/api/admin").with(
@@ -48,7 +48,7 @@ mvc.perform(get("/api/admin").with(
 
 ## Quality gates (CI)
 
-- Tests run on **JDK 21 in Docker** — `api-identity/Dockerfile` runs `mvn package` (which runs tests) at build time (ADR-005 · Epic 3).
+- Tests run on **JDK 21 in Docker** — `api-identity-jvm/Dockerfile` runs `mvn package` (which runs tests) at build time (ADR-005 · Epic 3).
 - Pipeline order: typecheck/lint → **unit/slice tests** → build images → contract → E2E (planned).
 - **Tests are a hard gate** — a failing test blocks the build, never advisory.
 

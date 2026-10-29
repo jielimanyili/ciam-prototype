@@ -36,4 +36,4 @@ Scope: the CIAM prototype — SPA/mobile → API gateway → resource server →
 3. **Secrets out of tokens** (signed ≠ encrypted).
 4. **Log denials** — you can't detect what you don't record.
 
-> This maps 1:1 to the controls implemented/tested in the prototype (the `api-identity` — JWT validation + scope enforcement), so every mitigation here has working code behind it.
+> This maps 1:1 to the controls implemented/tested in the prototype (the `api-identity-jvm` — JWT validation + scope enforcement), so every mitigation here has working code behind it.

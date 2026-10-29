@@ -11,9 +11,9 @@ for Okta).
 | Capability | Where it lives |
 |---|---|
 | CIAM architecture (Okta APIs/SDKs) | Keycloak stands in for Okta; swap issuer + client to go live (see below) |
-| OIDC / OAuth 2.0 — Authorization Code + PKCE | `ui-identity/` (Angular + `oidc-client-ts`) + `api-identity/` (Spring Security OAuth2) |
-| OAuth 2.0 — Client Credentials | `api-identity/` (Spring Security) · `sdk-identity-jvm` (built) |
-| API & microservice security — JWT validation, scoping, claims | `api-identity/` (Spring Security) + `api-identity-python/` (FastAPI) |
+| OIDC / OAuth 2.0 — Authorization Code + PKCE | `ui-identity/` (Angular + `oidc-client-ts`) + `api-identity-jvm/` (Spring Security OAuth2) |
+| OAuth 2.0 — Client Credentials | `api-identity-jvm/` (Spring Security) · `sdk-identity-jvm` (built) |
+| API & microservice security — JWT validation, scoping, claims | `api-identity-jvm/` (Spring Security) + `api-identity-python/` (FastAPI) |
 | Developer advocacy — reusable libraries / SDK wrappers + docs | `sdk-identity-jvm` + `sdk-identity-python` (built) + this README + `docs/` |
 | JavaScript (UI) frameworks + microservices + REST | Angular 22 (SPA) + Java/Spring Boot microservice |
 | Security by design | RS256/JWKS + issuer/audience validation + scope enforcement, tested |
@@ -21,7 +21,7 @@ for Okta).
 **SAML 2.0** (B2B SSO) — currently **planned in Phase 2** (see
 [`docs/DESIGN.md`](docs/DESIGN.md) and [`docs/ROADMAP.md`](docs/ROADMAP.md)); the
 prototype so far focuses on the OIDC/OAuth2 path. The `verify-then-authorize`
-middleware shape in `api-identity/` (Spring Security filter chain) is the same pattern you'd use to
+middleware shape in `api-identity-jvm/` (Spring Security filter chain) is the same pattern you'd use to
 validate a SAML assertion before minting a session/token.
 
 ## Documentation
@@ -46,8 +46,8 @@ validate a SAML assertion before minting a session/token.
 ## Repo layout
 
 ```
-api-identity/       Spring Boot (Java 21) resource server — protected API (Spring Security OAuth2)
-api-identity-python/  FastAPI resource server — same endpoints + JWT validation as api-identity (uses sdk-identity-python)
+api-identity-jvm/       Spring Boot (Java 21) resource server — protected API (Spring Security OAuth2)
+api-identity-python/  FastAPI resource server — same endpoints + JWT validation as api-identity-jvm (uses sdk-identity-python)
 ui-identity/        Angular 22 SPA — Authorization Code + PKCE login
 sdk-identity-jvm/   Reusable Java identity SDK — OIDC discovery, PKCE (S256), client-credentials, scope assertions
 sdk-identity-python/  Reusable Python identity SDK — mirrors sdk-identity-jvm
@@ -65,7 +65,7 @@ docker compose up -d
 curl http://localhost:8080/realms/ciam-demo/.well-known/openid-configuration
 
 # 2. Resource server (protected API) — port 4101 (needs JDK 21, or use Docker)
-cd api-identity && docker build -t api-identity . && docker run -p 4101:4101 api-identity
+cd api-identity-jvm && docker build -t api-identity-jvm . && docker run -p 4101:4101 api-identity-jvm
 
 # 3. Web client (Authorization Code + PKCE) — port 4200
 cd ../ui-identity && npm install && npm start
@@ -88,7 +88,7 @@ against the IdP's JWKS, checks issuer + audience, then enforces scopes/claims.
 | Component | Host | Config |
 |---|---|---|
 | `ui-identity` (Angular SPA) | Vercel | static build (`npm run build`); env `authority` → Okta domain |
-| `api-identity` (Spring Boot) | Render | Dockerfile already present; env `OIDC_ISSUER` / `OIDC_AUDIENCE` |
+| `api-identity-jvm` (Spring Boot) | Render | Dockerfile already present; env `OIDC_ISSUER` / `OIDC_AUDIENCE` |
 | `mobile-identity` (planned) | Expo | `expo start --web` |
 | IdP | Okta dev tenant | swap issuer + client (below) |
 
@@ -107,7 +107,7 @@ Only the issuer/client change:
 ## Tests
 
 ```bash
-cd api-identity && docker build .   # runs unit/integration tests (JDK 21)
+cd api-identity-jvm && docker build .   # runs unit/integration tests (JDK 21)
 ```
 
 ## Honesty boundary

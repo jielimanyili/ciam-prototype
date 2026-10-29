@@ -1,6 +1,6 @@
 """JWT validation for the Python resource server.
 
-Mirrors ``api-identity``'s Spring Security resource-server config:
+Mirrors ``api-identity-jvm``'s Spring Security resource-server config:
 - RS256 signature via JWKS (auto-discovered from the issuer — Spring's ``issuer-uri``)
 - issuer check
 - audience check (the one Spring does NOT do by default → ``AudienceValidator``)
@@ -20,7 +20,7 @@ from jwt import PyJWKClient
 from ciam_identity import discover
 
 ISSUER = os.environ.get("OIDC_ISSUER", "http://localhost:8080/realms/ciam-demo")
-AUDIENCE = os.environ.get("OIDC_AUDIENCE", "api-identity")
+AUDIENCE = os.environ.get("OIDC_AUDIENCE", "api-identity-python")
 
 _bearer = HTTPBearer(auto_error=False)
 _jwks = None

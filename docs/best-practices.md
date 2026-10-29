@@ -34,7 +34,7 @@ The "do this" reference for the CIAM prototype — the counterpart to `anti-patt
 
 | GDPR/CCPA obligation | Where handled |
 |---|---|
-| Consent capture & management | IdP + `api-identity` (FR-13) |
+| Consent capture & management | IdP + `api-identity-jvm` (FR-13) |
 | Right to erasure (RTBF) | account lifecycle (FR-15); delegated to IdP |
 | Data minimization | no secrets/PII in tokens (signed ≠ encrypted); claims on demand |
 | Encryption in transit / at rest | TLS (prod non-goal) · IdP-managed store |
