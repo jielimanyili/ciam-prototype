@@ -125,18 +125,23 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
   second. SAML carries XML risks (XXE, signature wrapping) — use the framework's hardened parsers,
   never hand-rolled.
 
-## 4. CI/CD — GitHub Actions
+## 4. CI/CD — GitHub Actions (demo) · Harness (enterprise, ADR-018)
 
 - **Pipeline (on push/PR), one workflow with a job matrix:**
   1. **typecheck + lint** — Angular `tsc` typecheck; Java + Python lint.
   2. **unit tests (per runtime)** — Java (`api-identity-jvm`, `sdk-identity-jvm`) on JDK 21 in Docker; Python (`api-identity-python`, `sdk-identity-python`) on 3.12.
   3. **parity gate (ADR-014)** — run both resource-server suites against the shared `test-fixtures/`; drift fails the build.
-  4. **build + push** — `api-identity-jvm`, `api-identity-python`, `ui-identity` → GHCR (version tag + `latest` on main).
-  5. **publish SDKs** — `sdk-identity-jvm` → Maven, `sdk-identity-python` → PyPI (same semver).
-  6. **deploy (main only)** — Vercel (`ui-identity`) + Render (`api-identity-jvm`, `api-identity-python`) with host/IdP secrets.
-- **Decision:** GitHub Actions · Docker for Java (JDK 21 pin) · per-runtime test jobs · GHCR for images · Maven/PyPI for SDKs.
+  4. **build + push** — `api-identity-jvm`, `api-identity-python`, `ui-identity` → **ECR** (demo) / **JFrog** (enterprise), version tag + `latest` on main.
+  5. **publish SDKs** — `sdk-identity-jvm` → Maven Central/JFrog, `sdk-identity-python` → PyPI/JFrog (same semver).
+  6. **deploy (main only)** — S3+CloudFront (`ui-identity`) + ECS Fargate (`api-identity-jvm`, `api-identity-python`) with host/IdP secrets.
+- **Decision:** **GitHub Actions for the demo** (public, verifiable, zero-server — the CI/CD analog of
+  "Keycloak stands in for Okta"); **Harness is the enterprise target** (TriNet is migrating Jenkins → Harness).
+  Docker for Java (JDK 21 pin) · per-runtime test jobs.
+- **Tool mapping (GitHub Actions → Harness):** workflow = Harness CI pipeline · `on: push/PR` =
+  Git-event trigger · `jobs` = CI stages · deploy job = Harness CD pipeline (S3/ECS deploy with
+  approval gates) · secrets = Harness secret manager.
 - **Trade-off:** one workflow (job matrix) vs. many — one, simpler to reason about. Cache Maven/npm/pip; gate deploy + publish on a version tag.
-- **Secrets:** `OIDC_ISSUER` / `OIDC_AUDIENCE` / host tokens in GitHub secrets — never committed (ADR-008).
+- **Secrets:** `OIDC_ISSUER` / `OIDC_AUDIENCE` / host tokens in the tool's secret store — never committed (ADR-008).
 
 ## 5. Live demo deployment — four runtimes (AWS, ADR-016)
 

@@ -111,7 +111,7 @@
 
 ## Epic 3 — CI/CD pipeline
 
-- **Status:** To Do · **Priority:** High · **Squad:** Identity/Auth platform · **Links:** ADR-005, ADR-014, ADR-016, ADR-017, NFR-4, DESIGN §4 · DESIGN §7
+- **Status:** To Do · **Priority:** High · **Squad:** Identity/Auth platform · **Links:** ADR-005, ADR-014, ADR-016, ADR-017, ADR-018, NFR-4, DESIGN §4 · DESIGN §7
 - **Why:** automated build → test → containerize → publish so every change is proven and the four runtimes stay in parity.
 - **Scope:** GitHub Actions · Java tests on JDK 21 (Docker) · Python tests on 3.12 · **parity gate** (shared fixtures, ADR-014) · build + push `api-identity-jvm`, `api-identity-python`, `ui-identity` to **ECR/JFrog** · publish both SDKs · deploy **S3+CloudFront + ECS Fargate**.
 - **Success criteria:** a push/PR runs the full pipeline green · images published to ECR/JFrog · both SDKs published · the parity gate blocks any drift.
