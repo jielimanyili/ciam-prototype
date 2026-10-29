@@ -1,0 +1,13 @@
+{
+  "issuer": "http://localhost:8080/realms/ciam-demo",
+  "endpoints": [
+    { "name": "health public", "path": "/health", "method": "GET", "auth": "none", "scope": null, "expect": 200 },
+    { "name": "me authenticated", "path": "/api/me", "method": "GET", "auth": "bearer", "scope": "openid", "expect": 200 },
+    { "name": "me unauthenticated", "path": "/api/me", "method": "GET", "auth": "none", "scope": null, "expect": 401 },
+    { "name": "admin with scope", "path": "/api/admin", "method": "GET", "auth": "bearer", "scope": "openid admin", "expect": 200 },
+    { "name": "admin without scope", "path": "/api/admin", "method": "GET", "auth": "bearer", "scope": "openid", "expect": 403 },
+    { "name": "admin unauthenticated", "path": "/api/admin", "method": "GET", "auth": "none", "scope": null, "expect": 401 },
+    { "name": "claims authenticated", "path": "/api/claims", "method": "GET", "auth": "bearer", "scope": "openid", "expect": 200 },
+    { "name": "claims unauthenticated", "path": "/api/claims", "method": "GET", "auth": "none", "scope": null, "expect": 401 }
+  ]
+}

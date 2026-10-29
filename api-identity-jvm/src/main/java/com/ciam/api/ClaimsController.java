@@ -5,6 +5,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -27,11 +28,11 @@ public class ClaimsController {
 
     @GetMapping("/api/claims")
     public Map<String, Object> claims(@AuthenticationPrincipal Jwt jwt) {
-        return Map.of(
-            "scope", jwt.getClaimAsString("scope"),
-            "roles", jwt.getClaimAsStringList("roles"),
-            "groups", jwt.getClaimAsStringList("groups"),
-            "client_id", jwt.getClaimAsString("client_id")
-        );
+        Map<String, Object> result = new HashMap<>();
+        result.put("scope", jwt.getClaimAsString("scope"));
+        result.put("roles", jwt.getClaimAsStringList("roles"));
+        result.put("groups", jwt.getClaimAsStringList("groups"));
+        result.put("client_id", jwt.getClaimAsString("client_id"));
+        return result;
     }
 }

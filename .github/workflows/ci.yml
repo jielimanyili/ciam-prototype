@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  java:
+    name: Java — unit + parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Run tests (reads test-fixtures/)
+        working-directory: api-identity-jvm
+        run: mvn -q test
+
+  python:
+    name: Python — unit + parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install SDK + deps
+        run: |
+          pip install -e ./sdk-identity-python
+          pip install -r api-identity-python/requirements.txt
+      - name: SDK tests
+        working-directory: sdk-identity-python
+        run: pytest -q
+      - name: Resource-server tests (reads test-fixtures/)
+        working-directory: api-identity-python
+        run: pytest -q
+
+  # Parity gate (ADR-014): the two jobs above read the SAME test-fixtures/
+  # (parity-matrix.json + jwt/tokens.json) and must agree on every endpoint status
+  # and JWT accept/reject. A divergence fails the relevant job.
