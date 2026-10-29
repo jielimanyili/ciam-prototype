@@ -50,6 +50,47 @@
       "fullScopeAllowed": false
     },
     {
+      "clientId": "mobile-identity",
+      "name": "CIAM Mobile (React Native)",
+      "description": "React Native app - Authorization Code + PKCE (Expo)",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["http://localhost:8081/*", "mobileidentity://callback"],
+      "webOrigins": ["http://localhost:8081"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "aud api-identity-jvm",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "api-identity-jvm",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "aud api-identity-python",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "api-identity-python",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ],
+      "fullScopeAllowed": false
+    },
+    {
       "clientId": "ciam-service",
       "name": "CIAM Service (server-to-server)",
       "description": "Confidential client - Client Credentials grant",
