@@ -15,5 +15,6 @@
         <module>sdk-identity-jvm</module>
         <module>sdk-identity-jvm-spring-boot-starter</module>
         <module>api-identity-jvm</module>
+        <module>api-auth</module>
     </modules>
 </project>

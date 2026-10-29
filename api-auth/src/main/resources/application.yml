@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: api-auth
+  security:
+    oauth2:
+      client:
+        registration:
+          ciam:
+            client-id: api-auth
+            client-secret: api-auth-secret
+            authorization-grant-type: authorization_code
+            scope: openid
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          ciam:
+            authorization-uri: ${OIDC_ISSUER:http://localhost:8080/realms/ciam-demo}/protocol/openid-connect/auth
+            token-uri: ${OIDC_ISSUER:http://localhost:8080/realms/ciam-demo}/protocol/openid-connect/token
+            jwk-set-uri: ${OIDC_ISSUER:http://localhost:8080/realms/ciam-demo}/protocol/openid-connect/certs
+            user-info-uri: ${OIDC_ISSUER:http://localhost:8080/realms/ciam-demo}/protocol/openid-connect/userinfo
+
+# Downstream resource server the BFF proxies to (server-side token).
+ciam:
+  auth:
+    resource-server-url: ${RESOURCE_SERVER_URL:http://localhost:4101}
+
+server:
+  port: ${PORT:4103}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

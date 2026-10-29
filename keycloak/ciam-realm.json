@@ -91,6 +91,34 @@
       "fullScopeAllowed": false
     },
     {
+      "clientId": "api-auth",
+      "name": "CIAM Auth Service (BFF)",
+      "description": "Confidential client - Authorization Code (server-side)",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "api-auth-secret",
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["http://localhost:4103/login/oauth2/code/*"],
+      "webOrigins": ["http://localhost:4103"],
+      "protocolMappers": [
+        {
+          "name": "aud api-identity-jvm",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "api-identity-jvm",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ],
+      "fullScopeAllowed": false
+    },
+    {
       "clientId": "ciam-service",
       "name": "CIAM Service (server-to-server)",
       "description": "Confidential client - Client Credentials grant",

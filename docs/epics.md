@@ -150,11 +150,11 @@
 
 ---
 
-## Epic 5 — Auth service (`api-auth`) · BFF pattern
+## Epic 5 — Auth service (`api-auth`) · BFF pattern · ✅ Done
 
-- **Status:** To Do · **Priority:** Medium · **Squad:** Identity/Auth platform · **Links:** ADR-006, ADR-010, DESIGN §6, NFR-9
+- **Status:** Done · **Priority:** Medium · **Squad:** Identity/Auth platform · **Links:** ADR-006, ADR-010, DESIGN §6, NFR-9
 - **Why:** the hardened variant — tokens stay server-side; the browser gets a session cookie.
-- **Scope:** Spring Boot `oauth2Login()`; session cookie; proxy `/api/me` → `api-identity-jvm`.
+- **Delivered:** `api-auth/` — Spring Boot `oauth2Login()` (confidential `api-auth` client), session cookie + CSRF (NFR-9), proxies `/api/me` + `/api/claims` to `api-identity-jvm` with the server-side token.
 - **Success criteria:** browser authenticates via `api-auth` and reaches `/api/me` with no token ever in the SPA.
 
 **Stories**

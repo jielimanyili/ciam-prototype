@@ -16,7 +16,7 @@
 ## Later (enhancements)
 - Refresh-token rotation + reuse detection demo. · [backlog](epics.md#later-backlog-enhancements)
 - Okta Inline/Event hooks + Workflows (documented, with a mock). · [backlog](epics.md#later-backlog-enhancements)
-- Auth Service (`api-auth`) — hardened auth variant with `oauth2Login()` (DESIGN §6). · [Epic 5](epics.md)
+- Auth Service (`api-auth`) — hardened auth variant with `oauth2Login()` (DESIGN §6). ✅ done · [Epic 5](epics.md)
 - Identity SDK **Spring Boot starter** — auto-configured RS validation (ADR-007). ✅ done · [Epic 6](epics.md)
 - Kotlin DSL wrapper for the SDK. · [backlog](epics.md#later-backlog-enhancements)
 - E2E tests (Playwright) against Keycloak. · [backlog](epics.md#later-backlog-enhancements)

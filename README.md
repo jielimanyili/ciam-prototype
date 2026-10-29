@@ -48,7 +48,9 @@ validate a SAML assertion before minting a session/token.
 ```
 api-identity-jvm/       Spring Boot (Java 21) resource server — protected API (Spring Security OAuth2)
 api-identity-python/  FastAPI resource server — same endpoints + JWT validation as api-identity-jvm (uses sdk-identity-python)
+api-auth/           Auth service (BFF) — server-side OAuth2 login + session cookie + proxy
 ui-identity/        Angular 22 SPA — Authorization Code + PKCE login
+mobile-identity/    Expo (React Native) client — Authorization Code + PKCE
 sdk-identity-jvm/   Reusable Java identity SDK — OIDC discovery, PKCE (S256), client-credentials, scope assertions
 sdk-identity-jvm-spring-boot-starter/  Spring Boot starter — auto-configures the resource server (JWKS/RS256 + issuer + audience)
 sdk-identity-python/  Reusable Python identity SDK — mirrors sdk-identity-jvm
