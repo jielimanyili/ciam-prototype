@@ -89,7 +89,7 @@ against the IdP's JWKS, checks issuer + audience, then enforces scopes/claims.
 - **Live demo (AWS, M3):** the IaC + CI/CD deploy path is written and `terraform validate`s, but
   **applying** it needs an AWS account + Okta dev tenant. See [ADR-016](docs/adr/adr-016-aws-deployment.md) ·
   [ADR-019](docs/adr/adr-019-secrets-injection-aws.md) · [DESIGN §5](docs/DESIGN.md) · [ROADMAP](docs/ROADMAP.md) ·
-  [terraform/README](terraform/README.md).
+  [terraform/README](terraform/README.md) · [**Runbook: AWS + Okta account setup**](docs/RUNBOOK-AWS-OKTA.md).
 
 | Component | Host | Config |
 |---|---|---|

@@ -15,3 +15,7 @@ api_auth_client_secret = "CHANGE_ME"
 # Public domain + Route53 zone for HTTPS + host routing.
 domain_name     = "demo.example.com"
 route53_zone_id = "Z0123456789"
+
+# SAML (Epic 2) — leave disabled for the OIDC-only Okta demo.
+saml_enabled          = false
+saml_idp_metadata_uri = ""

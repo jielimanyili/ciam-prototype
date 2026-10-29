@@ -74,12 +74,16 @@ resource "aws_ecs_task_definition" "auth" {
       name         = "api-auth"
       image        = "${aws_ecr_repository.auth.repository_url}:${var.image_tag}"
       portMappings = [{ containerPort = local.auth_port, protocol = "tcp" }]
-      environment = [
-        { name = "OIDC_ISSUER", value = var.oidc_issuer },
-        # BFF proxies downstream to the JVM resource server via the same ALB.
-        { name = "RESOURCE_SERVER_URL", value = "https://api.${var.domain_name}" },
-        { name = "PORT", value = tostring(local.auth_port) },
-      ]
+      environment = concat(
+        [
+          { name = "OIDC_ISSUER", value = var.oidc_issuer },
+          # BFF proxies downstream to the JVM resource server via the same ALB.
+          { name = "RESOURCE_SERVER_URL", value = "https://api.${var.domain_name}" },
+          { name = "PORT", value = tostring(local.auth_port) },
+          { name = "SAML_ENABLED", value = tostring(var.saml_enabled) },
+        ],
+        var.saml_idp_metadata_uri != "" ? [{ name = "SAML_IDP_METADATA_URI", value = var.saml_idp_metadata_uri }] : []
+      )
       # ADR-019: inject the client secret from Secrets Manager (never in the task definition).
       secrets = [
         { name = "CLIENT_SECRET", valueFrom = aws_secretsmanager_secret.api_auth_client_secret.arn }

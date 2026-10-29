@@ -55,3 +55,15 @@ variable "route53_zone_id" {
   description = "Route53 hosted-zone id for ACM DNS validation + ALIAS records."
   type        = string
 }
+
+variable "saml_enabled" {
+  description = "Enable SAML 2.0 on the api-auth BFF (Epic 2). Set false for an OIDC-only Okta demo."
+  type        = bool
+  default     = false
+}
+
+variable "saml_idp_metadata_uri" {
+  description = "SAML IdP descriptor URL for api-auth when saml_enabled=true (e.g. an Okta SAML app's metadata URL)."
+  type        = string
+  default     = ""
+}
