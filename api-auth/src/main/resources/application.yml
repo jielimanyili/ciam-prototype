@@ -17,6 +17,17 @@ spring:
             token-uri: ${OIDC_ISSUER:http://localhost:8080/realms/ciam-demo}/protocol/openid-connect/token
             jwk-set-uri: ${OIDC_ISSUER:http://localhost:8080/realms/ciam-demo}/protocol/openid-connect/certs
             user-info-uri: ${OIDC_ISSUER:http://localhost:8080/realms/ciam-demo}/protocol/openid-connect/userinfo
+    saml2:
+      relyingparty:
+        registration:
+          keycloak:
+            assertingparty:
+              # Keycloak exposes the IdP SAML descriptor (SSO URL + signing cert) here.
+              metadata-uri: ${OIDC_ISSUER:http://localhost:8080/realms/ciam-demo}/protocol/saml/descriptor
+            relyingparty:
+              entity-id: api-auth-saml
+              assertion-consumer-service:
+                location: http://localhost:4103/login/saml2/sso/keycloak
 
 # Downstream resource server the BFF proxies to (server-side token).
 ciam:

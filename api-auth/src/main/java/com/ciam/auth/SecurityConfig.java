@@ -23,6 +23,9 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> {})
+            // B2B SSO: SAML 2.0 SP (ADR-004). Spring Security validates the assertion
+            // (signature, conditions, audience, destination, InResponseTo) — no hand-rolled XML.
+            .saml2Login(saml2 -> saml2.defaultSuccessUrl("/"))
             .logout(logout -> logout.logoutSuccessUrl("/"));
         return http.build();
     }

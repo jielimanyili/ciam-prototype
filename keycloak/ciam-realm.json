@@ -144,6 +144,23 @@
         }
       ],
       "fullScopeAllowed": false
+    },
+    {
+      "clientId": "api-auth-saml",
+      "name": "CIAM Auth Service (SAML SP)",
+      "description": "SAML 2.0 service provider (B2B SSO)",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "saml",
+      "redirectUris": ["http://localhost:4103/login/saml2/sso/keycloak"],
+      "attributes": {
+        "saml.assertion.signature": "true",
+        "saml.force.post.binding": "true",
+        "saml.server.signature": "true",
+        "saml_assertion_consumer_url_post": "http://localhost:4103/login/saml2/sso/keycloak",
+        "saml_single_logout_service_url_post": "http://localhost:4103/logout/saml2/slo"
+      },
+      "fullScopeAllowed": false
     }
   ],
   "clientScopes": [

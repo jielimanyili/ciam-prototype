@@ -85,10 +85,11 @@
 
 ## Epic 2 — SAML 2.0 B2B SSO
 
-- **Status:** To Do · **Priority:** High · **Squad:** Identity/Auth platform · **Links:** ADR-004, FR-3, C-4, DESIGN §3
+- **Status:** ✅ Done (config + Keycloak client; live SSO needs a running Keycloak) · **Priority:** High · **Squad:** Identity/Auth platform · **Links:** ADR-004, FR-3, C-4, DESIGN §3
 - **Why:** enterprise/business partners require SAML 2.0 SSO.
 - **Scope:** SP-initiated (then IdP-initiated) · Spring Security `saml2-service-provider` on the Java auth surface (ADR-004) · Keycloak SAML client.
 - **Success criteria:** partner user completes SP-initiated SSO and gets a session · unsolicited assertions validated for audience/destination/InResponseTo.
+- **Delivered:** `api-auth` wires `saml2Login()` (SP-initiated `/saml2/authenticate/keycloak` + IdP-initiated via the same ACS); assertion validation (signature/conditions/audience/destination/InResponseTo) is Spring Security's default — no hand-rolled XML; Keycloak SAML client `api-auth-saml` in the realm + `keycloak/README.md`. Signature verification uses the IdP descriptor (`metadata-uri`), so the SP starts against a running Keycloak (like the RS JWKS fetch).
 
 **Stories**
 
