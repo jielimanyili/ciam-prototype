@@ -184,6 +184,7 @@ See `docs/adr/`:
 - `adr-011` — Python identity SDK + Python resource server (multi-runtime).
 - `adr-012` — symmetric runtime suffixes (`api-identity-jvm`).
 - `adr-013` — token audience strategy (Keycloak audience mappers).
+- `adr-014` — multi-runtime parity (shared contract + fixtures).
 
 ## 8. Honesty boundary
 

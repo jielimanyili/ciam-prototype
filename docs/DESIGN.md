@@ -154,6 +154,32 @@ server's audience — same shape as the Keycloak realm.
 - **Ownership:** platform (ADR-010) — `api-auth` is the server-side half of authentication;
   keep it scoped to auth + session + proxy.
 
+## 7. Multi-runtime parity (ADR-014)
+
+> `api-identity-jvm` and `api-identity-python` expose the same API; they must stay identical.
+
+**Single source of truth:** `docs/openapi.yaml`.
+
+**Parity matrix** (the contract every suite asserts):
+
+| Endpoint | Auth | Scope | 200 | 401 | 403 |
+|---|---|---|---|---|---|
+| `/health` | none | — | ✅ | | |
+| `/api/me` | bearer | any | claims | no/invalid token | |
+| `/api/admin` | bearer | `admin` | ✅ | no/invalid token | no `admin` scope |
+| `/api/claims` | bearer | any | scope/roles/groups/client_id | no/invalid token | |
+
+**JWT validation parity** (both reject): bad signature · wrong issuer · wrong/missing audience ·
+expired token.
+
+**Shared fixtures (`test-fixtures/`):**
+- `parity-matrix.json` — the table above, machine-readable.
+- `jwt/` — a test RSA keypair + pre-signed RS256 tokens for each valid/invalid case.
+- Consumed by `api-identity-jvm` (JUnit) and `api-identity-python` (pytest) — same inputs, same
+  expected outcomes.
+
+**Enforcement:** a CI job runs both suites against the fixtures (Epic 3). A drift fails the build.
+
 ## Key decisions (summary)
 
 | # | Decision | Choice | Rationale |
@@ -171,3 +197,4 @@ server's audience — same shape as the Keycloak realm.
 | 11 | Python SDK | `sdk-identity-python` (thin, httpx-only) | mirrors `sdk-identity-jvm`; FR-6 across languages |
 | 12 | Python resource server | `api-identity-python` (FastAPI + PyJWT) | same endpoints/validation as `api-identity-jvm` |
 | 13 | Token audience | Keycloak audience mappers (ADR-013) | strict `aud` stays; audiences minted in the IdP |
+| 14 | Multi-runtime parity | shared `openapi.yaml` + shared fixtures + CI gate | drift-proof Java/Python resource servers |
