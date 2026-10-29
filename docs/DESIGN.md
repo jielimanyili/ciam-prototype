@@ -161,6 +161,11 @@ server's audience — same shape as the Keycloak realm.
 
 - **Purpose:** the *hardened* auth variant — keep the access token **server-side** and issue a
   **session cookie** to the browser, so tokens never reach the SPA (ADR-006).
+- **Client applicability (browser-only):** the Web App is the only client that routes through
+  `api-auth` (cookie + server-side token). Mobile keeps **direct PKCE + secure storage** (native
+  apps have Keychain/Keystore, no browser cookie jar — RFC 8252). The confidential service keeps
+  **client-credentials** (no user, no session). The *all-client* edge is the **API Gateway**
+  (rate limiting + JWT validation), not `api-auth`.
 - **Tech:** Java Spring Boot + `spring-boot-starter-oauth2-client` + `oauth2Login()`.
 - **Flow:** Web App → `api-auth` (login → session cookie) → `api-auth` proxies API calls to the
   Resource Server with the server-side access token.
