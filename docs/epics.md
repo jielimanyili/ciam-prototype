@@ -111,21 +111,26 @@
 
 ## Epic 3 — CI/CD pipeline
 
-- **Status:** To Do · **Priority:** High · **Squad:** Identity/Auth platform · **Links:** ADR-005, NFR-4, DESIGN §4
-- **Why:** automated build → test → containerize so every change is proven.
-- **Scope:** GitHub Actions; Java tests in Docker (JDK 21 pin); build `api-identity-jvm` + `ui-identity`; push GHCR.
-- **Success criteria:** a push/PR runs the full pipeline green · images published to GHCR.
+- **Status:** To Do · **Priority:** High · **Squad:** Identity/Auth platform · **Links:** ADR-005, ADR-014, NFR-4, DESIGN §4 · DESIGN §7
+- **Why:** automated build → test → containerize → publish so every change is proven and the four runtimes stay in parity.
+- **Scope:** GitHub Actions · Java tests on JDK 21 (Docker) · Python tests on 3.12 · **parity gate** (shared fixtures, ADR-014) · build + push `api-identity-jvm`, `api-identity-python`, `ui-identity` to GHCR · publish both SDKs · deploy Vercel + Render.
+- **Success criteria:** a push/PR runs the full pipeline green · images published to GHCR · both SDKs published · the parity gate blocks any drift.
 
 **Stories**
 
 1. `[ci/cd]` Typecheck + lint job
-   - **AC:** Given a PR → Then the workflow runs typecheck (frontend) and lint on every push.
-2. `[ci/cd]` Unit-test job (Java via Docker)
-   - **AC:** Given a push → Then `api-identity-jvm` + `sdk-identity-jvm` tests run on JDK 21 in Docker and block the build on failure.
-3. `[ci/cd]` Build + push images to GHCR
-   - **AC:** Given a green test job → Then `api-identity-jvm` (Dockerfile) and `ui-identity` images are built and pushed to GHCR with a version tag.
-4. `[ci/cd]` Deploy job
-   - **AC:** Given a tagged image → Then it deploys `ui-identity` (Vercel) and `api-identity-jvm` (Render) using `OIDC_ISSUER`/`OIDC_AUDIENCE` from secrets.
+   - **AC:** Given a PR → Then the workflow runs Angular typecheck + Java/Python lint on every push.
+2. `[ci/cd]` Unit-test jobs (per runtime)
+   - **AC:** Given a push → Then `api-identity-jvm` + `sdk-identity-jvm` tests run on JDK 21 in Docker, and `api-identity-python` + `sdk-identity-python` on Python 3.12; either failure blocks the build.
+3. `[ci/cd]` Parity gate (ADR-014)
+   - **AC:** Given green unit tests → Then one job runs both resource-server suites against the shared `test-fixtures/` parity matrix + JWT vectors, and fails if any endpoint/status diverges.
+4. `[ci/cd]` Build + push images to GHCR
+   - **AC:** Given green tests + parity → Then `api-identity-jvm`, `api-identity-python`, and `ui-identity` images build and push to GHCR with a version tag (`latest` on main).
+5. `[ci/cd]` Publish SDKs
+   - **AC:** Given a version tag → Then `sdk-identity-jvm` publishes to Maven and `sdk-identity-python` to PyPI (same semver).
+6. `[ci/cd]` Deploy job (main only)
+   - **AC:** Given a tagged image on main → Then it deploys `ui-identity` (Vercel) and `api-identity-jvm` + `api-identity-python` (Render) with `OIDC_ISSUER`/`OIDC_AUDIENCE`/host tokens from GitHub secrets; non-main branches skip deploy.
+   - **DoD:** no secret committed (ADR-008); Maven/npm/pip caches enabled.
 
 ---
 

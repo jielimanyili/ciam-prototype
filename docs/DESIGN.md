@@ -127,9 +127,16 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 
 ## 4. CI/CD — GitHub Actions
 
-- **Pipeline (on push/PR):** (1) typecheck/lint → (2) unit tests (Java via Docker) → (3) build images (`api-identity-jvm`, `ui-identity`) → (4) push to GHCR → (5) deploy.
-- **Decision:** GitHub Actions (already used in the repo) · Docker for Java (JDK pinning) · platform deploy for the frontend.
-- **Trade-off:** one workflow with a job matrix vs. many workflows — one workflow, simpler to reason about.
+- **Pipeline (on push/PR), one workflow with a job matrix:**
+  1. **typecheck + lint** — Angular `tsc` typecheck; Java + Python lint.
+  2. **unit tests (per runtime)** — Java (`api-identity-jvm`, `sdk-identity-jvm`) on JDK 21 in Docker; Python (`api-identity-python`, `sdk-identity-python`) on 3.12.
+  3. **parity gate (ADR-014)** — run both resource-server suites against the shared `test-fixtures/`; drift fails the build.
+  4. **build + push** — `api-identity-jvm`, `api-identity-python`, `ui-identity` → GHCR (version tag + `latest` on main).
+  5. **publish SDKs** — `sdk-identity-jvm` → Maven, `sdk-identity-python` → PyPI (same semver).
+  6. **deploy (main only)** — Vercel (`ui-identity`) + Render (`api-identity-jvm`, `api-identity-python`) with host/IdP secrets.
+- **Decision:** GitHub Actions · Docker for Java (JDK 21 pin) · per-runtime test jobs · GHCR for images · Maven/PyPI for SDKs.
+- **Trade-off:** one workflow (job matrix) vs. many — one, simpler to reason about. Cache Maven/npm/pip; gate deploy + publish on a version tag.
+- **Secrets:** `OIDC_ISSUER` / `OIDC_AUDIENCE` / host tokens in GitHub secrets — never committed (ADR-008).
 
 ## 5. Live demo deployment — four runtimes
 
