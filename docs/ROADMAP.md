@@ -20,6 +20,7 @@
 - Identity SDK **Spring Boot starter** — auto-configured RS validation (ADR-007). · [Epic 6](epics.md)
 - Kotlin DSL wrapper for the SDK. · [backlog](epics.md#later-backlog-enhancements)
 - E2E tests (Playwright) against Keycloak. · [backlog](epics.md#later-backlog-enhancements)
+- **Migration & adoption** — strangler-fig + auto-PR codemod (ADR-015 · DESIGN §8). · [backlog](epics.md#later-backlog-enhancements)
 
 ## Success metrics
 

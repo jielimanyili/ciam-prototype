@@ -180,6 +180,33 @@ expired token.
 
 **Enforcement:** a CI job runs both suites against the fixtures (Epic 3). A drift fails the build.
 
+## 8. Migration & adoption — strangler-fig (ADR-015)
+
+> A greenfield reference proves *how*; a migration plan proves *adoption across an enterprise*.
+> TriNet already runs Okta, so the plan starts from the as-is estate and strangles it.
+
+**As-is snapshot** (prerequisite):
+- Inventory existing Okta clients (SPA / confidential / machine), grants, and per-app token validation.
+- Publish an **old→new mapping** (audiences, scopes, roles/claims) so entitlements survive.
+
+**Strangler phases:**
+
+| Phase | What happens | Legacy auth | New auth |
+|---|---|---|---|
+| 0 · Parallel run | new authorization server + audiences live alongside legacy; nothing migrates yet | ✅ | ✅ (new services) |
+| 1 · New-by-default | SDK/starter GA; greenfield services adopt the new pattern | ✅ | ✅ |
+| 2 · Migrate one-by-one | each service moves via **auto-PR**; dual-validation flag accepts old + new tokens | ✅ (shrinking) | ✅ (growing) |
+| 3 · Decommission | last service migrated → remove legacy audiences/validators | ❌ | ✅ |
+
+**Adoption mechanics (product teams):**
+- **Auto-PR codemod** — detects legacy auth wiring, rewrites it to the SDK/starter + new audience,
+  opens a PR the owning squad reviews/merges (the developer-advocacy requirement, industrialized).
+- **Guides + templates** — per client type (SPA PKCE / M2M client-credentials / BFF) for the manual path.
+
+**Rollback:** the dual-validation flag makes rollback a config flip, not a redeploy.
+
+**Metrics:** # services migrated · time-to-migrate per service · zero auth downtime · no scope/entitlement loss.
+
 ## Key decisions (summary)
 
 | # | Decision | Choice | Rationale |
@@ -198,3 +225,4 @@ expired token.
 | 12 | Python resource server | `api-identity-python` (FastAPI + PyJWT) | same endpoints/validation as `api-identity-jvm` |
 | 13 | Token audience | Keycloak audience mappers (ADR-013) | strict `aud` stays; audiences minted in the IdP |
 | 14 | Multi-runtime parity | shared `openapi.yaml` + shared fixtures + CI gate | drift-proof Java/Python resource servers |
+| 15 | Migration | strangler-fig + auto-PR codemod + dual-validation | zero-downtime adoption across product teams |

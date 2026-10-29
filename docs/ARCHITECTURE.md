@@ -185,6 +185,7 @@ See `docs/adr/`:
 - `adr-012` — symmetric runtime suffixes (`api-identity-jvm`).
 - `adr-013` — token audience strategy (Keycloak audience mappers).
 - `adr-014` — multi-runtime parity (shared contract + fixtures).
+- `adr-015` — strangler-fig migration with auto-PR adoption.
 
 ## 8. Honesty boundary
 
