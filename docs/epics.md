@@ -129,6 +129,7 @@
    - **AC:** Given green tests + parity → Then `api-identity-jvm`, `api-identity-python`, and `ui-identity` images build and push to **ECR** (demo) / **JFrog** (enterprise) with a version tag (`latest` on main).
 5. `[ci/cd]` Publish SDKs
    - **AC:** Given a version tag → Then `sdk-identity-jvm` publishes to **Maven Central** (demo) / **JFrog Maven** (enterprise) and `sdk-identity-python` to **PyPI** (demo) / **JFrog PyPI** (enterprise), same semver.
+   - ✅ **Written:** `.github/workflows/publish.yml` (tag-triggered) · `sdk-identity-jvm/pom.xml` (Central metadata + `release` profile: sources/javadoc/GPG/nexus-staging) · `sdk-identity-python/pyproject.toml` (PyPI metadata). **Publish needs OSSRH + GPG + PyPI secrets (a Sonatype account).** JFrog = repoint the same build at the Artifactory Maven/PyPI repos (ADR-017).
 6. `[ci/cd]` Deploy job (main only)
    - **AC:** Given a tagged image on main → Then it deploys `ui-identity` (S3 + CloudFront) and `api-identity-jvm` + `api-identity-python` + `api-auth` (ECS Fargate) with `OIDC_ISSUER`/`OIDC_AUDIENCE` from config and `CLIENT_SECRET` injected from AWS Secrets Manager (ADR-019); non-main branches skip deploy.
    - **DoD:** no secret committed (ADR-008/ADR-019); Maven/npm/pip caches enabled.

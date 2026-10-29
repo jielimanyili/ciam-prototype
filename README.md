@@ -102,7 +102,8 @@ against the IdP's JWKS, checks issuer + audience, then enforces scopes/claims.
 | IdP | Okta dev tenant | swap issuer + client + audience (below) |
 
 > `terraform/` defines the full stack (VPC, ALB, ECR, ECS Fargate, S3 + CloudFront, Secrets Manager,
-> IAM, ACM + Route53). `.github/workflows/deploy.yml` is the main-only deploy job.
+> IAM, ACM + Route53). `.github/workflows/deploy.yml` is the main-only deploy job;
+> `.github/workflows/publish.yml` publishes the two SDKs to Maven Central + PyPI on a version tag.
 
 ## Swap Keycloak → Okta
 

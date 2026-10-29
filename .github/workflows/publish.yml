@@ -1,0 +1,60 @@
+name: Publish SDKs
+
+# Epic 3 story 5 (ADR-018): publish both SDKs from a version tag.
+# Demo = Maven Central + PyPI; enterprise = JFrog Artifactory Maven/PyPI (ADR-017) —
+# point the same build at the JFrog repo URLs instead.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  java:
+    name: sdk-identity-jvm → Maven Central
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          server-id: ossrh
+          server-username: OSSRH_USERNAME
+          server-password: OSSRH_PASSWORD
+
+      - name: Import GPG signing key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+
+      - name: Publish (deploy → stage → auto-release)
+        working-directory: sdk-identity-jvm
+        env:
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: mvn -B -Prelease deploy -DskipTests -Dgpg.passphrase="$GPG_PASSPHRASE"
+
+  python:
+    name: sdk-identity-python → PyPI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build distributions
+        run: |
+          pip install build
+          python -m build sdk-identity-python
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: sdk-identity-python/dist/
+          password: ${{ secrets.PYPI_API_TOKEN }}
