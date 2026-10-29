@@ -50,6 +50,7 @@ api-identity-jvm/       Spring Boot (Java 21) resource server — protected API 
 api-identity-python/  FastAPI resource server — same endpoints + JWT validation as api-identity-jvm (uses sdk-identity-python)
 ui-identity/        Angular 22 SPA — Authorization Code + PKCE login
 sdk-identity-jvm/   Reusable Java identity SDK — OIDC discovery, PKCE (S256), client-credentials, scope assertions
+sdk-identity-jvm-spring-boot-starter/  Spring Boot starter — auto-configures the resource server (JWKS/RS256 + issuer + audience)
 sdk-identity-python/  Reusable Python identity SDK — mirrors sdk-identity-jvm
 keycloak/           Local OIDC provider realm (stand-in for Okta)
 docker-compose.yml  Keycloak (the IdP)

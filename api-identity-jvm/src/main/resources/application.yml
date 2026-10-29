@@ -1,15 +1,12 @@
 spring:
   application:
     name: api-identity-jvm
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          # OIDC discovery: fetches /.well-known/openid-configuration -> jwks_uri
-          issuer-uri: ${OIDC_ISSUER:http://localhost:8080/realms/ciam-demo}
-          # Audience (aud) is enforced by AudienceValidator in SecurityConfig — the one
-          # check Spring Boot's issuer-uri auto-config does NOT do by default.
-          audience: ${OIDC_AUDIENCE:api-identity-jvm}
+
+# CIAM identity — auto-configured by sdk-identity-jvm-spring-boot-starter (ADR-007).
+ciam:
+  identity:
+    issuer-uri: ${OIDC_ISSUER:http://localhost:8080/realms/ciam-demo}
+    audience: ${OIDC_AUDIENCE:api-identity-jvm}
 
 server:
   port: ${PORT:4101}

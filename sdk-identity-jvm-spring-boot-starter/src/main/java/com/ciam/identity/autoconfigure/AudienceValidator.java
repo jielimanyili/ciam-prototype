@@ -1,4 +1,4 @@
-package com.ciam.api;
+package com.ciam.identity.autoconfigure;
 
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -6,12 +6,9 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 /**
- * Requires the JWT's {@code aud} claim to contain the expected audience, so a token
- * minted for a different resource server cannot be replayed here.
- *
- * <p>This is the one check Spring Boot's {@code issuer-uri} auto-config does NOT do by
- * default — signature (JWKS/RS256), issuer, and expiry are automatic; audience is not.
- * This validator is the pattern that moves into the SDK Spring Boot starter (ADR-007).
+ * Requires the JWT's {@code aud} claim to contain the expected audience, so a token minted for a
+ * different resource server cannot be replayed here. This is the one check Spring Boot's
+ * {@code issuer-uri} auto-config does NOT do by default.
  */
 public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
 
@@ -27,9 +24,6 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
             return OAuth2TokenValidatorResult.success();
         }
         return OAuth2TokenValidatorResult.failure(
-                new OAuth2Error(
-                        "invalid_token",
-                        "The required audience '" + audience + "' is missing",
-                        null));
+                new OAuth2Error("invalid_token", "The required audience '" + audience + "' is missing", null));
     }
 }

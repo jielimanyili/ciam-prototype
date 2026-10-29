@@ -15,8 +15,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - name: Run tests (reads test-fixtures/)
-        working-directory: api-identity-jvm
+      - name: Run tests (multi-module reactor; reads test-fixtures/)
         run: mvn -q test
 
   python:

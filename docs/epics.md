@@ -166,10 +166,11 @@
 
 ---
 
-## Epic 6 — SDK Spring Boot starter
+## Epic 6 — SDK Spring Boot starter · ✅ Done
 
-- **Status:** To Do · **Priority:** Medium · **Squad:** Identity/Auth platform · **Links:** ADR-007, ADR-009, FR-6
+- **Status:** Done · **Priority:** Medium · **Squad:** Identity/Auth platform · **Links:** ADR-007, ADR-009, FR-6
 - **Why:** every resource server gets validation secure-by-default instead of re-wiring it.
+- **Delivered:** `sdk-identity-jvm-spring-boot-starter` — `IdentityProperties` (`ciam.identity.*`), `AudienceValidator`, `IdentityAutoConfiguration` (JwtDecoder = JWKS/RS256 + issuer + audience). `api-identity-jvm` now consumes it (no local decoder). Scope enforcement via Spring's default `scope`→`SCOPE_*` mapping + `sdk-identity-jvm` `ScopeAssertions`.
 - **Success criteria:** a RS depends on the starter and gets JWKS/RS256 + issuer + audience + scope enforcement with zero code.
 
 **Stories**

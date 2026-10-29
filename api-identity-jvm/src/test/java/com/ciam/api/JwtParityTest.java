@@ -1,5 +1,6 @@
 package com.ciam.api;
 
+import com.ciam.identity.autoconfigure.AudienceValidator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.params.ParameterizedTest;

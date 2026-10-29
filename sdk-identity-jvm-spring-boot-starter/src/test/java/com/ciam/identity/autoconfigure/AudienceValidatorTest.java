@@ -1,4 +1,4 @@
-package com.ciam.api;
+package com.ciam.identity.autoconfigure;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
