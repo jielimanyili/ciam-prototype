@@ -86,18 +86,23 @@ against the IdP's JWKS, checks issuer + audience, then enforces scopes/claims.
 | Repo (public) | https://github.com/jielimanyili/ciam-prototype |
 
 - **Runs locally with no external accounts** — Keycloak stands in for Okta (see Quickstart above).
-- **Live demo — planned (Phase 3, not yet deployed):** see [ADR-005](docs/adr/adr-005-cicd-deployment.md) · [DESIGN §5](docs/DESIGN.md) · [ROADMAP](docs/ROADMAP.md).
+- **Live demo (AWS, M3):** the IaC + CI/CD deploy path is written and `terraform validate`s, but
+  **applying** it needs an AWS account + Okta dev tenant. See [ADR-016](docs/adr/adr-016-aws-deployment.md) ·
+  [ADR-019](docs/adr/adr-019-secrets-injection-aws.md) · [DESIGN §5](docs/DESIGN.md) · [ROADMAP](docs/ROADMAP.md) ·
+  [terraform/README](terraform/README.md).
 
 | Component | Host | Config |
 |---|---|---|
-| `ui-identity` (Angular SPA) | Vercel | static build (`npm run build`); env `authority` → Okta domain |
-| `api-identity-jvm` (Spring Boot) | Render | Dockerfile already present; env `OIDC_ISSUER` / `OIDC_AUDIENCE=api-identity-jvm` |
-| `api-identity-python` (FastAPI) | Render | Dockerfile already present; env `OIDC_ISSUER` / `OIDC_AUDIENCE=api-identity-python` |
-| `mobile-identity` (planned) | Expo | `expo start --web` |
+| `ui-identity` (Angular SPA) | S3 + CloudFront | static build; `src/assets/config.json` (`authority` + `apiBaseUrl`) swapped per env — no rebuild |
+| `api-identity-jvm` (Spring Boot) | ECS Fargate | env `OIDC_ISSUER` / `OIDC_AUDIENCE=api-identity-jvm` |
+| `api-identity-python` (FastAPI) | ECS Fargate | env `OIDC_ISSUER` / `OIDC_AUDIENCE=api-identity-python` |
+| `api-auth` (BFF) | ECS Fargate | env `OIDC_ISSUER` + `CLIENT_SECRET` injected from Secrets Manager (ADR-019) |
+| `mobile-identity` (Expo) | Expo Go / EAS | `expo start --web` |
 | `sdk-identity-jvm` / `sdk-identity-python` | Maven Central / PyPI | published libraries |
 | IdP | Okta dev tenant | swap issuer + client + audience (below) |
 
-> No `vercel.json` / `render.yaml` yet — the deploy is Epic 3 (CI/CD) + Epic 4 (live demo).
+> `terraform/` defines the full stack (VPC, ALB, ECR, ECS Fargate, S3 + CloudFront, Secrets Manager,
+> IAM, ACM + Route53). `.github/workflows/deploy.yml` is the main-only deploy job.
 
 ## Swap Keycloak → Okta
 
@@ -107,8 +112,8 @@ Only the issuer/client change:
 1. Point the resource server at Okta: `OIDC_ISSUER=https://<your-okta-domain>/oauth2/default`
    and `OIDC_AUDIENCE=<your-api-audience>` (JWKS is auto-discovered). Use `api-identity-jvm` /
    `api-identity-python` and configure the authorization server's Audience to match (ADR-013).
-2. In `ui-identity/src/app/auth.service.ts`, set `authority` to your Okta domain and
-   `client_id` to your Okta SPA app.
+2. For the SPA, set `authority` + `apiBaseUrl` in `ui-identity/src/assets/config.json` (local) or
+   the `config.json` uploaded to S3 (deployed) — no rebuild.
 
 ## Tests
 

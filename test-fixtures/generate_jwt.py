@@ -61,7 +61,9 @@ def main() -> None:
         "sub": "demo",
         "scope": "openid admin",
         "iat": int(now.timestamp()),
-        "exp": int((now + timedelta(hours=1)).timestamp()),
+        # Far-future expiry so the committed fixture never goes stale (the "expired"
+        # case below is minted with an explicit past exp).
+        "exp": int((now + timedelta(days=36500)).timestamp()),
     }
 
     cases = {}

@@ -151,6 +151,7 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 | `mobile-identity` (Expo/RN) | Expo Go / EAS (web preview) | `expo-auth-session` PKCE against Okta |
 | `api-identity-jvm` (Spring Boot) | ECS Fargate (image in ECR) | env `OIDC_ISSUER` · `OIDC_AUDIENCE=api-identity-jvm` |
 | `api-identity-python` (FastAPI) | ECS Fargate (image in ECR) | env `OIDC_ISSUER` · `OIDC_AUDIENCE=api-identity-python` |
+| `api-auth` (BFF) | ECS Fargate (image in ECR) | env `OIDC_ISSUER` · `CLIENT_SECRET` (Secrets Manager) · `RESOURCE_SERVER_URL` |
 | `sdk-identity-jvm` | Maven Central (demo) · JFrog Maven (enterprise) | published artifact |
 | `sdk-identity-python` | PyPI (demo) · JFrog PyPI (enterprise) | `pip install` |
 | IdP | Okta free dev tenant | clients + audience config |

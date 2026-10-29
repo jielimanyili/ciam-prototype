@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from './auth.service';
+import { ConfigService } from './config';
 
 interface MeResponse {
   claims: { sub?: string; scope?: string; [key: string]: unknown };
@@ -18,6 +19,7 @@ interface MeResponse {
 export class App {
   readonly auth = inject(AuthService);
   private http = inject(HttpClient);
+  private config = inject(ConfigService);
   readonly apiResult = signal('');
   readonly apiError = signal('');
 
@@ -31,7 +33,7 @@ export class App {
     this.apiResult.set('');
     try {
       const res = await firstValueFrom(
-        this.http.get<MeResponse>('http://localhost:4101/api/me', {
+        this.http.get<MeResponse>(`${this.config.config().apiBaseUrl}/api/me`, {
           headers: new HttpHeaders({ Authorization: `Bearer ${token}` }),
         }),
       );

@@ -1,14 +1,16 @@
-# Build stage — JDK 21 (LTS, N-1 pattern)
+# Build stage — JDK 21. Builds from the repo ROOT so the Maven reactor resolves the
+# internal `sdk-identity-jvm` + `sdk-identity-jvm-spring-boot-starter` modules.
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
-COPY pom.xml .
-RUN mvn -q dependency:go-offline
-COPY src ./src
-RUN mvn -q package
+COPY pom.xml ./
+COPY sdk-identity-jvm ./sdk-identity-jvm
+COPY sdk-identity-jvm-spring-boot-starter ./sdk-identity-jvm-spring-boot-starter
+COPY api-identity-jvm ./api-identity-jvm
+RUN mvn -q -pl api-identity-jvm -am package -DskipTests
 
 # Runtime stage
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/api-identity-jvm/target/*.jar app.jar
 EXPOSE 4101
 ENTRYPOINT ["java", "-jar", "app.jar"]

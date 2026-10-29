@@ -1,0 +1,102 @@
+name: Deploy (AWS)
+
+# ADR-018: GitHub Actions is the demo CI/CD. This is the "deploy (main only)" stage of the
+# pipeline — build → push ECR → Terraform apply → S3/CloudFront. Non-main branches skip it.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write # AWS OIDC federation (no long-lived keys)
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  PROJECT: ciam
+  ENVIRONMENT: demo
+
+jobs:
+  deploy:
+    name: Build + deploy (ECS Fargate + S3/CloudFront)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Apply first so ECR/S3/ECS exist; images are pushed next and services are rolled after.
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.9'
+
+      - name: Terraform apply
+        working-directory: terraform
+        env:
+          TF_VAR_image_tag: ${{ github.sha }}
+          TF_VAR_domain_name: ${{ vars.DOMAIN_NAME }}
+          TF_VAR_route53_zone_id: ${{ vars.ROUTE53_ZONE_ID }}
+          TF_VAR_oidc_issuer: ${{ vars.OIDC_ISSUER }}
+          TF_VAR_api_auth_client_secret: ${{ secrets.OKTA_CLIENT_SECRET }}
+        run: |
+          terraform init -input=false
+          terraform apply -auto-approve -input=false
+
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build + push api-identity-jvm
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: api-identity-jvm/Dockerfile
+          push: true
+          tags: ${{ steps.ecr.outputs.registry }}/${{ env.PROJECT }}-${{ env.ENVIRONMENT }}/api-identity-jvm:${{ github.sha }}
+
+      - name: Build + push api-identity-python
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: api-identity-python/Dockerfile
+          push: true
+          tags: ${{ steps.ecr.outputs.registry }}/${{ env.PROJECT }}-${{ env.ENVIRONMENT }}/api-identity-python:${{ github.sha }}
+
+      - name: Build + push api-auth
+        uses: docker/build-push-action@v6
+        with:
+          context: api-auth
+          file: api-auth/Dockerfile
+          push: true
+          tags: ${{ steps.ecr.outputs.registry }}/${{ env.PROJECT }}-${{ env.ENVIRONMENT }}/api-auth:${{ github.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: ui-identity/package-lock.json
+
+      - name: Build SPA
+        working-directory: ui-identity
+        run: npm ci && npm run build
+
+      - name: Deploy SPA to S3 + invalidate CloudFront
+        env:
+          BUCKET: ${{ env.PROJECT }}-${{ env.ENVIRONMENT }}-spa
+        run: |
+          aws s3 sync ui-identity/dist/ui-identity/browser "s3://${BUCKET}" --delete
+          DIST_ID=$(terraform -chdir=terraform output -raw cloudfront_distribution_id)
+          aws cloudfront create-invalidation --distribution-id "${DIST_ID}" --paths "/*"
+
+      - name: Roll ECS services to the new image
+        run: |
+          for svc in api-identity-jvm api-identity-python api-auth; do
+            aws ecs update-service --cluster "${PROJECT}-${ENVIRONMENT}" \
+              --service "$svc" --force-new-deployment --no-cli-pager > /dev/null
+          done

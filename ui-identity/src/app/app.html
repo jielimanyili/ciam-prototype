@@ -6,7 +6,7 @@
   <button (click)="callApi()">Call /api/me</button>
   <button (click)="auth.logout()">Sign out</button>
 } @else {
-  <button (click)="auth.login()">Sign in with Keycloak</button>
+  <button (click)="auth.login()">Sign in</button>
 }
 
 @if (auth.error()) {

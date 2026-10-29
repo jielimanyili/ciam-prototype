@@ -1,0 +1,17 @@
+# Copy to terraform.tfvars and fill in real values. Never commit terraform.tfvars.
+region       = "us-east-1"
+project      = "ciam"
+environment  = "demo"
+image_tag    = "latest"
+
+# Okta dev tenant (Epic 4, story 4).
+oidc_issuer          = "https://dev-123456.okta.com/oauth2/default"
+oidc_audience_jvm    = "api-identity-jvm"
+oidc_audience_python = "api-identity-python"
+
+# api-auth OIDC client secret — injected into ECS from Secrets Manager (ADR-019).
+api_auth_client_secret = "CHANGE_ME"
+
+# Public domain + Route53 zone for HTTPS + host routing.
+domain_name     = "demo.example.com"
+route53_zone_id = "Z0123456789"

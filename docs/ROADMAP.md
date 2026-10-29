@@ -11,7 +11,7 @@
 4. **CI/CD** — GitHub Actions: build → test → containerize → deploy. · [Epic 3](epics.md)
 
 ## Next (Phase 3 — live demo)
-5. Deploy **ui-identity (S3+CloudFront) + api-identity-jvm/api-identity-python (ECS Fargate) + mobile-identity (Expo)** against an **Okta dev tenant**. · [Epic 4](epics.md)
+5. Deploy **ui-identity (S3+CloudFront) + api-identity-jvm / api-identity-python / api-auth (ECS Fargate) + mobile-identity (Expo)** against an **Okta dev tenant**. 🔄 IaC + CI/CD written (`terraform/` + `.github/workflows/deploy.yml`); apply blocked on AWS + Okta accounts. · [Epic 4](epics.md)
 
 ## Later (enhancements)
 - Refresh-token rotation + reuse detection demo. · [backlog](epics.md#later-backlog-enhancements)

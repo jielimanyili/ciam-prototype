@@ -7,7 +7,8 @@ spring:
         registration:
           ciam:
             client-id: api-auth
-            client-secret: api-auth-secret
+            # Injected from AWS Secrets Manager on ECS (ADR-019); local fallback for dev.
+            client-secret: ${CLIENT_SECRET:api-auth-secret}
             authorization-grant-type: authorization_code
             scope: openid
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
