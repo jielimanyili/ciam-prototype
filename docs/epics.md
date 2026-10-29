@@ -40,6 +40,14 @@
 
 ---
 
+## Epic 7 — Python SDK + Python resource server · ✅ Done
+
+- **Status:** Done · **Priority:** High · **Squad:** Identity/Auth platform · **Links:** ADR-011 · FR-6, FR-4, FR-5 · DESIGN §1b · C-2
+- **Why:** TriNet runs Python; the identity platform is language-agnostic, so the reference ships a Python counterpart of the SDK and resource server.
+- **Delivered:** `sdk-identity-python` (`discover`, `generate_pkce`, `fetch_client_credentials`, `scopes_of`/`require_scope`/`has_claim` — 6 tests) + `api-identity-python` (FastAPI; same endpoints + JWT validation as `api-identity` — 5 tests). Closed; listed for completeness.
+
+---
+
 ## Epic 1 — Mobile customer sign-in (`mobile-identity`)
 
 - **Status:** To Do · **Priority:** High · **Squad:** Identity/Auth platform · **Links:** ADR-003, ADR-001, DESIGN §2, C-3, FR-1

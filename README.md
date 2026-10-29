@@ -13,8 +13,8 @@ for Okta).
 | CIAM architecture (Okta APIs/SDKs) | Keycloak stands in for Okta; swap issuer + client to go live (see below) |
 | OIDC / OAuth 2.0 — Authorization Code + PKCE | `ui-identity/` (Angular + `oidc-client-ts`) + `api-identity/` (Spring Security OAuth2) |
 | OAuth 2.0 — Client Credentials | `api-identity/` (Spring Security) · `sdk-identity-jvm` (built) |
-| API & microservice security — JWT validation, scoping, claims | `api-identity/` (Spring Security OAuth2 resource server) |
-| Developer advocacy — reusable libraries / SDK wrappers + docs | `sdk-identity-jvm` (built) + this README + `docs/` |
+| API & microservice security — JWT validation, scoping, claims | `api-identity/` (Spring Security) + `api-identity-python/` (FastAPI) |
+| Developer advocacy — reusable libraries / SDK wrappers + docs | `sdk-identity-jvm` + `sdk-identity-python` (built) + this README + `docs/` |
 | JavaScript (UI) frameworks + microservices + REST | Angular 22 (SPA) + Java/Spring Boot microservice |
 | Security by design | RS256/JWKS + issuer/audience validation + scope enforcement, tested |
 
@@ -47,8 +47,10 @@ validate a SAML assertion before minting a session/token.
 
 ```
 api-identity/       Spring Boot (Java 21) resource server — protected API (Spring Security OAuth2)
+api-identity-python/  FastAPI resource server — same endpoints + JWT validation as api-identity (uses sdk-identity-python)
 ui-identity/        Angular 22 SPA — Authorization Code + PKCE login
 sdk-identity-jvm/   Reusable Java identity SDK — OIDC discovery, PKCE (S256), client-credentials, scope assertions
+sdk-identity-python/  Reusable Python identity SDK — mirrors sdk-identity-jvm
 keycloak/           Local OIDC provider realm (stand-in for Okta)
 docker-compose.yml  Keycloak (the IdP)
 docs/               full doc set — see the Documentation section

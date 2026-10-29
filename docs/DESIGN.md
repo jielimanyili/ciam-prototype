@@ -43,10 +43,12 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 | Layer | Directory |
 |---|---|
 | Resource server / identity API | `api-identity/` |
+| Resource server / identity API (Python) | `api-identity-python/` |
 | Auth service (login/session) | `api-auth/` (planned) |
 | Web UI (SPA) | `ui-identity/` |
 | Mobile client (planned) | `mobile-identity/` |
 | Shared library / SDK | `sdk-identity-jvm/` |
+| Shared library / SDK (Python) | `sdk-identity-python/` |
 
 > Renaming **applied**: `resource-server/` → `api-identity/`, `frontend/` → `ui-identity/`,
 > `identity-sdk-jvm/` → `sdk-identity-jvm/` (dirs, artifactIds, Angular project name, Docker image
@@ -74,6 +76,21 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 - **Decision:** Java is the canonical backend language (C-2); this SDK is the single reusable identity library.
 - **Trade-off:** Spring Security already does JWT validation → the SDK avoids duplicating it, providing the helpers + opinionated defaults instead.
 - **Extension (planned):** a Spring Boot starter (`sdk-identity-jvm-spring-boot-starter`) that auto-configures the Resource Server's validation — `issuer-uri` → JWKS/RS256, audience validator, scope enforcement — so each RS is secure by default (ADR-007).
+
+## 1b. Python SDK + Python resource server — multi-runtime (ADR-011)
+
+> The identity platform is language-agnostic; TriNet runs Python, so the reference ships a
+> Python counterpart of the SDK and the resource server.
+
+- **SDK (`sdk-identity-python/`):** Python 3.12, thin wrapper mirroring `sdk-identity-jvm` —
+  `discover`, `generate_pkce`, `fetch_client_credentials`, `scopes_of`/`require_scope`/`has_claim`.
+  Dependency: `httpx` only. JWT validation stays in the resource server.
+- **Resource server (`api-identity-python/`):** FastAPI, mirrors `api-identity` — same endpoints
+  (`/health`, `/api/me`, `/api/admin`, `/api/claims`), same JWT validation (RS256/JWKS + issuer +
+  audience + expiry), scope enforcement via the SDK. Consumes `sdk-identity-python` for discovery.
+- **Decision:** Python 3.12 + FastAPI + PyJWT (validation) + httpx; `-python` marks the alternate
+  runtime of an existing component (ADR-009 rule 6 extension).
+- **Trade-off:** two runtimes to keep in parity (endpoints + validation semantics).
 
 ## 2. React Native client — `mobile-identity/`
 
@@ -135,3 +152,5 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 | 8 | Live IdP | Okta dev tenant | Okta is the reference IdP |
 | 9 | Auth service | `api-auth` — hardened variant (`oauth2Login()`) | tokens stay server-side |
 | 10 | Component naming | `<layer>-<domain>` (api-/ui-/mobile-/bff-/sdk-); domains: identity, auth | mirrors TriNet convention; catalog-discoverable |
+| 11 | Python SDK | `sdk-identity-python` (thin, httpx-only) | mirrors `sdk-identity-jvm`; FR-6 across languages |
+| 12 | Python resource server | `api-identity-python` (FastAPI + PyJWT) | same endpoints/validation as `api-identity` |

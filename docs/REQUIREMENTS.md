@@ -48,7 +48,7 @@
 | ID | Constraint |
 |---|---|
 | C-1 | **IdP = Okta** (CIAM); Keycloak is the local stand-in |
-| C-2 | **Backend = Java (Spring Boot)** only |
+| C-2 | **Backend = Java (Spring Boot)** primary · **Python (FastAPI)** secondary ([adr-011](adr/adr-011-python-sdk-and-resource-server.md)) |
 | C-3 | **Frontend = Angular** (web) **+ React Native** (mobile) |
 | C-4 | **Protocols = OIDC/OAuth2 + SAML 2.0** — no custom auth |
 | C-5 | **No secrets** in tokens, env, or source → secrets manager in prod (AWS Secrets Manager, [adr-008](adr/adr-008-secrets-management.md)) |

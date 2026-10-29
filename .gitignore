@@ -8,4 +8,13 @@ out-tsc/
 # Angular build cache
 .angular/
 
+# Java / Maven
 target/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/

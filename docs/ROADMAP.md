@@ -4,6 +4,8 @@
 
 ## Now (Phase 2 — complete the reference stack)
 1. **JVM SDK** (`sdk-identity-jvm/`) — Java, the canonical identity library (C-2). ✅ done (6 tests) · [Epic 0](epics.md)
+1a. **Python SDK** (`sdk-identity-python/`) — mirrors the JVM SDK (discovery, PKCE, client-credentials, scope). ✅ done (6 tests) · [ADR-011](adr/adr-011-python-sdk-and-resource-server.md)
+1b. **Python resource server** (`api-identity-python/`) — FastAPI; same endpoints + JWT validation as `api-identity`. ✅ done (5 tests) · [ADR-011](adr/adr-011-python-sdk-and-resource-server.md)
 2. **React Native client** (`mobile-identity/`) — Expo, Authorization Code + PKCE. · [Epic 1](epics.md)
 3. **SAML 2.0** — SP-initiated on the Java server + a Keycloak SAML client. · [Epic 2](epics.md)
 4. **CI/CD** — GitHub Actions: build → test → containerize → deploy. · [Epic 3](epics.md)
