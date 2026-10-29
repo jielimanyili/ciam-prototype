@@ -46,7 +46,7 @@
 | # | Item | Status | Where / note |
 |---|---|---|---|
 | 3.1 | Component design | ✅ | `DESIGN.md` |
-| 3.2 | Decisions logged (ADRs) | ✅ | 12 ADRs (`docs/adr/`) |
+| 3.2 | Decisions logged (ADRs) | ✅ | 13 ADRs (`docs/adr/`) |
 | 3.3 | API contract | ✅ | `openapi.yaml` |
 | 3.4 | Naming conventions | ✅ | `ADR-009` |
 

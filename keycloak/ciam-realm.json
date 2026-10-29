@@ -23,6 +23,30 @@
       "attributes": {
         "pkce.code.challenge.method": "S256"
       },
+      "protocolMappers": [
+        {
+          "name": "aud api-identity-jvm",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "api-identity-jvm",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "aud api-identity-python",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "api-identity-python",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ],
       "fullScopeAllowed": false
     },
     {
@@ -37,6 +61,19 @@
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": true,
       "defaultClientScopes": ["admin"],
+      "protocolMappers": [
+        {
+          "name": "aud api-identity-jvm",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "api-identity-jvm",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ],
       "fullScopeAllowed": false
     }
   ],

@@ -154,3 +154,4 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 | 10 | Component naming | `<layer>-<domain>` (api-/ui-/mobile-/bff-/sdk-); domains: identity, auth | mirrors TriNet convention; catalog-discoverable |
 | 11 | Python SDK | `sdk-identity-python` (thin, httpx-only) | mirrors `sdk-identity-jvm`; FR-6 across languages |
 | 12 | Python resource server | `api-identity-python` (FastAPI + PyJWT) | same endpoints/validation as `api-identity-jvm` |
+| 13 | Token audience | Keycloak audience mappers (ADR-013) | strict `aud` stays; audiences minted in the IdP |
