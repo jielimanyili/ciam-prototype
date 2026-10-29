@@ -2,12 +2,14 @@
 
 ## 1. Overview
 
-A CIAM reference implementation with three clients: the **Web App** and **Mobile App**
-sign in via OIDC **Authorization Code + PKCE**, and a **Confidential Service** uses
-**Client Credentials**. A Spring Boot **Resource Server** validates RS256 JWTs (JWKS +
-issuer + audience) and enforces scope/claim-based authorization. A **BFF** variant keeps
-tokens server-side, and the reusable **Identity SDK** (plus a planned Spring Boot starter)
-centralizes the validation logic.
+A CIAM reference implementation across **four runtimes**. Three **clients** — the **Web App**
+(Angular) and **Mobile App** (React Native) sign in via OIDC **Authorization Code + PKCE**, and a
+**Confidential Service** uses **Client Credentials**. Two **resource servers** — **Java**
+(`api-identity-jvm`, Spring Boot) and **Python** (`api-identity-python`, FastAPI) — validate the
+same RS256 JWTs (JWKS + issuer + audience) and enforce the same scope/claim authorization. A
+**BFF** variant keeps tokens server-side, and two reusable **Identity SDKs** — **Java**
+(`sdk-identity-jvm`) and **Python** (`sdk-identity-python`) — centralize the client-side helpers
+(discovery, PKCE, client-credentials, scope). Audiences are minted in the IdP (ADR-013).
 
 ## 2. Goals / Non-goals
 
@@ -46,6 +48,10 @@ sequenceDiagram
     API->>API: verify RS256/JWKS + issuer + audience -> enforce scope
     API-->>SPA: claims
 ```
+
+> The same §3.1 flow targets either resource server — `api-identity-jvm` (Spring Boot, 4101) or
+> `api-identity-python` (FastAPI, 4102) — with identical JWT validation (JWKS/RS256 + issuer +
+> audience) and scope enforcement. Audiences are minted in the IdP (ADR-013).
 
 ### 3.2 Authorization Code via BFF — Java service as OAuth2 Client *(recommended for production · planned)*
 
@@ -125,9 +131,11 @@ CIAM splits cleanly into **platform** (the identity capability, owned centrally)
 | IdP (Okta/Keycloak) | identity store, credential verification, token issuance, MFA/consent | stateful |
 | `api-auth` | the AuthN flow server-side — OIDC handshake → session cookie, token server-side | stateful (session) |
 | `api-identity-jvm` | reference resource server (prototype) · identity data + IdP admin ops (target) | stateless (prototype) → stateful data slice (target) |
+| `api-identity-python` | reference resource server (Python) — same endpoints + validation as `api-identity-jvm` | stateless |
 | `sdk-identity-jvm` (+ starter) | safe defaults at build time for product services | — (compile-time) |
+| `sdk-identity-python` | safe defaults at build time for Python product services | — (compile-time) |
 
-- Product squads validate JWTs + scopes via `sdk-identity-jvm` / the starter (ADR-007) — the same
+- Product squads validate JWTs + scopes via `sdk-identity-jvm` / `sdk-identity-python` / the starter (ADR-007) — the same
   `verify-then-authorize` shape, with no central runtime hop.
 
 **Library vs. service boundary:** validation + claims = **library** (`sdk-identity-jvm` + starter;
@@ -142,8 +150,10 @@ the validation (which the SDK already gives every service).
 |---|---|---|---|
 | IdP config | A | I | R |
 | `api-identity-jvm` | R/A | C | — |
+| `api-identity-python` | R/A | C | — |
 | `api-auth` | R/A | C | — |
 | `sdk-identity-jvm` | R/A | C (consumer) | — |
+| `sdk-identity-python` | R/A | C (consumer) | — |
 | Product `api-<domain>` | C (guardrails) | R/A | — |
 
 R = responsible · A = accountable · C = consulted · I = informed.
@@ -171,11 +181,14 @@ See `docs/adr/`:
 - `adr-008` — secrets management: AWS Secrets Manager (prod) / host secrets (demo).
 - `adr-009` — component naming convention (`<layer>-<domain>`).
 - `adr-010` — platform vs product ownership (team topology).
+- `adr-011` — Python identity SDK + Python resource server (multi-runtime).
+- `adr-012` — symmetric runtime suffixes (`api-identity-jvm`).
+- `adr-013` — token audience strategy (Keycloak audience mappers).
 
 ## 8. Honesty boundary
 
-Project-level prototype, not production. Keycloak stands in for Okta. Backend is
-Java (Spring Boot).
+Project-level prototype, not production. Keycloak stands in for Okta. Backends are
+Java (Spring Boot) + Python (FastAPI).
 
 ## 9. Roadmap
 
