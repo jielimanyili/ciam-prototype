@@ -94,20 +94,36 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 
 ## 2. React Native client — `mobile-identity/`
 
-- **Framework:** **Expo (managed)** — fastest to build; `expo start --web` gives a browser preview for the live demo.
-- **Auth:** `expo-auth-session` (built-in PKCE) → Authorization Code + PKCE.
-- **Token storage:** `expo-secure-store` (Keychain/Keystore) for the refresh token; access token in memory.
+- **Framework:** **Expo (managed)** — fastest to build; `expo start --web` gives a browser preview for the live demo (ADR-003).
+- **Auth:** `expo-auth-session` (built-in PKCE) → Authorization Code + PKCE; issuer discovered from `/.well-known/openid-configuration`.
+- **Redirect URI:** Expo Go dev = `exp://…/--/callback`; production = custom scheme / universal (App) link — both registered on the IdP client.
+- **Token storage:** `expo-secure-store` (Keychain/Keystore) for the **refresh token**; access token in **memory** only (never persisted).
+- **Token lifecycle:** access-token expiry → silent refresh via the stored refresh token; refresh failure → re-authenticate.
 - **Screens:** SignIn → (auth session) → Home ("Call /api/me") → SignOut.
-- **Decision:** Expo over bare React Native for speed + demo portability.
+- **API target:** either resource server (`api-identity-jvm` or `api-identity-python`) — the mobile client's token carries both audiences (ADR-013).
+- **SDK boundary:** the mobile client is TypeScript, so it uses `expo-auth-session`, **not** `sdk-identity-jvm`/`sdk-identity-python` — those SDKs cover server-side concerns (JWT validation, client-credentials).
+- **Decision:** Expo over bare React Native for speed + demo portability (ADR-003).
 - **Trade-off:** managed Expo limits custom native modules — irrelevant for this prototype.
 
 ## 3. SAML 2.0 (B2B SSO)
 
-- **Where:** add a **SAML SP to the Java resource server** (Spring Security `saml2-service-provider` is first-class).
-- **Flows:** SP-initiated (redirect → assert → validate → issue session) and IdP-initiated (validate audience / destination / InResponseTo on unsolicited assertions).
-- **Config:** add a SAML client to the Keycloak realm; wire the SP to the IdP metadata.
-- **Decision:** Java/Spring Security SAML (mature).
-- **Trade-off:** SAML is a separate protocol + IdP config — scope it to SP-initiated first, IdP-initiated second.
+- **Where:** add a **SAML SP** to the Java resource server (Spring Security `saml2-service-provider`
+  is first-class) — or to `api-auth` so a SAML assertion becomes a session the same way OIDC does.
+- **Flows:**
+  - **SP-initiated:** app → build `AuthnRequest` (+ `RelayState`) → redirect to IdP → login →
+    `SAMLResponse` (assertion) → validate → issue session/token.
+  - **IdP-initiated:** unsolicited `SAMLResponse` → validate `destination` + `audience` and, when
+    `InResponseTo` is present, match an in-flight `AuthnRequest` — else reject.
+- **Assertion validation checklist** (the SAML equivalent of the OIDC JWT checks): XML signature
+  (XML DSig) · issuer · `AudienceRestriction` · destination · `NotBefore`/`NotOnOrAfter` ·
+  `SubjectConfirmation` (bearer + `InResponseTo`/`Recipient`).
+- **Identity mapping:** `NameID` + attributes map to the same `sub`/claims as OIDC, so the resource
+  server's authorization layer stays protocol-agnostic.
+- **Config:** add a SAML client to the Keycloak realm; wire the SP to IdP metadata (SSO + SLO URLs).
+- **Decision:** Java/Spring Security SAML (mature) (ADR-004).
+- **Trade-off:** a separate protocol + IdP config — scope to **SP-initiated first**, IdP-initiated
+  second. SAML carries XML risks (XXE, signature wrapping) — use the framework's hardened parsers,
+  never hand-rolled.
 
 ## 4. CI/CD — GitHub Actions
 
@@ -143,16 +159,24 @@ server's audience — same shape as the Keycloak realm.
 
 ## 6. Auth Service (`api-auth/`) — BFF pattern (planned)
 
-- **Purpose:** the *hardened* auth variant — keep the access token **server-side** and
-  issue a **session cookie** to the browser, so tokens never reach the SPA.
+- **Purpose:** the *hardened* auth variant — keep the access token **server-side** and issue a
+  **session cookie** to the browser, so tokens never reach the SPA (ADR-006).
 - **Tech:** Java Spring Boot + `spring-boot-starter-oauth2-client` + `oauth2Login()`.
 - **Flow:** Web App → `api-auth` (login → session cookie) → `api-auth` proxies API calls to the
   Resource Server with the server-side access token.
-- **Decision:** offer it as an *alternative* to direct PKCE, not a replacement — direct
-  PKCE stays the default because it demonstrates the OIDC/PKCE requirement directly.
-- **Trade-off:** stateless JWT → stateful session (cookie expiry / revocation / scale).
-- **Ownership:** platform (ADR-010) — `api-auth` is the server-side half of authentication;
-  keep it scoped to auth + session + proxy.
+- **Session security (NFR-9):** cookie `HttpOnly` + `Secure` + `SameSite=Lax` · session expiry +
+  idle timeout · CSRF token on state-changing routes · session-fixation prevention (regenerate on
+  login) · logout revokes the session *and* the IdP token (back-channel).
+- **Server-side token store:** access token held in the session (or a short-lived cache); the
+  refresh token rotates on use (reuse detection — a "Later" backlog item).
+- **Proxy contract:** `/login`, `/logout`, `/me`, and `/api/**` passthrough with the bearer token —
+  the SPA talks only to `api-auth`; it's the only component that ever holds tokens.
+- **Decision:** an *alternative* to direct PKCE, not a replacement — direct PKCE stays the default
+  because it demonstrates the OIDC/PKCE requirement directly (ADR-006).
+- **Trade-off:** stateless JWT → stateful session (cookie expiry / revocation / scale — needs
+  sticky sessions or a shared session store).
+- **Ownership:** platform (ADR-010) — `api-auth` is the server-side half of authentication; keep it
+  scoped to auth + session + proxy.
 
 ## 7. Multi-runtime parity (ADR-014)
 
