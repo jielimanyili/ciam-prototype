@@ -4,6 +4,9 @@ project      = "ciam"
 environment  = "demo"
 image_tag    = "latest"
 
+# Free-tier ECS host (750 h/month = $0). Bump to t3.small/medium if the 1 GB instance is too tight.
+instance_type = "t3.micro"
+
 # Okta dev tenant (Epic 4, story 4).
 oidc_issuer          = "https://dev-123456.okta.com/oauth2/default"
 oidc_audience_jvm    = "api-identity-jvm"

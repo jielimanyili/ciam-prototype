@@ -38,7 +38,7 @@ resource "aws_lb_target_group" "jvm" {
   port        = local.jvm_port
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
-  target_type = "ip"
+  target_type = "instance"
   health_check {
     path                = "/health"
     interval            = 30
@@ -55,7 +55,7 @@ resource "aws_lb_target_group" "python" {
   port        = local.python_port
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
-  target_type = "ip"
+  target_type = "instance"
   health_check {
     path                = "/health"
     interval            = 30
@@ -72,7 +72,7 @@ resource "aws_lb_target_group" "auth" {
   port        = local.auth_port
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
-  target_type = "ip"
+  target_type = "instance"
   health_check {
     path                = "/actuator/health"
     interval            = 30

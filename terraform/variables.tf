@@ -22,6 +22,12 @@ variable "image_tag" {
   default     = "latest"
 }
 
+variable "instance_type" {
+  description = "EC2 instance type for the free-tier ECS host (t2.micro/t3.micro = 750 free h/month)."
+  type        = string
+  default     = "t3.micro"
+}
+
 variable "oidc_issuer" {
   description = "OIDC issuer (Okta dev tenant)."
   type        = string

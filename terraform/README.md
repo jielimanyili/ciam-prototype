@@ -9,7 +9,8 @@ injects secrets per [ADR-019](../docs/adr/adr-019-secrets-injection-aws.md).
 |---|---|
 | `vpc.tf` | VPC + 2 public subnets + IGW + route table (demo uses public subnets — no NAT cost) |
 | `ecr.tf` | ECR repositories for `api-identity-jvm`, `api-identity-python`, `api-auth` |
-| `ecs*.tf` | ECS cluster, Fargate task definitions, services, CloudWatch log groups, task SG |
+| `ec2.tf` | **Free-tier EC2 host** — one `t3.micro` (750 free h/month) registered to ECS |
+| `ecs*.tf` | ECS cluster, EC2-launch-type task definitions + services, CloudWatch log groups, task SG |
 | `alb.tf` | ALB + target groups + HTTPS listener with **host-based routing** (`api.` / `api-py.` / `auth.`) |
 | `acm.tf` + `route53.tf` | ACM wildcard cert (DNS-validated) + ALIAS records |
 | `s3-cloudfront.tf` | S3 (private) + CloudFront (OAC) for `ui-identity`, SPA 404 fallback |
@@ -21,6 +22,15 @@ injects secrets per [ADR-019](../docs/adr/adr-019-secrets-injection-aws.md).
 - AWS account + credentials (or a GitHub OIDC role for CI).
 - A Route53 hosted zone (`route53_zone_id`) and a domain (`domain_name`).
 - An Okta dev tenant (`oidc_issuer`) and the `api-auth` client secret.
+
+## Cost (free-tier by design)
+
+- **Compute = $0:** one `t3.micro` EC2 instance (750 free h/month) runs all three backends via ECS.
+  The JVM apps are memory-tuned (`JAVA_TOOL_OPTIONS=-Xmx192m`) to fit the 1 GB instance. If it ever
+  OOMs, bump `instance_type` to `t3.small`/`medium` (~$15–25/month) — the only paid change.
+- **ALB / S3 / CloudFront / ECR / CloudWatch = free tier.**
+- **Residual (~$1/month):** Secrets Manager ($0.40/secret) + Route53 hosted zone ($0.50) + the
+  domain itself (~$12/yr). These are not free-tier, but are negligible.
 
 ## Apply
 

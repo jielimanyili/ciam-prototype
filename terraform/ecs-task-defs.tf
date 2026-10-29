@@ -1,21 +1,22 @@
 resource "aws_ecs_task_definition" "jvm" {
-  family                   = "${local.name}-api-identity-jvm"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE"]
-  cpu                      = "256"
-  memory                   = "512"
-  execution_role_arn       = aws_iam_role.task_execution.arn
-  task_role_arn            = aws_iam_role.task.arn
+  family             = "${local.name}-api-identity-jvm"
+  network_mode       = "bridge"
+  cpu                = "256"
+  memory             = "300"
+  execution_role_arn = aws_iam_role.task_execution.arn
+  task_role_arn      = aws_iam_role.task.arn
 
   container_definitions = jsonencode([
     {
       name         = "api-identity-jvm"
       image        = "${aws_ecr_repository.jvm.repository_url}:${var.image_tag}"
-      portMappings = [{ containerPort = local.jvm_port, protocol = "tcp" }]
+      portMappings = [{ containerPort = local.jvm_port, hostPort = local.jvm_port, protocol = "tcp" }]
       environment = [
         { name = "OIDC_ISSUER", value = var.oidc_issuer },
         { name = "OIDC_AUDIENCE", value = var.oidc_audience_jvm },
         { name = "PORT", value = tostring(local.jvm_port) },
+        # Tuned for the free-tier 1 GB instance (see ec2.tf / ADR-016).
+        { name = "JAVA_TOOL_OPTIONS", value = "-Xmx192m -XX:MaxMetaspaceSize=96m -XX:+UseSerialGC" },
       ]
       logConfiguration = {
         logDriver = "awslogs"
@@ -30,19 +31,18 @@ resource "aws_ecs_task_definition" "jvm" {
 }
 
 resource "aws_ecs_task_definition" "python" {
-  family                   = "${local.name}-api-identity-python"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE"]
-  cpu                      = "256"
-  memory                   = "512"
-  execution_role_arn       = aws_iam_role.task_execution.arn
-  task_role_arn            = aws_iam_role.task.arn
+  family             = "${local.name}-api-identity-python"
+  network_mode       = "bridge"
+  cpu                = "128"
+  memory             = "128"
+  execution_role_arn = aws_iam_role.task_execution.arn
+  task_role_arn      = aws_iam_role.task.arn
 
   container_definitions = jsonencode([
     {
       name         = "api-identity-python"
       image        = "${aws_ecr_repository.python.repository_url}:${var.image_tag}"
-      portMappings = [{ containerPort = local.python_port, protocol = "tcp" }]
+      portMappings = [{ containerPort = local.python_port, hostPort = local.python_port, protocol = "tcp" }]
       environment = [
         { name = "OIDC_ISSUER", value = var.oidc_issuer },
         { name = "OIDC_AUDIENCE", value = var.oidc_audience_python },
@@ -61,19 +61,18 @@ resource "aws_ecs_task_definition" "python" {
 }
 
 resource "aws_ecs_task_definition" "auth" {
-  family                   = "${local.name}-api-auth"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE"]
-  cpu                      = "256"
-  memory                   = "512"
-  execution_role_arn       = aws_iam_role.task_execution.arn
-  task_role_arn            = aws_iam_role.task.arn
+  family             = "${local.name}-api-auth"
+  network_mode       = "bridge"
+  cpu                = "256"
+  memory             = "300"
+  execution_role_arn = aws_iam_role.task_execution.arn
+  task_role_arn      = aws_iam_role.task.arn
 
   container_definitions = jsonencode([
     {
       name         = "api-auth"
       image        = "${aws_ecr_repository.auth.repository_url}:${var.image_tag}"
-      portMappings = [{ containerPort = local.auth_port, protocol = "tcp" }]
+      portMappings = [{ containerPort = local.auth_port, hostPort = local.auth_port, protocol = "tcp" }]
       environment = concat(
         [
           { name = "OIDC_ISSUER", value = var.oidc_issuer },
@@ -81,6 +80,8 @@ resource "aws_ecs_task_definition" "auth" {
           { name = "RESOURCE_SERVER_URL", value = "https://api.${var.domain_name}" },
           { name = "PORT", value = tostring(local.auth_port) },
           { name = "SAML_ENABLED", value = tostring(var.saml_enabled) },
+          # Tuned for the free-tier 1 GB instance (see ec2.tf / ADR-016).
+          { name = "JAVA_TOOL_OPTIONS", value = "-Xmx192m -XX:MaxMetaspaceSize=96m -XX:+UseSerialGC" },
         ],
         var.saml_idp_metadata_uri != "" ? [{ name = "SAML_IDP_METADATA_URI", value = var.saml_idp_metadata_uri }] : []
       )
