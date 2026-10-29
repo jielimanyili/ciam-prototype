@@ -115,13 +115,29 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 - **Decision:** GitHub Actions (already used in the repo) · Docker for Java (JDK pinning) · platform deploy for the frontend.
 - **Trade-off:** one workflow with a job matrix vs. many workflows — one workflow, simpler to reason about.
 
-## 5. Live demo deployment
+## 5. Live demo deployment — four runtimes
 
-- **Frontend (Angular):** **Vercel** (already used for other projects) — static, env-var `authority`.
-- **Backend:** **Render** (free tier, Dockerfile) — run the Java resource server; env `OIDC_ISSUER` / `OIDC_AUDIENCE`.
-- **Mobile:** Expo (web preview) or Expo Go.
-- **IdP (live):** **Okta free dev tenant** (Okta is the reference IdP) — you sign up; swap issuer + client config (already supported).
-- **Decision:** Okta dev tenant over hosted Keycloak (Okta is the reference IdP); Render over Railway/Fly (simplest Dockerfile deploy).
+| Component | Host | Config |
+|---|---|---|
+| `ui-identity` (Angular SPA) | Vercel | static build; env `authority` → Okta issuer |
+| `mobile-identity` (Expo/RN) | Expo Go / EAS (web preview) | `expo-auth-session` PKCE against Okta |
+| `api-identity-jvm` (Spring Boot) | Render (Dockerfile) | env `OIDC_ISSUER` · `OIDC_AUDIENCE=api-identity-jvm` |
+| `api-identity-python` (FastAPI) | Render (Dockerfile) | env `OIDC_ISSUER` · `OIDC_AUDIENCE=api-identity-python` |
+| `sdk-identity-jvm` | Maven Central (or GitHub Packages) | published artifact |
+| `sdk-identity-python` | PyPI (or GitHub Packages) | `pip install` |
+| IdP | Okta free dev tenant | clients + audience config (below) |
+
+**Decisions:**
+- **Okta dev tenant** over hosted Keycloak — Okta is the reference IdP (ADR-005).
+- **Render** over Railway/Fly — simplest Dockerfile deploy; both resource servers deploy identically.
+- **Both SDKs are published**, not vendored — the developer-advocacy story is "a squad adds a
+  Maven dep / `pip install`s it," in either language.
+
+**Audience in Okta (mirrors ADR-013):** Keycloak mints `aud` via audience mappers; Okta emits `aud`
+from the authorization server's **Audience** setting. Point `OIDC_AUDIENCE` at the value Okta emits
+(e.g. `api://default`) or configure the authorization server to emit `api-identity-jvm` /
+`api-identity-python`. The SPA/mobile clients carry both audiences; the M2M client carries its
+server's audience — same shape as the Keycloak realm.
 
 ---
 

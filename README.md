@@ -88,9 +88,11 @@ against the IdP's JWKS, checks issuer + audience, then enforces scopes/claims.
 | Component | Host | Config |
 |---|---|---|
 | `ui-identity` (Angular SPA) | Vercel | static build (`npm run build`); env `authority` → Okta domain |
-| `api-identity-jvm` (Spring Boot) | Render | Dockerfile already present; env `OIDC_ISSUER` / `OIDC_AUDIENCE` |
+| `api-identity-jvm` (Spring Boot) | Render | Dockerfile already present; env `OIDC_ISSUER` / `OIDC_AUDIENCE=api-identity-jvm` |
+| `api-identity-python` (FastAPI) | Render | Dockerfile already present; env `OIDC_ISSUER` / `OIDC_AUDIENCE=api-identity-python` |
 | `mobile-identity` (planned) | Expo | `expo start --web` |
-| IdP | Okta dev tenant | swap issuer + client (below) |
+| `sdk-identity-jvm` / `sdk-identity-python` | Maven Central / PyPI | published libraries |
+| IdP | Okta dev tenant | swap issuer + client + audience (below) |
 
 > No `vercel.json` / `render.yaml` yet — the deploy is Epic 3 (CI/CD) + Epic 4 (live demo).
 
@@ -100,7 +102,8 @@ The SDK and resource server are provider-agnostic (standard OIDC discovery).
 Only the issuer/client change:
 
 1. Point the resource server at Okta: `OIDC_ISSUER=https://<your-okta-domain>/oauth2/default`
-   and `OIDC_AUDIENCE=<your-api-audience>` (JWKS is auto-discovered).
+   and `OIDC_AUDIENCE=<your-api-audience>` (JWKS is auto-discovered). Use `api-identity-jvm` /
+   `api-identity-python` and configure the authorization server's Audience to match (ADR-013).
 2. In `ui-identity/src/app/auth.service.ts`, set `authority` to your Okta domain and
    `client_id` to your Okta SPA app.
 
