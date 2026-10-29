@@ -1,21 +1,21 @@
 output "app_url" {
-  description = "Public SPA URL (S3 + CloudFront)."
-  value       = "https://app.${var.domain_name}"
+  description = "Public SPA URL (S3 + CloudFront, free *.cloudfront.net domain)."
+  value       = "https://${aws_cloudfront_distribution.main.domain_name}"
 }
 
 output "api_jvm_url" {
-  description = "JVM resource server (behind the ALB)."
-  value       = "https://api.${var.domain_name}"
+  description = "JVM resource server (CloudFront path)."
+  value       = "https://${aws_cloudfront_distribution.main.domain_name}/jvm"
 }
 
 output "api_python_url" {
-  description = "Python resource server (behind the ALB)."
-  value       = "https://api-py.${var.domain_name}"
+  description = "Python resource server (CloudFront path)."
+  value       = "https://${aws_cloudfront_distribution.main.domain_name}/python"
 }
 
 output "auth_url" {
-  description = "BFF (api-auth) behind the ALB."
-  value       = "https://auth.${var.domain_name}"
+  description = "BFF (api-auth) behind CloudFront."
+  value       = "https://${aws_cloudfront_distribution.main.domain_name}/auth"
 }
 
 output "spa_bucket" {
@@ -28,8 +28,13 @@ output "cloudfront_distribution_id" {
   value       = aws_cloudfront_distribution.main.id
 }
 
+output "cloudfront_domain_name" {
+  description = "The free *.cloudfront.net domain (for Okta redirect URIs)."
+  value       = aws_cloudfront_distribution.main.domain_name
+}
+
 output "alb_dns_name" {
-  description = "Raw ALB DNS name (pre-DNS)."
+  description = "Raw ALB DNS name (CloudFront origin)."
   value       = aws_lb.main.dns_name
 }
 

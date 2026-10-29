@@ -15,6 +15,7 @@ resource "aws_ecs_task_definition" "jvm" {
         { name = "OIDC_ISSUER", value = var.oidc_issuer },
         { name = "OIDC_AUDIENCE", value = var.oidc_audience_jvm },
         { name = "PORT", value = tostring(local.jvm_port) },
+        { name = "CONTEXT_PATH", value = "/jvm" },
         # Tuned for the free-tier 1 GB instance (see ec2.tf / ADR-016).
         { name = "JAVA_TOOL_OPTIONS", value = "-Xmx192m -XX:MaxMetaspaceSize=96m -XX:+UseSerialGC" },
       ]
@@ -47,6 +48,7 @@ resource "aws_ecs_task_definition" "python" {
         { name = "OIDC_ISSUER", value = var.oidc_issuer },
         { name = "OIDC_AUDIENCE", value = var.oidc_audience_python },
         { name = "PORT", value = tostring(local.python_port) },
+        { name = "CONTEXT_PATH", value = "/python" },
       ]
       logConfiguration = {
         logDriver = "awslogs"
@@ -76,9 +78,10 @@ resource "aws_ecs_task_definition" "auth" {
       environment = concat(
         [
           { name = "OIDC_ISSUER", value = var.oidc_issuer },
-          # BFF proxies downstream to the JVM resource server via the same ALB.
-          { name = "RESOURCE_SERVER_URL", value = "https://api.${var.domain_name}" },
+          # BFF proxies downstream to the JVM resource server via the same ALB (context-path /jvm).
+          { name = "RESOURCE_SERVER_URL", value = "http://${aws_lb.main.dns_name}/jvm/" },
           { name = "PORT", value = tostring(local.auth_port) },
+          { name = "CONTEXT_PATH", value = "/auth" },
           { name = "SAML_ENABLED", value = tostring(var.saml_enabled) },
           # Tuned for the free-tier 1 GB instance (see ec2.tf / ADR-016).
           { name = "JAVA_TOOL_OPTIONS", value = "-Xmx192m -XX:MaxMetaspaceSize=96m -XX:+UseSerialGC" },

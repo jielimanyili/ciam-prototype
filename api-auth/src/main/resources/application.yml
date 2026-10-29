@@ -28,6 +28,9 @@ ciam:
 
 server:
   port: ${PORT:4103}
+  servlet:
+    # Set to a path prefix (e.g. /auth) when fronted by CloudFront path-based routing.
+    context-path: ${CONTEXT_PATH:}
 
 management:
   endpoints:

@@ -18,7 +18,7 @@ env:
 
 jobs:
   deploy:
-    name: Build + deploy (ECS Fargate + S3/CloudFront)
+    name: Build + deploy (ECS EC2 + S3/CloudFront)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,8 +39,6 @@ jobs:
         working-directory: terraform
         env:
           TF_VAR_image_tag: ${{ github.sha }}
-          TF_VAR_domain_name: ${{ vars.DOMAIN_NAME }}
-          TF_VAR_route53_zone_id: ${{ vars.ROUTE53_ZONE_ID }}
           TF_VAR_oidc_issuer: ${{ vars.OIDC_ISSUER }}
           TF_VAR_api_auth_client_secret: ${{ secrets.OKTA_CLIENT_SECRET }}
         run: |
@@ -89,7 +87,15 @@ jobs:
       - name: Deploy SPA to S3 + invalidate CloudFront
         env:
           BUCKET: ${{ env.PROJECT }}-${{ env.ENVIRONMENT }}-spa
+          OIDC_ISSUER: ${{ vars.OIDC_ISSUER }}
         run: |
+          # Runtime config for the deployed SPA: Okta authority + relative API path (CloudFront).
+          cat > ui-identity/dist/ui-identity/browser/assets/config.json <<EOF
+          {
+            "authority": "${OIDC_ISSUER}",
+            "apiBaseUrl": "/jvm"
+          }
+          EOF
           aws s3 sync ui-identity/dist/ui-identity/browser "s3://${BUCKET}" --delete
           DIST_ID=$(terraform -chdir=terraform output -raw cloudfront_distribution_id)
           aws cloudfront create-invalidation --distribution-id "${DIST_ID}" --paths "/*"

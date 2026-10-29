@@ -10,6 +10,9 @@ ciam:
 
 server:
   port: ${PORT:4101}
+  servlet:
+    # Set to a path prefix (e.g. /jvm) when fronted by CloudFront path-based routing.
+    context-path: ${CONTEXT_PATH:}
 
 management:
   endpoints:

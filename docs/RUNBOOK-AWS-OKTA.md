@@ -58,15 +58,11 @@ role (trust = only the `jielimanyili/ciam-prototype` repo) · a service-scoped `
 (see `infra/github-oidc/deploy-policy.json`). For a throwaway demo you can instead attach
 `AdministratorAccess` to that role — the scoped policy is the better default (NFR-2).
 
-### 1.4 Domain + Route53 (required for HTTPS + host routing)
+### 1.4 No domain needed — CloudFront's free URL
 
-The stack host-routes `api.` / `api-py.` / `auth.` / `app.` off `domain_name` and needs an ACM cert.
-
-- Buy a domain (**Route53 → Registered domains** ~$12/yr) **or** use a domain you already own.
-- Route53 → **Hosted zones** → *Create hosted zone* → note the **Hosted zone ID**.
-- If the domain is registered elsewhere, copy the 4 NS records into your registrar.
-
-You now have: `ACCOUNT_ID`, `DOMAIN_NAME`, `ROUTE53_ZONE_ID`.
+The stack serves everything from one free **`*.cloudfront.net`** URL (no domain purchase, no ACM,
+no Route53). After the first `terraform apply`, run `terraform output cloudfront_domain_name` to get
+it — you'll paste it into Okta as the redirect URI in Part 2.
 
 ---
 
@@ -87,11 +83,14 @@ Its access-token audience is **`api://default`** (that's the value to use for `O
 
 ### 2.2 Create the app integrations (Applications → Create App Integration → OIDC)
 
+> `<cloudfront>` = `terraform output cloudfront_domain_name` (run `terraform apply` in Part 3 first
+> if you don't have it yet — the issuer from §2.1 is enough to apply).
+
 | App | Type | Grant | Key settings |
 |---|---|---|---|
-| `ui-identity` | **Single-Page App (SPA)** | Authorization Code **+ PKCE (S256)** | Sign-in redirect URI `https://app.<domain>/` (and `http://localhost:4200/` for local) |
+| `ui-identity` | **Single-Page App (SPA)** | Authorization Code **+ PKCE (S256)** | Sign-in redirect URI `https://<cloudfront>/` (and `http://localhost:4200/` for local) |
 | `mobile-identity` | **Native** | Authorization Code **+ PKCE (S256)** | Sign-in redirect `mobileidentity://callback` + `http://localhost:8081` |
-| `api-auth` | **Web** (confidential) | Authorization Code | Client secret (copy it → `OKTA_CLIENT_SECRET`); redirect `https://auth.<domain>/login/oauth2/code/ciam` (+ `http://localhost:4103/login/oauth2/code/ciam`) |
+| `api-auth` | **Web** (confidential) | Authorization Code | Client secret (copy it → `OKTA_CLIENT_SECRET`); redirect `https://<cloudfront>/auth/login/oauth2/code/ciam` (+ `http://localhost:4103/login/oauth2/code/ciam`) |
 | `ciam-service` | **Service (Machine-to-Machine)** | Client Credentials | Client secret |
 
 ### 2.3 Audience + admin scope (ADR-013)
@@ -126,8 +125,6 @@ Fill in:
 | `oidc_issuer` | `https://dev-<id>.okta.com/oauth2/default` |
 | `oidc_audience_jvm` / `oidc_audience_python` | `api://default` |
 | `api_auth_client_secret` | the `api-auth` client secret from Okta |
-| `domain_name` | your domain |
-| `route53_zone_id` | your hosted-zone id |
 | `saml_enabled` | `false` (OIDC-only demo; SAML stays a Keycloak-local feature — Epic 2) |
 
 ### 3.2 GitHub secrets + variables
@@ -145,8 +142,6 @@ Repo → **Settings → Secrets and variables → Actions**.
 
 | Name | Value |
 |---|---|
-| `DOMAIN_NAME` | your domain |
-| `ROUTE53_ZONE_ID` | your hosted-zone id |
 | `OIDC_ISSUER` | `https://dev-<id>.okta.com/oauth2/default` |
 
 ### 3.3 Deploy
@@ -159,10 +154,11 @@ Repo → **Settings → Secrets and variables → Actions**.
 ### 3.4 Verify
 
 ```bash
-curl https://api.<domain>/health               # {"ok":true}
-curl https://api-py.<domain>/health            # {"ok":true}
-curl https://auth.<domain>/actuator/health     # {"status":"UP"}
-open https://app.<domain>                      # Sign in → Okta (demo user) → "Call /api/me"
+CLOUDFRONT=$(terraform -chdir=terraform output -raw cloudfront_domain_name)
+curl "https://$CLOUDFRONT/jvm/health"            # {"ok":true}
+curl "https://$CLOUDFRONT/python/health"         # {"ok":true}
+curl "https://$CLOUDFRONT/auth/actuator/health"  # {"status":"UP"}
+open "https://$CLOUDFRONT/"                      # Sign in → Okta (demo user) → "Call /api/me"
 ```
 
 ### 3.5 Teardown (do this when not demoing — ADR-016)

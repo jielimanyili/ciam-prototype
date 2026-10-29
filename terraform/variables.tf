@@ -52,16 +52,6 @@ variable "api_auth_client_secret" {
   sensitive   = true
 }
 
-variable "domain_name" {
-  description = "Public domain for the demo (e.g. demo.example.com). Host-routes the APIs and fronts the SPA over HTTPS."
-  type        = string
-}
-
-variable "route53_zone_id" {
-  description = "Route53 hosted-zone id for ACM DNS validation + ALIAS records."
-  type        = string
-}
-
 variable "saml_enabled" {
   description = "Enable SAML 2.0 on the api-auth BFF (Epic 2). Set false for an OIDC-only Okta demo."
   type        = bool

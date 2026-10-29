@@ -25,13 +25,13 @@ public class ProxyController {
     @GetMapping("/api/me")
     public ResponseEntity<String> me(
             @RegisteredOAuth2AuthorizedClient("ciam") OAuth2AuthorizedClient authorized) {
-        return forward(authorized, "/api/me");
+        return forward(authorized, "api/me");
     }
 
     @GetMapping("/api/claims")
     public ResponseEntity<String> claims(
             @RegisteredOAuth2AuthorizedClient("ciam") OAuth2AuthorizedClient authorized) {
-        return forward(authorized, "/api/claims");
+        return forward(authorized, "api/claims");
     }
 
     private ResponseEntity<String> forward(OAuth2AuthorizedClient authorized, String path) {

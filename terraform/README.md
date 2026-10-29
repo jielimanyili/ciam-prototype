@@ -11,16 +11,14 @@ injects secrets per [ADR-019](../docs/adr/adr-019-secrets-injection-aws.md).
 | `ecr.tf` | ECR repositories for `api-identity-jvm`, `api-identity-python`, `api-auth` |
 | `ec2.tf` | **Free-tier EC2 host** — one `t3.micro` (750 free h/month) registered to ECS |
 | `ecs*.tf` | ECS cluster, EC2-launch-type task definitions + services, CloudWatch log groups, task SG |
-| `alb.tf` | ALB + target groups + HTTPS listener with **host-based routing** (`api.` / `api-py.` / `auth.`) |
-| `acm.tf` + `route53.tf` | ACM wildcard cert (DNS-validated) + ALIAS records |
-| `s3-cloudfront.tf` | S3 (private) + CloudFront (OAC) for `ui-identity`, SPA 404 fallback |
+| `alb.tf` | ALB + target groups + HTTP listener with **path-based routing** (`/jvm/*` `/python/*` `/auth/*`) |
+| `s3-cloudfront.tf` | S3 (private) + CloudFront — single free `*.cloudfront.net` HTTPS front door (SPA + API paths) |
 | `secrets.tf` | Secrets Manager secret for `api-auth`'s `CLIENT_SECRET` |
 | `iam.tf` | Task execution role (ECR pull + `secretsmanager:GetSecretValue`, least privilege) + task role |
 
 ## Prerequisites
 
 - AWS account + credentials (or a GitHub OIDC role for CI).
-- A Route53 hosted zone (`route53_zone_id`) and a domain (`domain_name`).
 - An Okta dev tenant (`oidc_issuer`) and the `api-auth` client secret.
 
 ## Cost (free-tier by design)
@@ -29,8 +27,8 @@ injects secrets per [ADR-019](../docs/adr/adr-019-secrets-injection-aws.md).
   The JVM apps are memory-tuned (`JAVA_TOOL_OPTIONS=-Xmx192m`) to fit the 1 GB instance. If it ever
   OOMs, bump `instance_type` to `t3.small`/`medium` (~$15–25/month) — the only paid change.
 - **ALB / S3 / CloudFront / ECR / CloudWatch = free tier.**
-- **Residual (~$1/month):** Secrets Manager ($0.40/secret) + Route53 hosted zone ($0.50) + the
-  domain itself (~$12/yr). These are not free-tier, but are negligible.
+- **No domain, no ACM, no Route53** — HTTPS comes from CloudFront's free `*.cloudfront.net` cert.
+- **Residual (~$0.40/month):** Secrets Manager ($0.40/secret). The only thing that isn't free-tier.
 
 ## Apply
 
