@@ -18,19 +18,19 @@
 
 ## Next steps
 
-1. [ ] **Check CI is green** — Actions → CI (`mvn -q test` validates the starter + `api-auth`
-       Java changes; there's no local JDK).
-2. [ ] **Auth0: create the API** — Applications → APIs → name `api-identity`,
+1. [x] **Check CI is green** — Actions → CI (`mvn -q test` validates the starter + `api-auth`
+       Java changes; there's no local JDK). ✅ green (commits `fecbee0` + `0fb7533` fixed the changes).
+2. [x] **Auth0: create the API** — Applications → APIs → name `api-identity`,
        identifier `https://api.ciam-prototype`, signing **RS256**; Permissions → add **`admin`**.
-3. [ ] **Auth0: create the 4 apps** (Applications → Applications → Create Application):
+3. [x] **Auth0: create the 4 apps** (Applications → Applications → Create Application):
        - `ui-identity` — Single Page Application (Authorization Code + PKCE)
        - `mobile-identity` — Native (PKCE)
        - `api-auth` — Regular Web Application, Token Endpoint Auth = **Post** → copy the **client secret**
        - `ciam-service` — Machine to Machine → authorize the `api-identity` API with **`admin`**
        (redirect URLs are placeholders until the CloudFront URL exists — see step 8.)
-4. [ ] **Auth0: demo user** — User Management → Users → `demo@example.com` + password
+4. [x] **Auth0: demo user** — User Management → Users → `demo@example.com` + password
        (connection `Username-Password-Authentication`).
-5. [ ] **GitHub secrets + variables** (Settings → Secrets and variables → Actions):
+5. [x] **GitHub secrets + variables** (Settings → Secrets and variables → Actions):
        - Secrets: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AUTH0_CLIENT_SECRET`
        - Variables: `OIDC_ISSUER` = `https://jie-ciam.us.auth0.com/`, `OIDC_AUDIENCE` = `https://api.ciam-prototype`
 6. [ ] **Deploy** — Actions → Deploy (AWS) → Run workflow.
@@ -51,3 +51,4 @@
 
 - [ ] SDK publish accounts (Sonatype OSSRH + PyPI) — runbook Part 4 / Epic 3.
 - [ ] Auth0 Actions/Hooks demo (the Okta-hooks-equivalent) — backlog.
+- [x] **Render/Vercel fallback** written (ADR-022 + `render.yaml` + runbook Part 5) — use if AWS stays SCP-blocked.

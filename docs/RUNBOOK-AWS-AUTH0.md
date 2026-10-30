@@ -176,3 +176,23 @@ The publish workflow needs, separately:
 - **PyPI:** a PyPI account + API token → secret `PYPI_API_TOKEN`.
 
 Then push a `v*` tag; `.github/workflows/publish.yml` publishes both SDKs.
+
+---
+
+## Part 5 — Render/Vercel fallback (ADR-022, if AWS is SCP-blocked)
+
+If the AWS account is under an org SCP that denies EC2/ECS/ELB/SSM (only S3/CloudFront/IAM/Logs
+allowed), deploy the backends to **Render** and the SPA to **Vercel/Render static**:
+
+1. **Backends:** Render dashboard → New → **Blueprint** → point at `jielimanyili/ciam-prototype`.
+   `render.yaml` declares `api-identity-jvm`, `api-identity-python`, `api-auth` (Docker, free tier).
+   Set the `CLIENT_SECRET` env var (Render prompts for `sync: false` vars).
+2. Note each service's URL (`https://<name>.onrender.com`).
+3. **SPA:** build `ui-identity` with `src/assets/config.json` set to
+   `authority=https://jie-ciam.us.auth0.com/`, `audience=https://api.ciam-prototype`,
+   `apiBaseUrl=https://api-identity-jvm.onrender.com` → deploy the `dist/` to Vercel/Netlify.
+4. **Auth0 redirect URLs** (update the apps):
+   - `ui-identity`: callback + logout + web origin = the SPA's URL.
+   - `api-auth`: callback = `https://api-auth.onrender.com/login/oauth2/code/ciam`.
+   - `mobile-identity`: unchanged (`mobileidentity://callback`).
+5. **Verify:** `/health` on each backend, then sign in through the SPA → `/api/me`.

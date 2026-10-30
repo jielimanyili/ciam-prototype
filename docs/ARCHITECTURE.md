@@ -192,6 +192,7 @@ See `docs/adr/`:
 - `adr-019` — secrets injection on AWS (ECS Fargate, Secrets Manager).
 - `adr-020` — free-tier secrets via SSM Parameter Store.
 - `adr-021` — live-demo IdP → Auth0.
+- `adr-022` — Render/Vercel fallback (AWS blocked by org SCP).
 
 ## 8. Honesty boundary
 

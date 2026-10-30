@@ -1,0 +1,45 @@
+# Render Blueprint — CIAM live-demo fallback (ADR-022).
+# Deploy: render.com → New → Blueprint → point at github.com/jielimanyili/ciam-prototype.
+# The three backends run on Render free tier; the SPA deploys separately (Vercel/Render static)
+# with assets/config.json pointing at the *.onrender.com URLs these services get.
+services:
+  - type: web
+    name: api-identity-jvm
+    runtime: docker
+    dockerfilePath: ./api-identity-jvm/Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: OIDC_ISSUER
+        value: https://jie-ciam.us.auth0.com/
+      - key: OIDC_AUDIENCE
+        value: https://api.ciam-prototype
+    healthCheckPath: /health
+
+  - type: web
+    name: api-identity-python
+    runtime: docker
+    dockerfilePath: ./api-identity-python/Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: OIDC_ISSUER
+        value: https://jie-ciam.us.auth0.com/
+      - key: OIDC_AUDIENCE
+        value: https://api.ciam-prototype
+    healthCheckPath: /health
+
+  - type: web
+    name: api-auth
+    runtime: docker
+    dockerfilePath: ./api-auth/Dockerfile
+    dockerContext: ./api-auth
+    plan: free
+    envVars:
+      - key: OIDC_ISSUER
+        value: https://jie-ciam.us.auth0.com/
+      - key: OIDC_AUDIENCE
+        value: https://api.ciam-prototype
+      - key: CLIENT_SECRET
+        sync: false
+    healthCheckPath: /actuator/health
