@@ -3,6 +3,8 @@ package com.ciam.auth;
 import java.util.HashMap;
 import java.util.Map;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -57,16 +59,29 @@ public class SecurityConfig {
     private OAuth2AuthorizationRequestResolver authorizationRequestResolver() {
         DefaultOAuth2AuthorizationRequestResolver delegate =
                 new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, "/oauth2/authorization");
-        return request -> {
-            OAuth2AuthorizationRequest authRequest = delegate.resolve(request);
-            if (authRequest == null || audience == null || audience.isBlank()) {
-                return authRequest;
+        // OAuth2AuthorizationRequestResolver declares two abstract resolve(...) methods, so it is
+        // not a functional interface — implement both, delegating and adding the audience.
+        return new OAuth2AuthorizationRequestResolver() {
+            @Override
+            public OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
+                return withAudience(delegate.resolve(request));
             }
-            Map<String, Object> additionalParameters = new HashMap<>(authRequest.getAdditionalParameters());
-            additionalParameters.put("audience", audience);
-            return OAuth2AuthorizationRequest.from(authRequest)
-                    .additionalParameters(additionalParameters)
-                    .build();
+
+            @Override
+            public OAuth2AuthorizationRequest resolve(HttpServletRequest request, String clientRegistrationId) {
+                return withAudience(delegate.resolve(request, clientRegistrationId));
+            }
         };
+    }
+
+    private OAuth2AuthorizationRequest withAudience(OAuth2AuthorizationRequest request) {
+        if (request == null || audience == null || audience.isBlank()) {
+            return request;
+        }
+        Map<String, Object> additionalParameters = new HashMap<>(request.getAdditionalParameters());
+        additionalParameters.put("audience", audience);
+        return OAuth2AuthorizationRequest.from(request)
+                .additionalParameters(additionalParameters)
+                .build();
     }
 }
