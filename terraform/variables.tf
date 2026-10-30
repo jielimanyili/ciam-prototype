@@ -59,7 +59,7 @@ variable "saml_enabled" {
 }
 
 variable "saml_idp_metadata_uri" {
-  description = "SAML IdP descriptor URL for api-auth when saml_enabled=true (e.g. an Okta SAML app's metadata URL)."
+  description = "SAML IdP descriptor URL for api-auth when saml_enabled=true (e.g. a SAML IdP's metadata URL)."
   type        = string
   default     = ""
 }

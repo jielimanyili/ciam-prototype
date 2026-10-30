@@ -135,7 +135,7 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
   5. **publish SDKs** — `sdk-identity-jvm` → Maven Central/JFrog, `sdk-identity-python` → PyPI/JFrog (same semver).
   6. **deploy (main only)** — S3+CloudFront (`ui-identity`) + ECS Fargate (`api-identity-jvm`, `api-identity-python`) with host/IdP secrets.
 - **Decision:** **GitHub Actions for the demo** (public, verifiable, zero-server — the CI/CD analog of
-  "Keycloak stands in for Okta"); **Harness is the enterprise target** (TriNet is migrating Jenkins → Harness).
+  "Keycloak stands in for the managed IdP (Auth0)"); **Harness is the enterprise target** (TriNet is migrating Jenkins → Harness).
   Docker for Java (JDK 21 pin) · per-runtime test jobs.
 - **Tool mapping (GitHub Actions → Harness):** workflow = Harness CI pipeline · `on: push/PR` =
   Git-event trigger · `jobs` = CI stages · deploy job = Harness CD pipeline (S3/ECS deploy with
@@ -147,14 +147,14 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 
 | Component | Host (demo) | Config |
 |---|---|---|
-| `ui-identity` (Angular SPA) | S3 + CloudFront | static build; env `authority` → Okta issuer |
-| `mobile-identity` (Expo/RN) | Expo Go / EAS (web preview) | `expo-auth-session` PKCE against Okta |
+| `ui-identity` (Angular SPA) | S3 + CloudFront | static build; env `authority` + `audience` → Auth0 issuer |
+| `mobile-identity` (Expo/RN) | Expo Go / EAS (web preview) | `expo-auth-session` PKCE against Auth0 |
 | `api-identity-jvm` (Spring Boot) | ECS Fargate (image in ECR) | env `OIDC_ISSUER` · `OIDC_AUDIENCE=api-identity-jvm` |
 | `api-identity-python` (FastAPI) | ECS Fargate (image in ECR) | env `OIDC_ISSUER` · `OIDC_AUDIENCE=api-identity-python` |
 | `api-auth` (BFF) | ECS Fargate (image in ECR) | env `OIDC_ISSUER` · `CLIENT_SECRET` (Secrets Manager) · `RESOURCE_SERVER_URL` |
 | `sdk-identity-jvm` | Maven Central (demo) · JFrog Maven (enterprise) | published artifact |
 | `sdk-identity-python` | PyPI (demo) · JFrog PyPI (enterprise) | `pip install` |
-| IdP | Okta free dev tenant | clients + audience config |
+| IdP | Auth0 free tenant | clients + audience config |
 
 **Decisions:**
 - **AWS** over Render/Vercel — production-real signal; matches TriNet's AWS/OCI (ADR-016).
@@ -165,11 +165,11 @@ The `-trinet-` org qualifier is optional; this repo uses the unqualified `<layer
 - **Both SDKs are published**, not vendored — the developer-advocacy story is "a squad adds a
   Maven dep / `pip install`s it," in either language.
 
-**Audience in Okta (mirrors ADR-013):** Keycloak mints `aud` via audience mappers; Okta emits `aud`
-from the authorization server's **Audience** setting. Point `OIDC_AUDIENCE` at the value Okta emits
-(e.g. `api://default`) or configure the authorization server to emit `api-identity-jvm` /
-`api-identity-python`. The SPA/mobile clients carry both audiences; the M2M client carries its
-server's audience — same shape as the Keycloak realm.
+**Audience in Auth0 (mirrors ADR-013):** Keycloak mints `aud` via audience mappers; Auth0 mints
+`aud` from the **API identifier** — the `audience` parameter the client sends in the authorize
+request. Create one Auth0 API with identifier `https://api.ciam-prototype`; the SPA/mobile clients
+and the BFF send that audience (so their tokens carry it), and the M2M client is authorized for the
+API with the `admin` scope — same shape as the Keycloak realm.
 
 **Secrets (ADR-019, demo path superseded by ADR-020):** the demo deploys on AWS, so secrets are
 stored in **SSM Parameter Store** (`SecureString`, Standard tier = free) and injected via ECS. The
@@ -287,7 +287,7 @@ expired token.
 | 5 | CI/CD | GitHub Actions | already in repo |
 | 6 | Backend host | Render | free + Dockerfile |
 | 7 | Frontend host | Vercel | already used |
-| 8 | Live IdP | Okta dev tenant | Okta is the reference IdP |
+| 8 | Live IdP | Auth0 free tenant | Auth0 is the reference IdP (ADR-021) |
 | 9 | Auth service | `api-auth` — hardened variant (`oauth2Login()`) | tokens stay server-side |
 | 10 | Component naming | `<layer>-<domain>` (api-/ui-/mobile-/bff-/sdk-); domains: identity, auth | mirrors TriNet convention; catalog-discoverable |
 | 11 | Python SDK | `sdk-identity-python` (thin, httpx-only) | mirrors `sdk-identity-jvm`; FR-6 across languages |

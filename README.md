@@ -4,13 +4,13 @@ A working **customer identity & access management (CIAM)** reference implementat
 covering a Principal-level CIAM stack:
 OIDC/OAuth 2.0 flows, JWT validation, scope/claim-based authorization, and a
 reusable internal SDK — runnable end-to-end with a local Keycloak IdP (stand-in
-for Okta).
+for the managed IdP — Auth0 in the live demo).
 
 ## What it demonstrates (stack → code)
 
 | Capability | Where it lives |
 |---|---|
-| CIAM architecture (Okta APIs/SDKs) | Keycloak stands in for Okta; swap issuer + client to go live (see below) |
+| CIAM architecture (Auth0 APIs/SDKs) | Keycloak stands in for the managed IdP; swap issuer + audience + client to go live (see below) |
 | OIDC / OAuth 2.0 — Authorization Code + PKCE | `ui-identity/` (Angular + `oidc-client-ts`) + `api-identity-jvm/` (Spring Security OAuth2) |
 | OAuth 2.0 — Client Credentials | `api-identity-jvm/` (Spring Security) · `sdk-identity-jvm` (built) |
 | API & microservice security — JWT validation, scoping, claims | `api-identity-jvm/` (Spring Security) + `api-identity-python/` (FastAPI) |
@@ -54,7 +54,7 @@ mobile-identity/    Expo (React Native) client — Authorization Code + PKCE
 sdk-identity-jvm/   Reusable Java identity SDK — OIDC discovery, PKCE (S256), client-credentials, scope assertions
 sdk-identity-jvm-spring-boot-starter/  Spring Boot starter — auto-configures the resource server (JWKS/RS256 + issuer + audience)
 sdk-identity-python/  Reusable Python identity SDK — mirrors sdk-identity-jvm
-keycloak/           Local OIDC provider realm (stand-in for Okta)
+keycloak/           Local OIDC provider realm (stand-in for the managed IdP)
 docker-compose.yml  Keycloak (the IdP)
 docs/               full doc set — see the Documentation section
 ```
@@ -124,6 +124,6 @@ cd api-identity-jvm && docker build .   # runs unit/integration tests (JDK 21)
 ## Honesty boundary
 
 - This is a **project-level prototype**, not production. No production CIAM is claimed.
-- Keycloak is a **local stand-in** for Okta; the realm JSON is a starting point
+- Keycloak is a **local stand-in** for the managed IdP (Auth0); the realm JSON is a starting point
   (see `keycloak/README.md` for the guaranteed manual setup).
 - Backend is **Java (Spring Boot)**; the Angular frontend is TypeScript.

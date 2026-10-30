@@ -58,10 +58,10 @@ The "do this" reference for the CIAM prototype — the counterpart to `anti-patt
 
 | Capability | Where |
 |---|---|
-| CIAM architecture (Okta) | Okta / Keycloak as the IdP |
+| CIAM architecture (Auth0) | Auth0 / Keycloak as the IdP |
 | OIDC/OAuth2 + PKCE, Client Credentials, SAML | §1 |
 | JWT validation / scoping / claims | §2, §4, §5 |
-| Okta Inline/Event hooks + Workflows | custom claims via Inline hooks; lifecycle via Workflows |
+| IdP hooks/Actions + Workflows | custom claims via Actions/Inline hooks; lifecycle via Workflows |
 | Reusable SDKs + documentation | §9 |
 | Security by design | §2–§8 |
 | Cloud-native CI/CD | deployment phase |

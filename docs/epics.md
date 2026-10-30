@@ -54,7 +54,7 @@
 - **Why:** customers authenticate on mobile via the same OIDC/PKCE flow as the web app.
 - **Scope:** Expo (managed) + `expo-auth-session` (PKCE) + `expo-secure-store`; calls `api-identity-jvm`.
 - **Out of scope:** SAML, passkeys/biometrics (Later).
-- **Success criteria:** sign-in → claims · refresh token in secure store · sign-out clears session · works against Keycloak (and later Okta).
+- **Success criteria:** sign-in → claims · refresh token in secure store · sign-out clears session · works against Keycloak (and later Auth0).
 
 **Stories**
 
@@ -133,23 +133,23 @@
 6. `[ci/cd]` Deploy job (main only)
    - **AC:** Given a tagged image on main → Then it deploys `ui-identity` (S3 + CloudFront) and `api-identity-jvm` + `api-identity-python` + `api-auth` (ECS EC2) with `OIDC_ISSUER`/`OIDC_AUDIENCE` from config and `CLIENT_SECRET` injected from SSM Parameter Store (ADR-020); non-main branches skip deploy.
    - **DoD:** no secret committed (ADR-008/ADR-019); Maven/npm/pip caches enabled.
-   - ✅ **Written:** `.github/workflows/deploy.yml` (main-only, OIDC → AWS) + `terraform/` (VPC, ALB, ECR, ECS EC2, S3+CloudFront, SSM Parameter Store, IAM). `terraform validate` passes. **Apply needs an AWS account + Okta dev tenant.**
+   - ✅ **Written:** `.github/workflows/deploy.yml` (main-only, access keys → AWS) + `terraform/` (VPC, ALB, ECR, ECS EC2, S3+CloudFront, SSM Parameter Store, IAM). `terraform validate` passes. **Apply needs an AWS account + Auth0 tenant.**
 
 ---
 
 ## Epic 4 — Live demo deployment
 
-- **Status:** 🔄 In Progress (IaC + CI/CD written; apply needs AWS + Okta) · **Priority:** Medium · **Squad:** Identity/Auth platform · **Links:** ADR-005, ADR-016, DESIGN §5, A-1
+- **Status:** 🔄 In Progress (IaC + CI/CD written; apply needs AWS + Auth0) · **Priority:** Medium · **Squad:** Identity/Auth platform · **Links:** ADR-005, ADR-016, ADR-021, DESIGN §5, A-1
 - **Why:** a running demo against a real IdP proves the stack outside localhost.
-- **Scope:** `ui-identity` → S3+CloudFront · `api-identity-jvm` + `api-identity-python` + `api-auth` → ECS EC2 · mobile via Expo · IdP = Okta dev tenant · secrets via SSM Parameter Store (ADR-020).
-- **Success criteria:** a public URL signs in via Okta and calls `/api/me`.
+- **Scope:** `ui-identity` → S3+CloudFront · `api-identity-jvm` + `api-identity-python` + `api-auth` → ECS EC2 · mobile via Expo · IdP = Auth0 tenant · secrets via SSM Parameter Store (ADR-020).
+- **Success criteria:** a public URL signs in via Auth0 and calls `/api/me`.
 
 **Stories**
 
 1. `[ui-identity]` Deploy to S3 + CloudFront — AC: static build with `authority` env var; loads at a public HTTPS URL.
 2. `[api-identity-jvm]` + `[api-identity-python]` Deploy to ECS Fargate — AC: image runs behind ALB with `OIDC_ISSUER`/`OIDC_AUDIENCE`; `/health` is public.
 3. `[mobile-identity]` Expo web preview — AC: `expo start --web` serves the app for the demo.
-4. `[api-identity-jvm]` Swap to Okta — AC: set issuer + audience to the Okta dev tenant; discovery + JWKS resolve; login still works.
+4. `[api-identity-jvm]` Swap to Auth0 — AC: set issuer + audience to the Auth0 tenant; discovery + JWKS resolve; login still works.
 
 ---
 
@@ -187,7 +187,7 @@
 ## Later backlog (enhancements)
 
 - **Refresh-token rotation + reuse detection** — new refresh token per use; replay revokes the grant (R-1/R-2).
-- **Okta Inline/Event hooks + Workflows (mock)** — documented pattern + mock for custom claims and lifecycle.
+- **Auth0 Actions/Hooks + Workflows (mock)** — documented pattern + mock for custom claims and lifecycle.
 - **Kotlin DSL wrapper** — thin Kotlin wrapper over `sdk-identity-jvm` (ADR-002).
 - **E2E tests (Playwright)** — login → `/api/me` end-to-end against Keycloak.
 

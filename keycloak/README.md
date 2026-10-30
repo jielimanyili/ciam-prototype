@@ -1,9 +1,9 @@
 # Keycloak (local OIDC provider)
 
 `docker-compose.yml` starts a Keycloak 26 instance with the `ciam-demo` realm
-imported from `ciam-realm.json`. It stands in for Okta so the prototype runs
-end-to-end with no external accounts. Swap to Okta by changing the issuer +
-client config (see the root `README.md`).
+imported from `ciam-realm.json`. It stands in for the managed IdP (Auth0) so the prototype runs
+end-to-end with no external accounts. Swap to Auth0 by changing the issuer +
+audience + client config (see the root `README.md`).
 
 ## What the realm provides
 

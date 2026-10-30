@@ -16,7 +16,7 @@ same RS256 JWTs (JWKS + issuer + audience) and enforce the same scope/claim auth
 **Goals**
 - Demonstrate the OIDC/OAuth2 grant flows (PKCE, Client Credentials), JWT validation, and scoping.
 - Provide a reusable, documented internal SDK + starter ("developer advocacy").
-- Run locally end-to-end with no external accounts (Keycloak stand-in for Okta).
+- Run locally end-to-end with no external accounts (Keycloak stand-in for the managed IdP).
 - Prove correctness with unit/integration tests (offline, no IdP required).
 
 **Non-goals**
@@ -36,7 +36,7 @@ the **Confidential Service** is the *machine* client (**Client Credentials**).
 ```mermaid
 sequenceDiagram
     participant SPA as Web App (Angular, 4200)
-    participant IdP as IdP (Keycloak/Okta, 8080)
+    participant IdP as IdP (Keycloak/Auth0, 8080)
     participant API as Resource Server (Spring Boot, 4101)
 
     SPA->>IdP: GET /authorize?response_type=code&code_challenge=... (PKCE)
@@ -59,7 +59,7 @@ sequenceDiagram
 sequenceDiagram
     participant SPA as Web App (Angular, 4200)
     participant BFF as Auth Service (api-auth, Java, 4102)
-    participant IdP as IdP (Keycloak/Okta, 8080)
+    participant IdP as IdP (Keycloak/Auth0, 8080)
     participant API as Resource Server (Spring Boot, 4101)
 
     SPA->>BFF: GET /login
@@ -79,7 +79,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant SVC as Confidential Service
-    participant IdP as IdP (Keycloak/Okta, 8080)
+    participant IdP as IdP (Keycloak/Auth0, 8080)
     participant API as Resource Server (Spring Boot, 4101)
 
     SVC->>IdP: POST /token (Authorization: Basic base64(client_id:client_secret) · grant_type=client_credentials&scope=admin)
@@ -104,7 +104,7 @@ C4 model (System Context → Container → Component): see `docs/C4.md`.
   `/api/claims`. Role: reference resource server (prototype) → identity data + IdP admin ops (target).
 - **Identity SDK** (Java) — `sdk-identity-jvm/`. `Pkce`, `OidcDiscovery`, `ClientCredentials`,
   `ScopeAssertions` (+ planned Spring Boot starter, ADR-007).
-- **IdP** — Keycloak locally (`ciam-demo` realm), Okta live.
+- **IdP** — Keycloak locally (`ciam-demo` realm), Auth0 live.
 
 ## 5. Ownership model — platform vs product
 
@@ -113,7 +113,7 @@ CIAM splits cleanly into **platform** (the identity capability, owned centrally)
 
 | Concern | Owned by | Artifacts |
 |---|---|---|
-| **Platform — Identity/Auth squad** | central (one squad) | authentication process (login/session/token/refresh/MFA), IdP (Okta/Keycloak), `api-identity-jvm`, auth service (`api-auth`), `sdk-identity-jvm` (+ starter), auth standards, ADRs, threat model, risk register, secrets |
+| **Platform — Identity/Auth squad** | central (one squad) | authentication process (login/session/token/refresh/MFA), IdP (Auth0/Keycloak), `api-identity-jvm`, auth service (`api-auth`), `sdk-identity-jvm` (+ starter), auth standards, ADRs, threat model, risk register, secrets |
 | **Product — domain squads** | each squad | its own `api-<domain>` / `ui-<domain>` / `mobile-<domain>` (+ any `bff-<domain>`) and domain data |
 
 **Rules:**
@@ -128,7 +128,7 @@ CIAM splits cleanly into **platform** (the identity capability, owned centrally)
 
 | Artifact | Provides | State |
 |---|---|---|
-| IdP (Okta/Keycloak) | identity store, credential verification, token issuance, MFA/consent | stateful |
+| IdP (Auth0/Keycloak) | identity store, credential verification, token issuance, MFA/consent | stateful |
 | `api-auth` | the AuthN flow server-side — OIDC handshake → session cookie, token server-side | stateful (session) |
 | `api-identity-jvm` | reference resource server (prototype) · identity data + IdP admin ops (target) | stateless (prototype) → stateful data slice (target) |
 | `api-identity-python` | reference resource server (Python) — same endpoints + validation as `api-identity-jvm` | stateless |
@@ -146,7 +146,7 @@ the validation (which the SDK already gives every service).
 
 ### RACI
 
-| Artifact | Identity/Auth squad | Product squads | IdP (Okta/Keycloak) |
+| Artifact | Identity/Auth squad | Product squads | IdP (Auth0/Keycloak) |
 |---|---|---|---|
 | IdP config | A | I | R |
 | `api-identity-jvm` | R/A | C | — |
@@ -190,10 +190,12 @@ See `docs/adr/`:
 - `adr-017` — JFrog Artifactory for artifacts (enterprise).
 - `adr-018` — CI/CD tool: GitHub Actions (demo) + Harness (enterprise).
 - `adr-019` — secrets injection on AWS (ECS Fargate, Secrets Manager).
+- `adr-020` — free-tier secrets via SSM Parameter Store.
+- `adr-021` — live-demo IdP → Auth0.
 
 ## 8. Honesty boundary
 
-Project-level prototype, not production. Keycloak stands in for Okta. Backends are
+Project-level prototype, not production. Keycloak stands in for the managed IdP (Auth0). Backends are
 Java (Spring Boot) + Python (FastAPI).
 
 ## 9. Roadmap

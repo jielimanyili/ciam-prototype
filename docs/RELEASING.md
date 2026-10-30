@@ -21,10 +21,10 @@
 |---|---|---|---|
 | **local** | development | docker-compose (Keycloak) + `ng serve` / `mvn` | `.env` (`OIDC_ISSUER`, `OIDC_AUDIENCE`) |
 | **preview / staging** | PR review | Vercel preview + Render preview | platform secret store |
-| **prod** | live demo | Vercel (`ui-identity`) · Render (`api-identity-jvm`) · Expo | Okta dev tenant (ADR-005) |
+| **prod** | live demo | S3+CloudFront (`ui-identity`) · ECS EC2 (`api-identity-jvm`/`api-identity-python`/`api-auth`) · Expo | Auth0 tenant (ADR-021) |
 
 - Env-specific config is **env vars only** (`OIDC_ISSUER`, `OIDC_AUDIENCE`, `PORT`) — no config in code.
-- The IdP is per-env: Keycloak locally, Okta in prod (C-1, A-1).
+- The IdP is per-env: Keycloak locally, Auth0 in prod (C-1, A-1).
 
 ## Rollout & rollback
 

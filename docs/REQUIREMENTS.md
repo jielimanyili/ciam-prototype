@@ -1,7 +1,7 @@
 # Requirements & Constraints — CIAM Prototype
 
 > The single source of truth for **what** the system must do and **under what
-> constraints** — scoped to a Principal-level CIAM stack (Okta, OIDC/OAuth2 + SAML, JWT validation, Angular/React Native, Java/TypeScript).
+> constraints** — scoped to a Principal-level CIAM stack (Auth0, OIDC/OAuth2 + SAML, JWT validation, Angular/React Native, Java/TypeScript).
 > This is step 1 of the process; `ARCHITECTURE.md` (structure), ADRs (decisions),
 > and C4 (diagrams) build on it.
 
@@ -25,9 +25,9 @@
 | FR-15 | Privacy & Lifecycle | **Account lifecycle** (disable/enable/delete) + **right-to-be-forgotten** | — | [best-practices §6](best-practices.md) |
 | FR-17 | Privacy & Lifecycle | **Account linking** (social + email → one profile) | — | [best-practices §1](best-practices.md) |
 | FR-6 | Developer Experience | **Reusable SDK** for product squads (developer advocacy) | [adr-002](adr/adr-002-jvm-sdk-java.md) | [DESIGN §1](DESIGN.md) |
-| FR-7 | Developer Experience | **Okta hooks/workflows** for custom claims + lifecycle | — | [best-practices mapping](best-practices.md) · [ROADMAP "Later"](ROADMAP.md) |
+| FR-7 | Developer Experience | **IdP hooks/Actions** for custom claims + lifecycle | — | [best-practices mapping](best-practices.md) · [ROADMAP "Later"](ROADMAP.md) |
 
-> **Design note:** FR-8 … FR-15 and FR-17 are **delegated to the IdP's built-in features** (Okta / Keycloak) — documented, not hand-built.
+> **Design note:** FR-8 … FR-15 and FR-17 are **delegated to the IdP's built-in features** (Auth0 / Keycloak) — documented, not hand-built.
 
 ## 2. Non-functional requirements (NFR)
 
@@ -47,7 +47,7 @@
 
 | ID | Constraint |
 |---|---|
-| C-1 | **IdP = Okta** (CIAM); Keycloak is the local stand-in |
+| C-1 | **IdP = Auth0** (CIAM); Keycloak is the local stand-in |
 | C-2 | **Backend = Java (Spring Boot)** primary · **Python (FastAPI)** secondary ([adr-011](adr/adr-011-python-sdk-and-resource-server.md)) |
 | C-3 | **Frontend = Angular** (web) **+ React Native** (mobile) |
 | C-4 | **Protocols = OIDC/OAuth2 + SAML 2.0** — no custom auth |
@@ -58,13 +58,13 @@
 
 | ID | Assumption |
 |---|---|
-| A-1 | Keycloak locally; **Okta dev tenant** for the live demo |
+| A-1 | Keycloak locally; **Auth0 tenant** for the live demo |
 | A-2 | Audience validation via a custom `OAuth2TokenValidator` + Keycloak audience mappers ([adr-013](adr/adr-013-token-audience.md)) |
 | A-3 | SAML scope = SP-initiated first, IdP-initiated second |
 
 ## 5. Non-goals (out of scope)
 
-- Live Okta Inline/Event hooks + Workflows (documented pattern only)
+- Live IdP hooks/Actions + Workflows (documented pattern only)
 - Production hardening: secrets manager, TLS, observability, rate limiting
 
 ## 6. Traceability

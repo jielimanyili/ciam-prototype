@@ -10,7 +10,7 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 
 /**
  * SAML 2.0 SP (Epic 2, ADR-004). The IdP metadata is resolved here so SAML can be toggled off
- * for an OIDC-only deploy (e.g. the Okta live demo) without the SP trying to fetch a local IdP
+ * for an OIDC-only deploy (e.g. the Auth0 live demo) without the SP trying to fetch a local IdP
  * at startup. When {@code saml.enabled=false} the repository is empty and {@code oauth2Login()}
  * is unaffected.
  */
