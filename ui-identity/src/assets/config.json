@@ -1,4 +1,5 @@
 {
   "authority": "http://localhost:8080/realms/ciam-demo",
+  "audience": "",
   "apiBaseUrl": "http://localhost:4101"
 }

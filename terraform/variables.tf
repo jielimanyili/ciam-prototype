@@ -29,7 +29,7 @@ variable "instance_type" {
 }
 
 variable "oidc_issuer" {
-  description = "OIDC issuer (Okta dev tenant)."
+  description = "OIDC issuer (Auth0 tenant). Include the trailing slash — Auth0's iss claim carries it (e.g. https://dev-x.us.auth0.com/)."
   type        = string
   default     = "http://localhost:8080/realms/ciam-demo"
 }
@@ -47,13 +47,13 @@ variable "oidc_audience_python" {
 }
 
 variable "api_auth_client_secret" {
-  description = "api-auth OIDC client secret (Okta). Stored in SSM Parameter Store — never committed (ADR-020)."
+  description = "api-auth OIDC client secret (Auth0 Regular Web App). Stored in SSM Parameter Store — never committed (ADR-020)."
   type        = string
   sensitive   = true
 }
 
 variable "saml_enabled" {
-  description = "Enable SAML 2.0 on the api-auth BFF (Epic 2). Set false for an OIDC-only Okta demo."
+  description = "Enable SAML 2.0 on the api-auth BFF (Epic 2). Set false for an OIDC-only Auth0 demo."
   type        = bool
   default     = false
 }

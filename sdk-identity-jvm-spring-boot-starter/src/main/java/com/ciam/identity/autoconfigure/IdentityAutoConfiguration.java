@@ -36,7 +36,11 @@ public class IdentityAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public JwtDecoder jwtDecoder(IdentityProperties properties) {
-        NimbusJwtDecoder decoder = JwtDecoders.fromIssuerLocation(properties.getIssuerUri());
+        // Discovery: Spring resolves {issuer}/.well-known/openid-configuration by appending the path,
+        // so a trailing slash (Auth0's canonical `iss`, e.g. https://tenant.us.auth0.com/) would
+        // produce a double slash → 404. Strip it here for discovery only; the full issuer (trailing
+        // slash included) is still used for the strict `iss` claim check below.
+        NimbusJwtDecoder decoder = JwtDecoders.fromIssuerLocation(properties.getIssuerUri().replaceAll("/+$", ""));
 
         List<OAuth2TokenValidator<Jwt>> validators = new ArrayList<>();
         validators.add(JwtValidators.createDefaultWithIssuer(properties.getIssuerUri()));

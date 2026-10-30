@@ -19,6 +19,13 @@ export class AuthService {
         response_type: 'code',
         scope: 'openid profile',
       };
+      const audience = this.config.config().audience;
+      if (audience) {
+        // Auth0 needs the target API's audience in the authorize request so the access token
+        // carries the right `aud`; Keycloak derives `aud` from its mappers, so this stays empty
+        // (and is omitted) locally — provider-agnostic (ADR-007).
+        settings.extraQueryParams = { audience };
+      }
       this.manager = new UserManager(settings);
     }
     return this.manager;

@@ -85,36 +85,35 @@ against the IdP's JWKS, checks issuer + audience, then enforces scopes/claims.
 |---|---|
 | Repo (public) | https://github.com/jielimanyili/ciam-prototype |
 
-- **Runs locally with no external accounts** — Keycloak stands in for Okta (see Quickstart above).
+- **Runs locally with no external accounts** — Keycloak stands in for the managed IdP (Auth0 in the live demo).
 - **Live demo (AWS, M3):** the IaC + CI/CD deploy path is written and `terraform validate`s, but
-  **applying** it needs an AWS account + Okta dev tenant. See [ADR-016](docs/adr/adr-016-aws-deployment.md) ·
+  **applying** it needs an AWS account + Auth0 tenant. See [ADR-016](docs/adr/adr-016-aws-deployment.md) ·
   [ADR-019](docs/adr/adr-019-secrets-injection-aws.md) · [DESIGN §5](docs/DESIGN.md) · [ROADMAP](docs/ROADMAP.md) ·
-  [terraform/README](terraform/README.md) · [**Runbook: AWS + Okta account setup**](docs/RUNBOOK-AWS-OKTA.md).
+  [terraform/README](terraform/README.md) · [**Runbook: AWS + Auth0 account setup**](docs/RUNBOOK-AWS-AUTH0.md).
 
 | Component | Host | Config |
 |---|---|---|
-| `ui-identity` (Angular SPA) | S3 + CloudFront | static build; `src/assets/config.json` (`authority` + `apiBaseUrl`) swapped per env — no rebuild |
+| `ui-identity` (Angular SPA) | S3 + CloudFront | static build; `src/assets/config.json` (`authority` + `audience` + `apiBaseUrl`) swapped per env — no rebuild |
 | `api-identity-jvm` (Spring Boot) | ECS Fargate | env `OIDC_ISSUER` / `OIDC_AUDIENCE=api-identity-jvm` |
 | `api-identity-python` (FastAPI) | ECS Fargate | env `OIDC_ISSUER` / `OIDC_AUDIENCE=api-identity-python` |
 | `api-auth` (BFF) | ECS Fargate | env `OIDC_ISSUER` + `CLIENT_SECRET` injected from Secrets Manager (ADR-019) |
 | `mobile-identity` (Expo) | Expo Go / EAS | `expo start --web` |
 | `sdk-identity-jvm` / `sdk-identity-python` | Maven Central / PyPI | published libraries |
-| IdP | Okta dev tenant | swap issuer + client + audience (below) |
+| IdP | Auth0 tenant | swap issuer + client + audience (below) |
 
 > `terraform/` defines the full stack (VPC, ALB, ECR, ECS Fargate, S3 + CloudFront, Secrets Manager,
 > IAM, ACM + Route53). `.github/workflows/deploy.yml` is the main-only deploy job;
 > `.github/workflows/publish.yml` publishes the two SDKs to Maven Central + PyPI on a version tag.
 
-## Swap Keycloak → Okta
+## Swap Keycloak → Auth0
 
 The SDK and resource server are provider-agnostic (standard OIDC discovery).
 Only the issuer/client change:
 
-1. Point the resource server at Okta: `OIDC_ISSUER=https://<your-okta-domain>/oauth2/default`
-   and `OIDC_AUDIENCE=<your-api-audience>` (JWKS is auto-discovered). Use `api-identity-jvm` /
-   `api-identity-python` and configure the authorization server's Audience to match (ADR-013).
-2. For the SPA, set `authority` + `apiBaseUrl` in `ui-identity/src/assets/config.json` (local) or
-   the `config.json` uploaded to S3 (deployed) — no rebuild.
+1. Point the resource server at Auth0: `OIDC_ISSUER=https://<tenant>.us.auth0.com/` (trailing slash)
+   and `OIDC_AUDIENCE=https://api.ciam-prototype` (JWKS is auto-discovered from the issuer).
+2. For the SPA, set `authority` + `audience` + `apiBaseUrl` in `ui-identity/src/assets/config.json`
+   (local) or the `config.json` uploaded to S3 (deployed) — no rebuild.
 
 ## Tests
 

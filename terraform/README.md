@@ -18,8 +18,8 @@ injects secrets per [ADR-020](../docs/adr/adr-020-free-secret-storage-ssm.md).
 
 ## Prerequisites
 
-- AWS account + credentials (or a GitHub OIDC role for CI).
-- An Okta dev tenant (`oidc_issuer`) and the `api-auth` client secret.
+- AWS account + credentials (long-lived access keys — this account's SCP blocks OIDC federation).
+- An Auth0 tenant (`oidc_issuer`) and the `api-auth` client secret.
 
 ## Cost (free-tier by design)
 
@@ -59,9 +59,9 @@ aws s3 sync ui-identity/dist/ui-identity/browser s3://<spa-bucket> --delete
 
 ## CI/CD
 
-`.github/workflows/deploy.yml` (main only) runs the same steps with OIDC AWS auth. Required
-GitHub config: secret `AWS_ROLE_ARN` (OIDC role) + `OKTA_CLIENT_SECRET`; variables
-`DOMAIN_NAME`, `ROUTE53_ZONE_ID`, `OIDC_ISSUER`.
+`.github/workflows/deploy.yml` (main only) runs the same steps with long-lived AWS access keys.
+Required GitHub config: secrets `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AUTH0_CLIENT_SECRET`;
+variables `OIDC_ISSUER`, `OIDC_AUDIENCE`.
 
 ## Teardown
 

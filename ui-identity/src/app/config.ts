@@ -2,16 +2,18 @@ import { Injectable, signal } from '@angular/core';
 
 /**
  * Runtime configuration loaded from `assets/config.json`. The static S3+CloudFront build
- * stays IdP/host-agnostic: the same bundle is pointed at Keycloak (local) or Okta (prod)
+ * stays IdP/host-agnostic: the same bundle is pointed at Keycloak (local) or Auth0 (prod)
  * by swapping this file — no rebuild (Epic 4, story 1).
  */
 export interface AppConfig {
   authority: string;
+  audience: string;
   apiBaseUrl: string;
 }
 
 export const DEFAULT_CONFIG: AppConfig = {
   authority: 'http://localhost:8080/realms/ciam-demo',
+  audience: '',
   apiBaseUrl: 'http://localhost:4101',
 };
 

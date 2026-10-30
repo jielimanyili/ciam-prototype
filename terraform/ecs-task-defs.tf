@@ -77,7 +77,10 @@ resource "aws_ecs_task_definition" "auth" {
       portMappings = [{ containerPort = local.auth_port, hostPort = local.auth_port, protocol = "tcp" }]
       environment = concat(
         [
-          { name = "OIDC_ISSUER", value = var.oidc_issuer },
+          # BFF: issuer WITHOUT a trailing slash — Spring appends /.well-known/... and a trailing
+          # slash would 404 Auth0's discovery doc. Resource servers keep the full trailing-slash issuer.
+          { name = "OIDC_ISSUER", value = trimsuffix(var.oidc_issuer, "/") },
+          { name = "OIDC_AUDIENCE", value = var.oidc_audience_jvm },
           # BFF proxies downstream to the JVM resource server via the same ALB (context-path /jvm).
           { name = "RESOURCE_SERVER_URL", value = "http://${aws_lb.main.dns_name}/jvm/" },
           { name = "PORT", value = tostring(local.auth_port) },

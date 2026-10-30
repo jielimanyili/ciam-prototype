@@ -1,4 +1,4 @@
-# Runbook — AWS + Okta account setup (M3 live demo)
+# Runbook — AWS + Auth0 account setup (M3 live demo)
 
 The Terraform (`terraform/`) and CI/CD (`.github/workflows/deploy.yml`) are written and validated.
 This runbook is the **only remaining step**: create the two accounts and wire them to the repo so
@@ -56,49 +56,51 @@ aws sts get-caller-identity   # note the 12-digit "Account"
 
 The stack serves everything from one free **`*.cloudfront.net`** URL (no domain purchase, no ACM,
 no Route53). After the first `terraform apply`, run `terraform output cloudfront_domain_name` to get
-it — you'll paste it into Okta as the redirect URI in Part 2.
+it — you'll paste it into Auth0 as the redirect URI in Part 2.
 
 ---
 
-## Part 2 — Okta dev tenant
+## Part 2 — Auth0 tenant
 
 ### 2.1 Sign up (browser)
 
-1. Go to **https://developer.okta.com/signup/** → create a free developer account (no card).
-2. You get a domain **`dev-<id>.okta.com`** and an admin console (check your signup email for the URL).
+1. Go to **https://auth0.com/signup** → *For myself* → free tenant (no card). Okta's free plan now
+   requires a corporate email, so the demo uses Auth0 instead — CIAM-native and Gmail-friendly.
+2. Pick a tenant domain like **`jie-ciam.us.auth0.com`** (can't be changed later) and region `US`.
 
-Your OIDC issuer for the `default` authorization server is:
+Your OIDC issuer is your tenant URL **with a trailing slash** (Auth0's `iss` claim carries it):
 
 ```
-https://dev-<id>.okta.com/oauth2/default
+https://jie-ciam.us.auth0.com/
 ```
 
-Its access-token audience is **`api://default`** (that's the value to use for `OIDC_AUDIENCE`).
+Its access-token audience is the **API identifier** you create in §2.3 (`https://api.ciam-prototype`).
 
-### 2.2 Create the app integrations (Applications → Create App Integration → OIDC)
+### 2.2 Create the applications (Applications → Applications → Create Application)
 
 > `<cloudfront>` = `terraform output cloudfront_domain_name` (run `terraform apply` in Part 3 first
 > if you don't have it yet — the issuer from §2.1 is enough to apply).
 
 | App | Type | Grant | Key settings |
 |---|---|---|---|
-| `ui-identity` | **Single-Page App (SPA)** | Authorization Code **+ PKCE (S256)** | Sign-in redirect URI `https://<cloudfront>/` (and `http://localhost:4200/` for local) |
-| `mobile-identity` | **Native** | Authorization Code **+ PKCE (S256)** | Sign-in redirect `mobileidentity://callback` + `http://localhost:8081` |
-| `api-auth` | **Web** (confidential) | Authorization Code | Client secret (copy it → `OKTA_CLIENT_SECRET`); redirect `https://<cloudfront>/auth/login/oauth2/code/ciam` (+ `http://localhost:4103/login/oauth2/code/ciam`) |
-| `ciam-service` | **Service (Machine-to-Machine)** | Client Credentials | Client secret |
+| `ui-identity` | **Single Page Application** | Authorization Code **+ PKCE** | Allowed Callback `https://<cloudfront>/` (+ `http://localhost:4200/`); Allowed Logout `https://<cloudfront>/`; Allowed Web Origins `https://<cloudfront>/` |
+| `mobile-identity` | **Native** | Authorization Code **+ PKCE** | Allowed Callback `mobileidentity://callback` + `http://localhost:8081` |
+| `api-auth` | **Regular Web Application** | Authorization Code | Token Endpoint Auth = **Post**; Allowed Callback `https://<cloudfront>/auth/login/oauth2/code/ciam` (+ `http://localhost:4103/login/oauth2/code/ciam`); copy the **Client Secret** |
+| `ciam-service` | **Machine to Machine** | Client Credentials | Authorized for the `api-identity` API with the **`admin`** scope |
 
-### 2.3 Audience + admin scope (ADR-013)
+### 2.3 API (audience) + `admin` scope (ADR-013)
 
-- **Audience:** the `default` server emits `aud = api://default`. Set `oidc_audience_jvm` and
-  `oidc_audience_python` to **`api://default`** in `terraform.tfvars` (or create a custom
-  authorization server per API if you want distinct audiences — optional).
-- **`admin` scope** (for the `ciam-service` M2M → `/api/admin`): Security → API → **default** →
-  *Scopes → Add scope* `admin` → then in the `ciam-service` app, *Okta API Scopes* → grant `admin`.
+- **Applications → APIs → Create API** → name `api-identity`, **Identifier** `https://api.ciam-prototype`,
+  signing **RS256**. That identifier is the value for `oidc_audience_jvm` / `oidc_audience_python`
+  and `OIDC_AUDIENCE`.
+- Add an **`admin`** permission: API → **Permissions → Add** → `admin` (used by `ciam-service` → `/api/admin`).
+- The SPA + BFF request this audience in the authorize call, so their access tokens carry
+  `aud = https://api.ciam-prototype`.
 
 ### 2.4 Demo user
 
-Directory → **People** → *Add person* → `demo@example.com` → set a password (or "Send user
-activation email"). This is the account you sign in with during the demo.
+User Management → **Users → Create User** → `demo@example.com` (connection
+`Username-Password-Authentication`) → set a password. This is the account you sign in with.
 
 ---
 
@@ -116,9 +118,9 @@ Fill in:
 | Var | Value |
 |---|---|
 | `region` | `us-east-1` |
-| `oidc_issuer` | `https://dev-<id>.okta.com/oauth2/default` |
-| `oidc_audience_jvm` / `oidc_audience_python` | `api://default` |
-| `api_auth_client_secret` | the `api-auth` client secret from Okta |
+| `oidc_issuer` | `https://jie-ciam.us.auth0.com/` (trailing slash) |
+| `oidc_audience_jvm` / `oidc_audience_python` | `https://api.ciam-prototype` |
+| `api_auth_client_secret` | the `api-auth` client secret from Auth0 |
 | `saml_enabled` | `false` (OIDC-only demo; SAML stays a Keycloak-local feature — Epic 2) |
 
 ### 3.2 GitHub secrets + variables
@@ -131,13 +133,14 @@ Repo → **Settings → Secrets and variables → Actions**.
 |---|---|
 | `AWS_ACCESS_KEY_ID` | the `ciam-admin` access key id (from §1.2) |
 | `AWS_SECRET_ACCESS_KEY` | the `ciam-admin` secret access key |
-| `OKTA_CLIENT_SECRET` | the `api-auth` client secret |
+| `AUTH0_CLIENT_SECRET` | the `api-auth` client secret |
 
 **Variables (repo-level):**
 
 | Name | Value |
 |---|---|
-| `OIDC_ISSUER` | `https://dev-<id>.okta.com/oauth2/default` |
+| `OIDC_ISSUER` | `https://jie-ciam.us.auth0.com/` (trailing slash) |
+| `OIDC_AUDIENCE` | `https://api.ciam-prototype` |
 
 ### 3.3 Deploy
 
@@ -153,7 +156,7 @@ CLOUDFRONT=$(terraform -chdir=terraform output -raw cloudfront_domain_name)
 curl "https://$CLOUDFRONT/jvm/health"            # {"ok":true}
 curl "https://$CLOUDFRONT/python/health"         # {"ok":true}
 curl "https://$CLOUDFRONT/auth/actuator/health"  # {"status":"UP"}
-open "https://$CLOUDFRONT/"                      # Sign in → Okta (demo user) → "Call /api/me"
+open "https://$CLOUDFRONT/"                      # Sign in → Auth0 (demo user) → "Call /api/me"
 ```
 
 ### 3.5 Teardown (do this when not demoing — ADR-016)

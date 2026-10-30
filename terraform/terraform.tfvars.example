@@ -7,14 +7,14 @@ image_tag    = "latest"
 # Free-tier ECS host (750 h/month = $0). Bump to t3.small/medium if the 1 GB instance is too tight.
 instance_type = "t3.micro"
 
-# Okta dev tenant (Epic 4, story 4).
-oidc_issuer          = "https://dev-123456.okta.com/oauth2/default"
-oidc_audience_jvm    = "api://default"
-oidc_audience_python = "api://default"
+# Auth0 tenant (free tier; Epics 4/5). Keep the trailing slash — Auth0's `iss` claim includes it.
+oidc_issuer          = "https://jie-ciam.us.auth0.com/"
+oidc_audience_jvm    = "https://api.ciam-prototype"
+oidc_audience_python = "https://api.ciam-prototype"
 
-# api-auth OIDC client secret — injected into ECS from SSM Parameter Store (ADR-020).
+# api-auth OIDC client secret (Auth0 Regular Web App) — injected into ECS from SSM Parameter Store (ADR-020).
 api_auth_client_secret = "CHANGE_ME"
 
-# SAML (Epic 2) — leave disabled for the OIDC-only Okta demo.
+# SAML (Epic 2) — leave disabled for the OIDC-only Auth0 demo.
 saml_enabled          = false
 saml_idp_metadata_uri = ""

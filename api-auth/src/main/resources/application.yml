@@ -7,17 +7,18 @@ spring:
         registration:
           ciam:
             client-id: api-auth
-            # Injected from AWS Secrets Manager on ECS (ADR-019); local fallback for dev.
+            # Injected from SSM Parameter Store on ECS (ADR-020); local fallback for dev.
             client-secret: ${CLIENT_SECRET:api-auth-secret}
             authorization-grant-type: authorization_code
             scope: openid
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
         provider:
           ciam:
-            authorization-uri: ${OIDC_ISSUER:http://localhost:8080/realms/ciam-demo}/protocol/openid-connect/auth
-            token-uri: ${OIDC_ISSUER:http://localhost:8080/realms/ciam-demo}/protocol/openid-connect/token
-            jwk-set-uri: ${OIDC_ISSUER:http://localhost:8080/realms/ciam-demo}/protocol/openid-connect/certs
-            user-info-uri: ${OIDC_ISSUER:http://localhost:8080/realms/ciam-demo}/protocol/openid-connect/userinfo
+            # OIDC discovery (RFC 8414) — provider-agnostic (Keycloak locally, Auth0 in prod); the
+            # authorize/token/jwks/userinfo endpoints resolve automatically. The BFF receives this
+            # WITHOUT a trailing slash (Terraform trims it) because Spring appends the well-known
+            # path and a trailing slash would 404 Auth0's discovery document.
+            issuer-uri: ${OIDC_ISSUER:http://localhost:8080/realms/ciam-demo}
     # SAML 2.0 SP is configured in code (SamlConfig) — the IdP metadata is resolved there so it
     # can be toggled off for an OIDC-only deploy: set SAML_ENABLED=false (Epic 2).
 
@@ -25,6 +26,8 @@ spring:
 ciam:
   auth:
     resource-server-url: ${RESOURCE_SERVER_URL:http://localhost:4101}
+    # API audience sent in the authorize request so the BFF's access token carries the right `aud`.
+    audience: ${OIDC_AUDIENCE:}
 
 server:
   port: ${PORT:4103}

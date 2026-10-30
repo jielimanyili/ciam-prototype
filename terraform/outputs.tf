@@ -29,7 +29,7 @@ output "cloudfront_distribution_id" {
 }
 
 output "cloudfront_domain_name" {
-  description = "The free *.cloudfront.net domain (for Okta redirect URIs)."
+  description = "The free *.cloudfront.net domain (for Auth0 redirect URIs)."
   value       = aws_cloudfront_distribution.main.domain_name
 }
 
