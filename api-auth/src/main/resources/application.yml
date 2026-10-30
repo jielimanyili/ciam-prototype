@@ -10,6 +10,9 @@ spring:
             # Injected from SSM Parameter Store on ECS (ADR-020); local fallback for dev.
             client-secret: ${CLIENT_SECRET:api-auth-secret}
             authorization-grant-type: authorization_code
+            # Auth0 Regular Web Apps default to client_secret_post (Auth0 Dashboard → the app →
+            # "Token Endpoint Authentication Method" = Post); Spring defaults to basic, so align them.
+            client-authentication-method: client_secret_post
             scope: openid
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
         provider:

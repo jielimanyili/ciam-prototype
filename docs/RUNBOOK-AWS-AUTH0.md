@@ -85,7 +85,7 @@ Its access-token audience is the **API identifier** you create in §2.3 (`https:
 |---|---|---|---|
 | `ui-identity` | **Single Page Application** | Authorization Code **+ PKCE** | Allowed Callback `https://<cloudfront>/` (+ `http://localhost:4200/`); Allowed Logout `https://<cloudfront>/`; Allowed Web Origins `https://<cloudfront>/` |
 | `mobile-identity` | **Native** | Authorization Code **+ PKCE** | Allowed Callback `mobileidentity://callback` + `http://localhost:8081` |
-| `api-auth` | **Regular Web Application** | Authorization Code | Token Endpoint Auth = **Post**; Allowed Callback `https://<cloudfront>/auth/login/oauth2/code/ciam` (+ `http://localhost:4103/login/oauth2/code/ciam`); copy the **Client Secret** |
+| `api-auth` | **Regular Web Application** | Authorization Code | Token Endpoint Auth = **Post** (matches `client-authentication-method: client_secret_post`); Allowed Callback `https://<cloudfront>/auth/login/oauth2/code/ciam` (+ `http://localhost:4103/login/oauth2/code/ciam`); copy the **Client Secret** |
 | `ciam-service` | **Machine to Machine** | Client Credentials | Authorized for the `api-identity` API with the **`admin`** scope |
 
 ### 2.3 API (audience) + `admin` scope (ADR-013)
