@@ -42,21 +42,15 @@ aws configure
 aws sts get-caller-identity   # note the 12-digit "Account"
 ```
 
-### 1.3 Register GitHub Actions OIDC (one command)
+### 1.3 GitHub Actions credentials (long-lived keys)
 
-This lets CI assume an AWS role with **no long-lived keys** (ADR-018). From the repo root:
+> **Note:** this account is a member of an AWS Organization whose Service Control Policy denies
+> `iam:CreateOpenIDConnectProvider`, so the GitHub OIDC federation path can't be used here. The demo
+> falls back to long-lived access keys. (`infra/github-oidc/` remains for accounts without that SCP;
+> `iam:CreateRole` is **not** blocked, so Terraform works fine.)
 
-```bash
-chmod +x infra/github-oidc/setup.sh
-export ACCOUNT_ID=<your-12-digit-account-id>
-infra/github-oidc/setup.sh
-# prints: AWS_ROLE_ARN = arn:aws:iam::<id>:role/github-actions-ciam-deploy
-```
-
-It creates: the `token.actions.githubusercontent.com` OIDC provider · a `github-actions-ciam-deploy`
-role (trust = only the `jielimanyili/ciam-prototype` repo) · a service-scoped `ciam-deploy` policy
-(see `infra/github-oidc/deploy-policy.json`). For a throwaway demo you can instead attach
-`AdministratorAccess` to that role — the scoped policy is the better default (NFR-2).
+1. The `ciam-admin` user already has an access key from §1.2. Keep the **Access Key ID** +
+   **Secret Access Key** handy — they become GitHub secrets in §3.2.
 
 ### 1.4 No domain needed — CloudFront's free URL
 
@@ -135,7 +129,8 @@ Repo → **Settings → Secrets and variables → Actions**.
 
 | Name | Value |
 |---|---|
-| `AWS_ROLE_ARN` | `arn:aws:iam::<id>:role/github-actions-ciam-deploy` (from §1.3) |
+| `AWS_ACCESS_KEY_ID` | the `ciam-admin` access key id (from §1.2) |
+| `AWS_SECRET_ACCESS_KEY` | the `ciam-admin` secret access key |
 | `OKTA_CLIENT_SECRET` | the `api-auth` client secret |
 
 **Variables (repo-level):**
