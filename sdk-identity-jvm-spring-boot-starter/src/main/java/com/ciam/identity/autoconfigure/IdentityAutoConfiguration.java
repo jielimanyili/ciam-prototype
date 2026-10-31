@@ -1,5 +1,9 @@
 package com.ciam.identity.autoconfigure;
 
+import com.ciam.identity.OidcDiscovery;
+import com.ciam.identity.OidcMetadata;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +17,6 @@ import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
@@ -36,11 +39,20 @@ public class IdentityAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public JwtDecoder jwtDecoder(IdentityProperties properties) {
-        // Discovery: Spring resolves {issuer}/.well-known/openid-configuration by appending the path,
-        // so a trailing slash (Auth0's canonical `iss`, e.g. https://tenant.us.auth0.com/) would
-        // produce a double slash → 404. Strip it here for discovery only; the full issuer (trailing
-        // slash included) is still used for the strict `iss` claim check below.
-        NimbusJwtDecoder decoder = JwtDecoders.fromIssuerLocation(properties.getIssuerUri().replaceAll("/+$", ""));
+        // Auth0's canonical issuer carries a trailing slash, which breaks Spring's
+        // JwtDecoders.fromIssuerLocation two ways: (1) a trailing slash makes Spring build a
+        // double-slash discovery URL (404), and (2) it validates that the discovery doc's `issuer`
+        // equals the requested one — Auth0's keeps the slash, so a stripped issuer mismatches.
+        // Discover the JWKS via the SDK (which strips the slash) and validate issuer/audience
+        // ourselves; the full issuer (trailing slash) is used for the strict `iss` claim check.
+        OidcMetadata metadata;
+        try {
+            metadata = OidcDiscovery.discover(properties.getIssuerUri());
+        }
+        catch (IOException | InterruptedException e) {
+            throw new IllegalStateException("OIDC discovery failed for issuer " + properties.getIssuerUri(), e);
+        }
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(metadata.jwksUri()).build();
 
         List<OAuth2TokenValidator<Jwt>> validators = new ArrayList<>();
         validators.add(JwtValidators.createDefaultWithIssuer(properties.getIssuerUri()));

@@ -37,7 +37,8 @@ services:
     plan: free
     envVars:
       - key: OIDC_ISSUER
-        value: https://jie-ciam.us.auth0.com/
+        # BFF: no trailing slash — Spring's issuer-uri appends /.well-known/... and a slash 404s.
+        value: https://jie-ciam.us.auth0.com
       - key: OIDC_AUDIENCE
         value: https://api.ciam-prototype
       - key: CLIENT_SECRET
