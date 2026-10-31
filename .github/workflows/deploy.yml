@@ -3,8 +3,8 @@ name: Deploy (AWS)
 # ADR-018: GitHub Actions is the demo CI/CD. This is the "deploy (main only)" stage of the
 # pipeline — build → push ECR → Terraform apply → S3/CloudFront. Non-main branches skip it.
 on:
-  push:
-    branches: [main]
+  # Manual only until the AWS org SCP is lifted (support case 179339225800653).
+  # The live demo currently runs on the Render/Vercel fallback (ADR-022).
   workflow_dispatch:
 
 permissions:
