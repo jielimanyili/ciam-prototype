@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
+import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -41,7 +42,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                 // The health endpoint must be public for the ALB (AWS) / Render health checks.
-                .requestMatchers(EndpointRequest.toHealthEndpoint()).permitAll()
+                .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
