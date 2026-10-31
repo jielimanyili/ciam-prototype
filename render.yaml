@@ -41,6 +41,9 @@ services:
         value: https://jie-ciam.us.auth0.com
       - key: OIDC_AUDIENCE
         value: https://api.ciam-prototype
+      - key: SAML_ENABLED
+        # OIDC-only demo: don't fetch the (Keycloak-local) SAML IdP metadata at startup.
+        value: "false"
       - key: CLIENT_SECRET
         sync: false
     healthCheckPath: /actuator/health
