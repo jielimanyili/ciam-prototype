@@ -1,36 +1,25 @@
 spring:
   application:
     name: api-auth
-  security:
-    oauth2:
-      client:
-        registration:
-          ciam:
-            client-id: api-auth
-            # Injected from SSM Parameter Store on ECS (ADR-020); local fallback for dev.
-            client-secret: ${CLIENT_SECRET:api-auth-secret}
-            authorization-grant-type: authorization_code
-            # Auth0 Regular Web Apps default to client_secret_post (Auth0 Dashboard → the app →
-            # "Token Endpoint Authentication Method" = Post); Spring defaults to basic, so align them.
-            client-authentication-method: client_secret_post
-            scope: openid
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-        provider:
-          ciam:
-            # OIDC discovery (RFC 8414) — provider-agnostic (Keycloak locally, Auth0 in prod); the
-            # authorize/token/jwks/userinfo endpoints resolve automatically. The BFF receives this
-            # WITHOUT a trailing slash (Terraform trims it) because Spring appends the well-known
-            # path and a trailing slash would 404 Auth0's discovery document.
-            issuer-uri: ${OIDC_ISSUER:http://localhost:8080/realms/ciam-demo}
-    # SAML 2.0 SP is configured in code (SamlConfig) — the IdP metadata is resolved there so it
-    # can be toggled off for an OIDC-only deploy: set SAML_ENABLED=false (Epic 2).
 
-# Downstream resource server the BFF proxies to (server-side token).
+# OIDC client registration is built in code (OidcClientConfig) from the values below — Auth0's
+# trailing-slash `iss` breaks Spring's issuer-uri discovery (ADR-022), so endpoints are explicit.
+# SAML 2.0 SP is configured in code (SamlConfig) — set SAML_ENABLED=false for OIDC-only deploys.
 ciam:
   auth:
+    client-id: api-auth
+    # Injected from SSM Parameter Store on ECS (ADR-020) / Render secret; local fallback for dev.
+    client-secret: ${CLIENT_SECRET:api-auth-secret}
+    # Downstream resource server the BFF proxies to (server-side token).
     resource-server-url: ${RESOURCE_SERVER_URL:http://localhost:4101}
     # API audience sent in the authorize request so the BFF's access token carries the right `aud`.
     audience: ${OIDC_AUDIENCE:}
+    # Auth0 issuer + endpoints (explicit; see OidcClientConfig / ADR-022).
+    issuer: ${CIAM_AUTH_ISSUER:https://jie-ciam.us.auth0.com/}
+    authorization-uri: ${CIAM_AUTH_AUTHORIZATION_URI:https://jie-ciam.us.auth0.com/authorize}
+    token-uri: ${CIAM_AUTH_TOKEN_URI:https://jie-ciam.us.auth0.com/oauth/token}
+    jwk-set-uri: ${CIAM_AUTH_JWKS_URI:https://jie-ciam.us.auth0.com/.well-known/jwks.json}
+    user-info-uri: ${CIAM_AUTH_USERINFO_URI:https://jie-ciam.us.auth0.com/userinfo}
 
 server:
   port: ${PORT:4103}
