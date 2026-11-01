@@ -1,6 +1,5 @@
 package com.ciam.api;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -39,12 +38,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource(
-            @Value("${ciam.cors.allowed-origins:https://ui-identity.onrender.com,http://localhost:4200}") String allowedOrigins) {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        for (String origin : allowedOrigins.split(",")) {
-            config.addAllowedOrigin(origin.trim());
-        }
+        config.addAllowedOrigin("https://ui-identity.onrender.com");
+        config.addAllowedOrigin("http://localhost:4200");
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
