@@ -47,3 +47,12 @@ services:
       - key: CLIENT_SECRET
         sync: false
     healthCheckPath: /actuator/health
+
+  # Static SPA (ADR-022) — build-live.sh writes the Auth0/Render config before the build.
+  - type: web
+    name: ui-identity
+    runtime: static
+    rootDir: ui-identity
+    buildCommand: sh build-live.sh
+    staticPublishPath: ./dist/ui-identity/browser
+    plan: free
