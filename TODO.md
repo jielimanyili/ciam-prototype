@@ -3,6 +3,11 @@
 > 🟢 **LIVE on Render** (ADR-022): SPA (Auth0 PKCE) → JVM + Python `/api/me` (parity) + `/api/admin` 403 (scope enforcement) all verified.
 > AWS path still pending (support case `179339225800653` — SCP lift in review).
 > Full steps: `docs/RUNBOOK-AWS-AUTH0.md` (+ Part 5 for Render).
+>
+> BFF (`api-auth`) proxy note: the public `*.onrender.com` URL is correct — free-tier web services
+> can't receive private-network traffic (and have no Shell access), so Render's internal DNS is NOT
+> reachable. The proxy now tolerates the ~60 s JVM cold start (120 s read timeout) and returns a
+> logged JSON 502/504 on failure instead of an opaque edge 502.
 
 ## Done ✅
 

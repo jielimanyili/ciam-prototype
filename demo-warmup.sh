@@ -2,8 +2,8 @@
 # Warm up the Render free-tier backends before a demo (ADR-022).
 #
 # Render free web services sleep after ~15 min of inactivity; the first request then
-# triggers a ~50s cold start. Run this a minute before demoing, then demonstrate within
-# ~15 minutes (the SPA is a static site and doesn't sleep).
+# triggers a ~50-90 s cold start (the BFF is slowest due to OpenSAML). Run this a couple of
+# minutes before demoing, then demonstrate within ~15 minutes (the SPA is static and doesn't sleep).
 #
 # Usage: sh demo-warmup.sh
 

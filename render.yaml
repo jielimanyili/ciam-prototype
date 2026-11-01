@@ -40,7 +40,9 @@ services:
         # Auth0's random Client ID for the api-auth app (not the display name).
         value: F1oCYtiQQUWc6OBt7CV89QjZ5gV5TXel
       - key: RESOURCE_SERVER_URL
-        # BFF proxies /api/me + /api/claims to the JVM resource server.
+        # BFF proxies /api/me + /api/claims to the JVM resource server. Must stay the PUBLIC
+        # *.onrender.com URL: free-tier web services can't receive private-network traffic, so
+        # Render's internal service-name DNS (http://api-identity-jvm) is NOT reachable here.
         value: https://api-identity-jvm.onrender.com
       - key: OIDC_ISSUER
         # BFF: no trailing slash — Spring's issuer-uri appends /.well-known/... and a slash 404s.

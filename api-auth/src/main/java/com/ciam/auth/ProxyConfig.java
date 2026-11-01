@@ -12,11 +12,15 @@ public class ProxyConfig {
     @Bean
     public RestClient resourceServerRestClient(
             @Value("${ciam.auth.resource-server-url:http://localhost:4101}") String url) {
-        // Explicit timeouts so a slow/unreachable resource server fails fast with a clear
-        // error instead of hanging the request (which surfaces as a 502 at the edge).
+        // Timeouts tuned for Render's free tier (ADR-022). A free web service sleeps after ~15 min
+        // idle and cold-starts in ~50-60 s (JVM) before it can answer, so the read timeout must
+        // exceed that window — otherwise the BFF aborts a legitimate request mid spin-up (which used
+        // to surface as a 502 at the edge with no app log). The connect timeout can stay short: the
+        // public *.onrender.com endpoint is fronted by Render/Cloudflare, which accepts the TCP
+        // connection immediately and holds the request while the upstream boots.
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(10_000);
-        factory.setReadTimeout(30_000);
+        factory.setReadTimeout(120_000);
         return RestClient.builder().baseUrl(url).requestFactory(factory).build();
     }
 }
