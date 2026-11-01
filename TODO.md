@@ -1,6 +1,6 @@
 # TODO — CIAM live demo (pick up here)
 
-> 🟢 **LIVE on Render** (ADR-022 fallback): SPA (Auth0 PKCE) → JVM `/api/me` verified end-to-end.
+> 🟢 **LIVE on Render** (ADR-022): SPA (Auth0 PKCE) → JVM + Python `/api/me` (parity) + `/api/admin` 403 (scope enforcement) all verified.
 > AWS path still pending (support case `179339225800653` — SCP lift in review).
 > Full steps: `docs/RUNBOOK-AWS-AUTH0.md` (+ Part 5 for Render).
 

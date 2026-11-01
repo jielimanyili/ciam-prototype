@@ -47,10 +47,11 @@ public class SecurityConfig {
             )
             .oauth2Login(oauth2 -> oauth2
                 .authorizationEndpoint(aep -> aep.authorizationRequestResolver(authorizationRequestResolver()))
+                .defaultSuccessUrl("/api/me")
             )
             // B2B SSO: SAML 2.0 SP (ADR-004). Spring Security validates the assertion
             // (signature, conditions, audience, destination, InResponseTo) — no hand-rolled XML.
-            .saml2Login(saml2 -> saml2.defaultSuccessUrl("/"))
+            .saml2Login(saml2 -> saml2.defaultSuccessUrl("/api/me"))
             .logout(logout -> logout.logoutSuccessUrl("/"));
         return http.build();
     }
