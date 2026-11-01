@@ -10,6 +10,7 @@ export interface AppConfig {
   clientId: string;
   audience: string;
   apiBaseUrl: string;
+  pythonApiBaseUrl: string;
 }
 
 export const DEFAULT_CONFIG: AppConfig = {
@@ -17,6 +18,7 @@ export const DEFAULT_CONFIG: AppConfig = {
   clientId: 'ui-identity',
   audience: '',
   apiBaseUrl: 'http://localhost:4101',
+  pythonApiBaseUrl: 'http://localhost:4102',
 };
 
 @Injectable({ providedIn: 'root' })

@@ -1,8 +1,8 @@
 # TODO — CIAM live demo (pick up here)
 
-> Last updated: 2026-10-29. AWS + Auth0 accounts are created; the stack is
-> Auth0-native and pushed to `main`. Remaining = Auth0 app setup (browser) +
-> GitHub secrets + deploy. Full steps: `docs/RUNBOOK-AWS-AUTH0.md`.
+> 🟢 **LIVE on Render** (ADR-022 fallback): SPA (Auth0 PKCE) → JVM `/api/me` verified end-to-end.
+> AWS path still pending (support case `179339225800653` — SCP lift in review).
+> Full steps: `docs/RUNBOOK-AWS-AUTH0.md` (+ Part 5 for Render).
 
 ## Done ✅
 

@@ -2,5 +2,6 @@
   "authority": "http://localhost:8080/realms/ciam-demo",
   "clientId": "ui-identity",
   "audience": "",
-  "apiBaseUrl": "http://localhost:4101"
+  "apiBaseUrl": "http://localhost:4101",
+  "pythonApiBaseUrl": "http://localhost:4102"
 }

@@ -23,7 +23,20 @@ export class App {
   readonly apiResult = signal('');
   readonly apiError = signal('');
 
-  async callApi(): Promise<void> {
+  callJvmMe(): void {
+    void this.callApi(this.config.config().apiBaseUrl, '/api/me');
+  }
+
+  callPythonMe(): void {
+    void this.callApi(this.config.config().pythonApiBaseUrl, '/api/me');
+  }
+
+  callAdmin(): void {
+    // The user's token lacks the `admin` scope, so this demonstrates 403 scope enforcement.
+    void this.callApi(this.config.config().apiBaseUrl, '/api/admin');
+  }
+
+  private async callApi(baseUrl: string, path: string): Promise<void> {
     const token = this.auth.accessToken();
     if (!token) {
       this.apiError.set('Not signed in');
@@ -33,7 +46,7 @@ export class App {
     this.apiResult.set('');
     try {
       const res = await firstValueFrom(
-        this.http.get<MeResponse>(`${this.config.config().apiBaseUrl}/api/me`, {
+        this.http.get<MeResponse>(`${baseUrl}${path}`, {
           headers: new HttpHeaders({ Authorization: `Bearer ${token}` }),
         }),
       );
