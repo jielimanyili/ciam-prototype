@@ -55,4 +55,3 @@ services:
     rootDir: ui-identity
     buildCommand: sh build-live.sh
     staticPublishPath: ./dist/ui-identity/browser
-    plan: free
