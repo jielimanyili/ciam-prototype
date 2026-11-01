@@ -13,7 +13,7 @@ export class AuthService {
     if (!this.manager) {
       const settings: UserManagerSettings = {
         authority: this.config.config().authority,
-        client_id: 'ui-identity',
+        client_id: this.config.config().clientId,
         redirect_uri: window.location.origin + '/',
         post_logout_redirect_uri: window.location.origin + '/',
         response_type: 'code',

@@ -7,12 +7,14 @@ import { Injectable, signal } from '@angular/core';
  */
 export interface AppConfig {
   authority: string;
+  clientId: string;
   audience: string;
   apiBaseUrl: string;
 }
 
 export const DEFAULT_CONFIG: AppConfig = {
   authority: 'http://localhost:8080/realms/ciam-demo',
+  clientId: 'ui-identity',
   audience: '',
   apiBaseUrl: 'http://localhost:4101',
 };

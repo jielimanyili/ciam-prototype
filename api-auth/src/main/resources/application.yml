@@ -7,7 +7,7 @@ spring:
 # SAML 2.0 SP is configured in code (SamlConfig) — set SAML_ENABLED=false for OIDC-only deploys.
 ciam:
   auth:
-    client-id: api-auth
+    client-id: ${CIAM_AUTH_CLIENT_ID:api-auth}
     # Injected from SSM Parameter Store on ECS (ADR-020) / Render secret; local fallback for dev.
     client-secret: ${CLIENT_SECRET:api-auth-secret}
     # Downstream resource server the BFF proxies to (server-side token).

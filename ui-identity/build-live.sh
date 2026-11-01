@@ -6,6 +6,7 @@ set -e
 cat > src/assets/config.json <<'EOF'
 {
   "authority": "https://jie-ciam.us.auth0.com/",
+  "clientId": "rpMrST6njiP9pBYhV2sJ69yZnShClETG",
   "audience": "https://api.ciam-prototype",
   "apiBaseUrl": "https://api-identity-jvm.onrender.com"
 }

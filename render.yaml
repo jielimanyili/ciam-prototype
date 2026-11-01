@@ -36,6 +36,9 @@ services:
     dockerContext: ./api-auth
     plan: free
     envVars:
+      - key: CIAM_AUTH_CLIENT_ID
+        # Auth0's random Client ID for the api-auth app (not the display name).
+        value: F1oCYtiQQUWc6OBt7CV89QjZ5gV5TXel
       - key: OIDC_ISSUER
         # BFF: no trailing slash — Spring's issuer-uri appends /.well-known/... and a slash 404s.
         value: https://jie-ciam.us.auth0.com
