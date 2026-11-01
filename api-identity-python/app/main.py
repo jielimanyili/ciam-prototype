@@ -10,6 +10,7 @@ Endpoints are intentionally identical to the Java server (optionally under a
 import os
 
 from fastapi import Depends, FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from ciam_identity import InsufficientScopeError, require_scope
@@ -19,6 +20,14 @@ from .security import get_claims
 PREFIX = os.environ.get("CONTEXT_PATH", "")
 
 app = FastAPI(title="api-identity-python", version="0.1.0")
+
+# CORS — on Render the SPA and API are different origins (ADR-022).
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://ui-identity.onrender.com", "http://localhost:4200"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.exception_handler(InsufficientScopeError)
