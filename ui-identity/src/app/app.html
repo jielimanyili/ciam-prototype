@@ -3,13 +3,30 @@
 
 @if (auth.user(); as u) {
   <p>Signed in as <strong>{{ u.profile.sub }}</strong></p>
-  <button (click)="callJvmMe()">Call /api/me (JVM)</button>
-  <button (click)="callPythonMe()">Call /api/me (Python)</button>
-  <button (click)="callAdmin()">Call /api/admin (expect 403)</button>
-  <button (click)="auth.logout()">Sign out</button>
+  <button (click)="callJvmMe()" [disabled]="pending()" [attr.aria-busy]="pending() === 'jvm'">
+    @if (pending() === 'jvm') { <span class="spinner" aria-hidden="true"></span> }
+    Call /api/me (JVM)
+  </button>
+  <button (click)="callPythonMe()" [disabled]="pending()" [attr.aria-busy]="pending() === 'python'">
+    @if (pending() === 'python') { <span class="spinner" aria-hidden="true"></span> }
+    Call /api/me (Python)
+  </button>
+  <button (click)="callAdmin()" [disabled]="pending()" [attr.aria-busy]="pending() === 'admin'">
+    @if (pending() === 'admin') { <span class="spinner" aria-hidden="true"></span> }
+    Call /api/admin (expect 403)
+  </button>
+  <button (click)="signOut()" [disabled]="pending()" [attr.aria-busy]="pending() === 'logout'">
+    @if (pending() === 'logout') { <span class="spinner" aria-hidden="true"></span> }
+    Sign out
+  </button>
 } @else {
-  <button (click)="auth.login()">Sign in</button>
+  <button (click)="signIn()" [disabled]="pending()" [attr.aria-busy]="pending() === 'login'">
+    @if (pending() === 'login') { <span class="spinner" aria-hidden="true"></span> }
+    Sign in
+  </button>
 }
+
+<p class="status" role="status">{{ pending() ? 'Loading…' : '' }}</p>
 
 @if (auth.error()) {
   <p class="error">{{ auth.error() }}</p>
